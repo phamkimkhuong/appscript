@@ -37,7 +37,7 @@ function apiUpdateAttendanceCell(empId, day, symbol) {
     for (let i = 1; i < data.length; i++) {
       if (data[i][0] === empId) {
         // Cột ngày 1 là cột thứ 4 (index 3 trong 0-index, tức column 4 trong 1-index)
-        const colIndex = 3 + parseInt(day);
+        const colIndex = 3 + Number(day);
         if (colIndex >= 4 && colIndex <= 34) {
           sheet.getRange(i + 1, colIndex).setValue(symbol);
 

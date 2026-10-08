@@ -1,49 +1,91 @@
 # Dự Án Phần Mềm Google Apps Script (GAS)
 
-Tài liệu hướng dẫn khởi động và cấu trúc chuẩn cho dự án phần mềm xây dựng bằng **Google Apps Script**.
+Tài liệu hướng dẫn vận hành, kiến trúc và tra cứu cú pháp lệnh phát triển hệ thống **VinTech Solutions (HRM & E-Office)**.
 
 ---
 
-## 🚀 1. Các Dạng Kiến Trúc Có Thể Triển Khai
-1. **Full-stack Web App (Standalone)**: Giao diện web độc lập (HTML/CSS/JS/Vue/React) + Backend GAS (`doGet`/`doPost` hoặc `google.script.run`).
-2. **Sheet-based Internal Tool**: Tự động hóa bảng tính Google Sheets với Custom Menus, Sidebars, Modals.
-3. **RESTful API / Webhook Endpoint**: Nhận và xử lý dữ liệu qua HTTP GET/POST (nhận webhook Zalo, Telegram, Stripe, ERP...).
+## 🚀 1. Thông Tin Bản Triển Khai (Deployments)
+
+* **Script ID**: `1AJQbcLqs4GcAeZIFey3EVT3tzTp0vc6Tuozhylaqm4DAOCcgItVMiDeq`
+* **Deployment ID Cố Định (Version 3)**: `AKfycbwl4UliPG82gPztpgvmcv7OWsWk4yuPIvx8ysnmVxOdlC6ciQ7jb7LgumtQ1XHnM3CC`
+* **Link Trực Tiếp Cho Khách Hàng (Production)**:
+  👉 [https://script.google.com/macros/s/AKfycbwl4UliPG82gPztpgvmcv7OWsWk4yuPIvx8ysnmVxOdlC6ciQ7jb7LgumtQ1XHnM3CC/exec](https://script.google.com/macros/s/AKfycbwl4UliPG82gPztpgvmcv7OWsWk4yuPIvx8ysnmVxOdlC6ciQ7jb7LgumtQ1XHnM3CC/exec)
+* **Link Kiểm Thử Nhanh Khi Đang Code (Dev Test)**:
+  👉 [https://script.google.com/macros/s/AKfycbyXzdRdSBwjvb1LbqFFMBpfz6QgD39D1ibDGUtIG48/dev](https://script.google.com/macros/s/AKfycbyXzdRdSBwjvb1LbqFFMBpfz6QgD39D1ibDGUtIG48/dev)
+
+## 🔐 2. Danh Sách Tài Khoản Đăng Nhập & Phân Quyền Trải Nghiệm
+
+> 🔑 **Mật khẩu mặc định cho tất cả tài khoản**: `123456`
+
+| STT | Họ và Tên | Email Đăng Nhập | Mật Khẩu | Chức Vụ & Phòng Ban | Vai Trò (Role) | Thẩm Quyền Hệ Thống |
+| :---: | :--- | :--- | :---: | :--- | :---: | :--- |
+| **1** | **Lê Thị Phương** | `phuong.le@vintech.vn` | `123456` | Chuyên viên Lập trình<br>*(Phòng Kỹ thuật)* | `employee`<br>*(Nhân viên)* | • Xem dashboard cá nhân<br>• Tạo đơn xin nghỉ phép, nộp hồ sơ ốm đau<br>• **Bảo mật:** Chỉ xem phiếu lương của chính mình<br>• Không có quyền duyệt đơn |
+| **2** | **Trần Minh Trí** | `tri.tran@vintech.vn` | `123456` | Trưởng phòng Kỹ thuật<br>*(Phòng Kỹ thuật)* | `manager`<br>*(Quản lý)* | • Quản lý nhân sự kỹ thuật<br>• **Phê duyệt đơn xin nghỉ phép** (tự động đồng bộ ký hiệu `P` vào bảng công)<br>• Giao việc và theo dõi tiến độ nhiệm vụ E-Office |
+| **3** | **Nguyễn Thu Hương** | `huong.nguyen@vintech.vn` | `123456` | Kế toán trưởng / HR Lead<br>*(Phòng Kế toán & HR)* | `hr`<br>*(HR / Kế toán)* | • Toàn quyền quản lý Nhân sự (Thêm/Sửa/Khóa nhân sự)<br>• **Phê duyệt hồ sơ ốm đau BHXH** (tự động đồng bộ `O` vào bảng công)<br>• Quản lý và kết xuất **Bảng lương toàn công ty**<br>• Lưu trữ kho văn bản nội bộ |
+| **4** | **Hoàng Khương Duy** | `duy.hoang@vintech.vn` | `123456` | Kỹ sư Hệ thống<br>*(Phòng Kỹ thuật)* | `employee` | • Quyền nhân viên kỹ thuật cơ bản |
+| **5** | **Đinh Thị Huyền Trang** | `trang.dinh@vintech.vn` | `123456` | Chuyên viên Kinh doanh<br>*(Phòng Kinh doanh)* | `employee` | • Quyền nhân viên kinh doanh cơ bản |
 
 ---
 
-## 🛠️ 2. Công Cụ Đề Xuất Cho Lập Trình Chuyên Nghiệp
+## 🛠️ 3. Sổ Tay Cú Pháp Lệnh (Cheat Sheet Cho Developer)
 
-Để code tại VS Code/IDE thay vì web editor của Google:
+Thao tác thực hiện trực tiếp tại thư mục gốc: `d:\a_duan\appscript` (không cần `cd` vào thư mục con).
 
-1. **Cài đặt Google Clasp CLI**:
-   ```bash
-   npm install -g @google/clasp
-   ```
-2. **Đăng nhập Google**:
-   ```bash
-   clasp login
-   ```
-3. **Khởi tạo hoặc Clone dự án**:
-   - Tạo mới: `clasp create --title "My-App" --type webapp`
-   - Kéo code có sẵn: `clasp clone <SCRIPT_ID>`
-4. **Cài đặt Types cho Autocomplete (TypeScript / IntelliSense)**:
-   ```bash
-   npm init -y
-   npm install --save-dev @types/google-apps-script
-   ```
-5. **Đẩy code lên Google Cloud**:
-   ```bash
-   clasp push
-   ```
+### 🔹 Bước 1: Kiểm tra lỗi cú pháp & Type (Tương tự React / Next.js)
+Trước khi push hoặc deploy, quét toàn bộ mã nguồn xem có lỗi cú pháp hoặc gọi sai hàm:
+```bash
+npm run type-check
+```
+* **Ý nghĩa:** Chạy `tsc --noEmit` với từ điển `@types/google-apps-script`. Nếu có lỗi, terminal sẽ chỉ rõ tên file, số dòng và vị trí lỗi.
 
----
+### 🔹 Bước 2: Đẩy code lên Cloud trong lúc đang viết tính năng (Dev Mode)
+Khi bạn sửa HTML, CSS hoặc logic JS và muốn test ngay mà không cần deploy:
+```bash
+clasp push -f
+# hoặc
+npm run push
+```
+* **Cách test:** Mở link đuôi `/dev` ở mục 1 và bấm **F5 (Reload)**. Code mới sẽ cập nhật ngay lập tức.
+* *Lưu ý: Chỉ tài khoản sở hữu Google của bạn mới mở được link `/dev`.*
 
-## ⚠️ 3. Bốn (4) Quy Tắc Sống Còn Khi Viết Code GAS
-1. **Dùng `LockService` khi ghi dữ liệu**: Tránh lỗi xung đột (Race Condition) khi nhiều người dùng cùng thao tác một lúc.
-2. **Batch I/O**: Luôn đọc dữ liệu bằng `getValues()` và ghi bằng `setValues()` theo mảng thay vì đọc/ghi từng dòng.
-3. **Giới hạn thời gian chạy 6 phút**: Với tác vụ nặng, chia nhỏ theo batch và dùng Time-driven Trigger để chạy tiếp.
-4. **Bảo mật Secret Key**: Lưu API key trong `PropertiesService.getScriptProperties()`, không hardcode vào file `.gs`.
+### 🔹 Bước 3: Phát hành bản cập nhật cho Khách hàng (Giữ CỐ ĐỊNH 1 Link Duy Nhất)
+Khi tính năng đã test ổn định và bạn muốn tự mình deploy bàn giao cho khách mà **KHÔNG ĐỔI LINK**:
+```bash
+clasp deploy -i AKfycbwl4UliPG82gPztpgvmcv7OWsWk4yuPIvx8ysnmVxOdlC6ciQ7jb7LgumtQ1XHnM3CC -d "Mô tả nội dung cập nhật"
+```
+* **Kết quả:** Code của Version 3 được ghi đè, khách hàng chỉ cần bấm **F5** trên link `/exec` là thấy giao diện mới.
 
 ---
 
-> Chi tiết phân tích chuyên sâu về kiến trúc, database, quota và quy trình phát triển xem tại tài liệu phân tích hệ thống.
+### 🔹 Các Lệnh Hữu Ích Khác
+
+| Lệnh | Ý nghĩa |
+| :--- | :--- |
+| `npm run type-check` | Quét lỗi tĩnh, type-check toàn bộ dự án với từ điển Google Apps Script |
+| `clasp deployments` | Xem danh sách tất cả các phiên bản triển khai kèm ID |
+| `clasp pull` | Kéo mã nguồn mới nhất từ trên Google Cloud về máy tính cục bộ |
+| `clasp open` | Mở trực tiếp trình soạn thảo Google Apps Script trên trình duyệt web |
+| `clasp logs` | Xem nhật ký thực thi (Logger/Console) thời gian thực của Apps Script |
+| `clasp login` | Đăng nhập tài khoản Google trên máy tính |
+
+---
+
+## 📌 3. Các Quy Tắc Vận Hành Bắt Buộc
+
+1. **Tuyệt đối KHÔNG tự ý `git commit`**:
+   - Developer sẽ tự chủ động kiểm tra và commit code khi thấy phù hợp.
+2. **Tuyệt đối KHÔNG tự ý chạy lệnh `clasp deploy`**:
+   - Developer sẽ tự mình thực hiện các lệnh deploy khi sẵn sàng phát hành.
+3. **KHÔNG chạy trình duyệt tự động (Browser Subagent)**:
+   - Developer sẽ tự mở và kiểm thử trực tiếp trên trình duyệt của mình.
+4. **Phạm vi nhiệm vụ của AI Assistant**:
+   - Tập trung vào phân tích nghiệp vụ, tối ưu kiến trúc, viết mã nguồn backend, hoàn thiện giao diện và chỉnh sửa chức năng phần mềm theo yêu cầu.
+
+---
+
+## ⚠️ 4. Bốn (4) Quy Tắc Sống Còn Khi Viết Code GAS
+
+1. **Dùng `LockService` khi ghi dữ liệu**: Tránh xung đột (Race Condition) khi nhiều người dùng cùng nộp hoặc duyệt đơn một lúc.
+2. **Batch I/O**: Luôn đọc dữ liệu bằng `getValues()` và ghi bằng `setValues()` theo mảng thay vì đọc/ghi từng ô riêng lẻ.
+3. **Giới hạn thời gian chạy 6 phút**: Với tác vụ nặng, xử lý theo batch hoặc sử dụng Time-driven Trigger.
+4. **Bảo mật Secret Key**: Lưu ID và cấu hình nhạy cảm trong `PropertiesService.getScriptProperties()`.

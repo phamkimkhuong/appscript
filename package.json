@@ -1,0 +1,26 @@
+{
+  "name": "appscript",
+  "version": "1.0.0",
+  "description": "Tài liệu hướng dẫn vận hành, kiến trúc và tra cứu cú pháp lệnh phát triển hệ thống **VinTech Solutions (HRM & E-Office)**.",
+  "main": "Attendance.js",
+  "scripts": {
+    "type-check": "tsc -p jsconfig.json --noEmit",
+    "push": "clasp push -f"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/phamkimkhuong/appscript.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/phamkimkhuong/appscript/issues"
+  },
+  "homepage": "https://github.com/phamkimkhuong/appscript#readme",
+  "devDependencies": {
+    "@types/google-apps-script": "^2.0.13",
+    "typescript": "^7.0.2"
+  }
+}

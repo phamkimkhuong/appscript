@@ -1,0 +1,312 @@
+<!-- ============================================================= -->
+<!-- MODALS & OVERLAYS -->
+<!-- ============================================================= -->
+
+<!-- MODAL 1: THÊM / SỬA NHÂN VIÊN (EMPLOYEE MODAL) -->
+<div id="modal-employee"
+  class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+  <div
+    class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto">
+    <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+      <h3 id="modal-employee-title" class="text-base font-bold text-slate-900">Thêm Nhân Sự Mới</h3>
+      <button onclick="closeModal('modal-employee')" class="text-slate-400 hover:text-slate-600"><i
+          class="fa-solid fa-xmark"></i></button>
+    </div>
+    <form onsubmit="handleSaveEmployee(event)" class="mt-4 space-y-3.5 text-xs">
+      <input type="hidden" id="emp-form-mode" value="add">
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Mã nhân viên</label>
+          <input type="text" id="emp-form-id" placeholder="VT-006..." required
+            class="w-full border border-slate-300 rounded-lg px-3 py-2">
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Họ và Tên</label>
+          <input type="text" id="emp-form-name" placeholder="Nguyễn Văn A..." required
+            class="w-full border border-slate-300 rounded-lg px-3 py-2">
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Email nội bộ</label>
+          <input type="email" id="emp-form-email" placeholder="a.nguyen@vintech.vn..." required
+            class="w-full border border-slate-300 rounded-lg px-3 py-2">
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Số điện thoại</label>
+          <input type="text" id="emp-form-phone" placeholder="0901234567..."
+            class="w-full border border-slate-300 rounded-lg px-3 py-2">
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Phòng ban</label>
+          <select id="emp-form-dept" class="w-full border border-slate-300 rounded-lg px-3 py-2 bg-white">
+            <option value="Kỹ thuật">Kỹ thuật</option>
+            <option value="Kế toán">Kế toán</option>
+            <option value="Kinh doanh">Kinh doanh</option>
+            <option value="Nhân sự">Nhân sự</option>
+          </select>
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Chức vụ / Vị trí</label>
+          <input type="text" id="emp-form-title" placeholder="Kỹ sư phần mềm..." required
+            class="w-full border border-slate-300 rounded-lg px-3 py-2">
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Vai trò hệ thống</label>
+          <select id="emp-form-role" class="w-full border border-slate-300 rounded-lg px-3 py-2 bg-white">
+            <option value="employee">Nhân viên (Quyền cơ bản)</option>
+            <option value="manager">Quản lý (Duyệt đơn nghỉ)</option>
+            <option value="hr">HR / Kế toán (Duyệt BHXH & Lương)</option>
+          </select>
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Lương cơ bản (VND)</label>
+          <input type="number" id="emp-form-salary" value="15000000" step="500000" required
+            class="w-full border border-slate-300 rounded-lg px-3 py-2">
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Trạng thái</label>
+          <select id="emp-form-status" class="w-full border border-slate-300 rounded-lg px-3 py-2 bg-white">
+            <option value="Đang làm việc">Đang làm việc</option>
+            <option value="Đã nghỉ việc">Đã nghỉ việc</option>
+          </select>
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Ngày vào làm</label>
+          <input type="text" id="emp-form-date" value="08/10/2026"
+            class="w-full border border-slate-300 rounded-lg px-3 py-2">
+        </div>
+      </div>
+
+      <div class="pt-3 border-t border-slate-100 flex justify-end space-x-2">
+        <button type="button" onclick="closeModal('modal-employee')"
+          class="px-4 py-2 border border-slate-300 rounded-xl text-slate-600 font-semibold">Hủy</button>
+        <button type="submit"
+          class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-semibold shadow-md">Lưu Nhân
+          Viên</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- MODAL 2: GIAO VIỆC MỚI (TASK MODAL) -->
+<div id="modal-task"
+  class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+  <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200">
+    <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+      <h3 class="text-base font-bold text-slate-900">Giao Việc & Phân Công Nhiệm Vụ</h3>
+      <button onclick="closeModal('modal-task')" class="text-slate-400 hover:text-slate-600"><i
+          class="fa-solid fa-xmark"></i></button>
+    </div>
+    <form onsubmit="handleSaveTask(event)" class="mt-4 space-y-3.5 text-xs">
+      <div>
+        <label class="block font-semibold text-slate-700 mb-1">Tiêu đề công việc</label>
+        <input type="text" id="task-form-title" placeholder="Rà soát báo cáo tài chính..." required
+          class="w-full border border-slate-300 rounded-lg px-3 py-2">
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Loại công việc</label>
+          <select id="task-form-type" class="w-full border border-slate-300 rounded-lg px-3 py-2 bg-white">
+            <option value="Dự án">Dự án</option>
+            <option value="Hành chính">Hành chính</option>
+            <option value="Kỹ thuật">Kỹ thuật</option>
+          </select>
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Người phụ trách</label>
+          <select id="task-form-assignee" class="w-full border border-slate-300 rounded-lg px-3 py-2 bg-white">
+            <!-- Dynamically populated -->
+          </select>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div><label class="block font-semibold text-slate-700 mb-1">Ngày bắt đầu</label><input type="date"
+            id="task-form-start" value="2026-10-08" required
+            class="w-full border border-slate-300 rounded-lg px-3 py-2"></div>
+        <div><label class="block font-semibold text-slate-700 mb-1">Hạn chót (Deadline)</label><input type="date"
+            id="task-form-deadline" value="2026-10-25" required
+            class="w-full border border-slate-300 rounded-lg px-3 py-2"></div>
+      </div>
+      <div>
+        <label class="block font-semibold text-slate-700 mb-1">Ghi chú & Yêu cầu cụ thể</label>
+        <textarea id="task-form-note" rows="2" placeholder="Chi tiết yêu cầu..."
+          class="w-full border border-slate-300 rounded-lg p-2.5"></textarea>
+      </div>
+      <div class="pt-3 flex justify-end space-x-2">
+        <button type="button" onclick="closeModal('modal-task')"
+          class="px-4 py-2 border border-slate-300 rounded-xl text-slate-600 font-semibold">Hủy</button>
+        <button type="submit"
+          class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-semibold">Giao Việc</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- MODAL 3: THÊM VĂN BẢN (DOCUMENT MODAL) -->
+<div id="modal-doc"
+  class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+  <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200">
+    <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+      <h3 class="text-base font-bold text-slate-900">Lưu Trữ Văn Bản & Quy Chế Mới</h3>
+      <button onclick="closeModal('modal-doc')" class="text-slate-400 hover:text-slate-600"><i
+          class="fa-solid fa-xmark"></i></button>
+    </div>
+    <form onsubmit="handleSaveDoc(event)" class="mt-4 space-y-3.5 text-xs">
+      <div class="grid grid-cols-2 gap-3">
+        <div><label class="block font-semibold text-slate-700 mb-1">Số hiệu</label><input type="text" id="doc-form-id"
+            placeholder="05/2026/QĐ-VT" required class="w-full border border-slate-300 rounded-lg px-3 py-2"></div>
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Loại văn bản</label>
+          <select id="doc-form-type" class="w-full border border-slate-300 rounded-lg px-3 py-2 bg-white">
+            <option value="Quy chế nội bộ">Quy chế nội bộ</option>
+            <option value="Văn bản pháp luật">Văn bản pháp luật</option>
+            <option value="Thông báo">Thông báo</option>
+            <option value="Quyết định">Quyết định</option>
+          </select>
+        </div>
+      </div>
+      <div>
+        <label class="block font-semibold text-slate-700 mb-1">Trích yếu / Tiêu đề văn bản</label>
+        <input type="text" id="doc-form-title" placeholder="Quy định sử dụng tài sản doanh nghiệp..." required
+          class="w-full border border-slate-300 rounded-lg px-3 py-2">
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div><label class="block font-semibold text-slate-700 mb-1">Cơ quan / Người ký</label><input type="text"
+            id="doc-form-issuer" placeholder="Tổng Giám Đốc" required
+            class="w-full border border-slate-300 rounded-lg px-3 py-2"></div>
+        <div><label class="block font-semibold text-slate-700 mb-1">Link tài liệu (Drive/Web)</label><input
+            type="text" id="doc-form-url" value="https://drive.google.com/sample.pdf"
+            class="w-full border border-slate-300 rounded-lg px-3 py-2"></div>
+      </div>
+      <div class="pt-3 flex justify-end space-x-2">
+        <button type="button" onclick="closeModal('modal-doc')"
+          class="px-4 py-2 border border-slate-300 rounded-xl text-slate-600 font-semibold">Hủy</button>
+        <button type="submit"
+          class="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-xl font-semibold">Lưu Văn Bản</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- MODAL 4: ĐƠN NGHỈ PHÉP -->
+<div id="modal-leave"
+  class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+  <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200">
+    <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+      <h3 class="text-base font-bold text-slate-900">Tạo Đơn Xin Nghỉ Phép</h3>
+      <button onclick="closeModal('modal-leave')" class="text-slate-400 hover:text-slate-600"><i
+          class="fa-solid fa-xmark"></i></button>
+    </div>
+    <form id="form-leave" onsubmit="handleCreateLeave(event)" class="mt-4 space-y-3.5 text-xs">
+      <div>
+        <label class="block font-semibold text-slate-700 mb-1">Nhân viên làm đơn</label>
+        <input type="text" id="leave-emp-name" readonly
+          class="w-full bg-slate-100 border border-slate-200 rounded-lg px-3 py-2 text-slate-600 font-medium">
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Loại nghỉ</label>
+          <select id="leave-type" class="w-full border border-slate-300 rounded-lg px-3 py-2 bg-white">
+            <option value="Nghỉ phép năm">Nghỉ phép năm (hưởng lương)</option>
+            <option value="Việc riêng">Việc riêng (không lương)</option>
+          </select>
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Số ngày</label>
+          <input type="number" id="leave-days" value="2" min="1" max="10" required
+            class="w-full border border-slate-300 rounded-lg px-3 py-2">
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div><label class="block font-semibold text-slate-700 mb-1">Từ ngày</label><input type="date" id="leave-from"
+            value="2026-10-10" required class="w-full border border-slate-300 rounded-lg px-3 py-2"></div>
+        <div><label class="block font-semibold text-slate-700 mb-1">Đến ngày</label><input type="date" id="leave-to"
+            value="2026-10-11" required class="w-full border border-slate-300 rounded-lg px-3 py-2"></div>
+      </div>
+      <div>
+        <label class="block font-semibold text-slate-700 mb-1">Lý do nghỉ cụ thể</label>
+        <textarea id="leave-reason" rows="2" placeholder="Ghi rõ lý do..." required
+          class="w-full border border-slate-300 rounded-lg p-2.5"></textarea>
+      </div>
+      <div class="pt-3 flex justify-end space-x-2">
+        <button type="button" onclick="closeModal('modal-leave')"
+          class="px-4 py-2 border border-slate-300 rounded-xl text-slate-600 font-semibold">Hủy</button>
+        <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-semibold">Gửi
+          Đơn Duyệt</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- MODAL 5: PHIẾU LƯƠNG CÁ NHÂN -->
+<div id="modal-payslip"
+  class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+  <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200">
+    <div class="flex items-center justify-between pb-3 border-b border-slate-200">
+      <div>
+        <h3 class="text-base font-bold text-slate-900">PHIẾU LƯƠNG THÁNG 10/2026</h3>
+        <p class="text-xs text-slate-500">VinTech Solutions JSC</p>
+      </div>
+      <button onclick="closeModal('modal-payslip')" class="text-slate-400 hover:text-slate-600"><i
+          class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div id="payslip-content" class="py-4 text-xs space-y-3"></div>
+    <div class="pt-3 border-t border-slate-200 flex justify-end">
+      <button onclick="closeModal('modal-payslip')"
+        class="px-4 py-2 border border-slate-300 rounded-xl text-slate-600 font-semibold text-xs">Đóng</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL 6: HỒ SƠ ỐM ĐAU -->
+<div id="modal-sick"
+  class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+  <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200">
+    <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+      <h3 class="text-base font-bold text-slate-900">Nộp Hồ Sơ Nghỉ Ốm (BHXH)</h3>
+      <button onclick="closeModal('modal-sick')" class="text-slate-400 hover:text-slate-600"><i
+          class="fa-solid fa-xmark"></i></button>
+    </div>
+    <form onsubmit="handleCreateSick(event)" class="mt-4 space-y-3.5 text-xs">
+      <div>
+        <label class="block font-semibold text-slate-700 mb-1">Cơ sở khám bệnh / Bệnh viện</label>
+        <input type="text" id="sick-hospital" placeholder="Bệnh viện Bạch Mai..." required
+          class="w-full border border-slate-300 rounded-lg px-3 py-2">
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div><label class="block font-semibold text-slate-700 mb-1">Từ ngày</label><input type="date" id="sick-from"
+            value="2026-10-12" required class="w-full border border-slate-300 rounded-lg px-3 py-2"></div>
+        <div><label class="block font-semibold text-slate-700 mb-1">Đến ngày</label><input type="date" id="sick-to"
+            value="2026-10-13" required class="w-full border border-slate-300 rounded-lg px-3 py-2"></div>
+      </div>
+      <div class="p-3 border border-dashed border-slate-300 rounded-xl bg-slate-50 text-center">
+        <i class="fa-solid fa-file-pdf text-rose-500 text-lg mb-1"></i>
+        <p class="text-[11px] text-slate-500">Giấy_chứng_nhận_nghi_BHXH_BV_BachMai.pdf (Chứng từ hợp lệ)</p>
+      </div>
+      <div class="pt-3 flex justify-end space-x-2">
+        <button type="button" onclick="closeModal('modal-sick')"
+          class="px-4 py-2 border border-slate-300 rounded-xl text-slate-600 font-semibold">Hủy</button>
+        <button type="submit" class="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white rounded-xl font-semibold">Nộp
+          Hồ Sơ</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- TOAST NOTIFICATION -->
+<div id="toast"
+  class="fixed bottom-5 right-5 z-50 transform transition-all duration-300 translate-y-20 opacity-0 pointer-events-none flex items-center space-x-3 bg-slate-900 text-white px-4 py-3 rounded-xl shadow-2xl border border-slate-700">
+  <div id="toast-icon" class="text-emerald-400 text-base"><i class="fa-solid fa-circle-check"></i></div>
+  <div id="toast-msg" class="text-sm font-medium">Thao tác thành công!</div>
+</div>

@@ -1,0 +1,16 @@
+**/**
+!appsscript.json
+!*.js
+!*.gs
+!*.html
+
+# Bỏ qua các file cấu hình và thư viện local, không đẩy lên Google Cloud
+node_modules/**
+package.json
+package-lock.json
+jsconfig.json
+tsconfig.json
+.git/**
+.gitignore
+README.md
+hrm_eoffice/**

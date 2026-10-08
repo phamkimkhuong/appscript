@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,7 +8,8 @@
   <!-- Google Fonts: Inter -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- FontAwesome Icons -->
@@ -16,34 +18,85 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
-    body { font-family: 'Inter', sans-serif; }
-    ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track { background: #f1f5f9; }
-    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
-    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-    .matrix-cell { min-width: 32px; max-width: 32px; height: 32px; font-size: 11px; }
-    .cell-x { background-color: #f1f5f9; color: #334155; font-weight: 600; }
-    .cell-p { background-color: #dbeafe; color: #1d4ed8; font-weight: 700; }
-    .cell-o { background-color: #ffedd5; color: #c2410c; font-weight: 700; }
-    .cell-l { background-color: #f3e8ff; color: #7e22ce; font-weight: 700; }
-    .cell-cn { background-color: #fee2e2; color: #b91c1c; font-weight: 600; }
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 3px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+
+    .matrix-cell {
+      min-width: 32px;
+      max-width: 32px;
+      height: 32px;
+      font-size: 11px;
+    }
+
+    .cell-x {
+      background-color: #f1f5f9;
+      color: #334155;
+      font-weight: 600;
+    }
+
+    .cell-p {
+      background-color: #dbeafe;
+      color: #1d4ed8;
+      font-weight: 700;
+    }
+
+    .cell-o {
+      background-color: #ffedd5;
+      color: #c2410c;
+      font-weight: 700;
+    }
+
+    .cell-l {
+      background-color: #f3e8ff;
+      color: #7e22ce;
+      font-weight: 700;
+    }
+
+    .cell-cn {
+      background-color: #fee2e2;
+      color: #b91c1c;
+      font-weight: 600;
+    }
   </style>
 </head>
+
 <body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col">
 
   <!-- ============================================================= -->
   <!-- 1. MÀN HÌNH ĐĂNG NHẬP CHUẨN DOANH NGHIỆP (LOGIN SCREEN) -->
   <!-- ============================================================= -->
   <div id="screen-login" class="fixed inset-0 z-50 bg-slate-950 flex items-center justify-center p-4">
-    <div class="max-w-md w-full bg-slate-900 border border-slate-800 rounded-3xl p-8 shadow-2xl relative overflow-hidden">
-      
+    <div
+      class="max-w-md w-full bg-slate-900 border border-slate-800 rounded-3xl p-8 shadow-2xl relative overflow-hidden">
+
       <!-- Glow Effects -->
       <div class="absolute -top-24 -left-24 w-48 h-48 bg-blue-600/20 rounded-full blur-3xl pointer-events-none"></div>
-      <div class="absolute -bottom-24 -right-24 w-48 h-48 bg-indigo-600/20 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute -bottom-24 -right-24 w-48 h-48 bg-indigo-600/20 rounded-full blur-3xl pointer-events-none">
+      </div>
 
       <!-- Brand Header -->
       <div class="text-center mb-8 relative">
-        <div class="h-14 w-14 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-500 mx-auto flex items-center justify-center shadow-lg shadow-blue-500/30 mb-3">
+        <div
+          class="h-14 w-14 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-500 mx-auto flex items-center justify-center shadow-lg shadow-blue-500/30 mb-3">
           <i class="fa-solid fa-building-user text-white text-2xl"></i>
         </div>
         <h1 class="text-xl font-bold text-white tracking-tight">VinTech Solutions</h1>
@@ -56,7 +109,8 @@
           <label class="block text-xs font-semibold text-slate-300 mb-1.5">Tài khoản / Email nội bộ</label>
           <div class="relative">
             <i class="fa-regular fa-envelope absolute left-3.5 top-3 text-slate-500 text-xs"></i>
-            <input type="text" id="login-username" required placeholder="phuong.le@vintech.vn" class="w-full bg-slate-800/80 border border-slate-700 rounded-xl pl-9 pr-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            <input type="text" id="login-username" required placeholder="phuong.le@vintech.vn"
+              class="w-full bg-slate-800/80 border border-slate-700 rounded-xl pl-9 pr-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
           </div>
         </div>
 
@@ -64,59 +118,16 @@
           <label class="block text-xs font-semibold text-slate-300 mb-1.5">Mật khẩu</label>
           <div class="relative">
             <i class="fa-solid fa-lock absolute left-3.5 top-3 text-slate-500 text-xs"></i>
-            <input type="password" id="login-password" required value="123456" placeholder="••••••••" class="w-full bg-slate-800/80 border border-slate-700 rounded-xl pl-9 pr-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            <input type="password" id="login-password" required value="123456" placeholder="••••••••"
+              class="w-full bg-slate-800/80 border border-slate-700 rounded-xl pl-9 pr-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
           </div>
         </div>
 
-        <button type="submit" id="btn-login-submit" class="w-full py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold shadow-lg shadow-blue-600/30 transition duration-150 flex items-center justify-center space-x-2">
+        <button type="submit" id="btn-login-submit"
+          class="w-full py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold shadow-lg shadow-blue-600/30 transition duration-150 flex items-center justify-center space-x-2">
           <span>Đăng Nhập Hệ Thống</span>
         </button>
       </form>
-
-      <!-- Quick Demo Account Fill -->
-      <div class="mt-6 pt-5 border-t border-slate-800/80 relative text-left">
-        <div class="flex items-center justify-between mb-2.5">
-          <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Tài khoản mẫu trải nghiệm:</span>
-          <span class="text-[10px] text-slate-500">(Bấm để điền nhanh)</span>
-        </div>
-        <div class="grid grid-cols-1 gap-2">
-          
-          <button type="button" onclick="fillAndLogin('phuong.le@vintech.vn')" class="p-2.5 rounded-xl bg-slate-800/50 hover:bg-slate-800 border border-slate-700/60 text-left flex items-center justify-between transition group">
-            <div class="flex items-center space-x-2.5">
-              <div class="w-7 h-7 rounded-lg bg-blue-500/10 text-blue-400 flex items-center justify-center text-xs"><i class="fa-solid fa-user"></i></div>
-              <div>
-                <div class="text-xs font-bold text-white group-hover:text-blue-400 transition">1. Lê Thị Phương</div>
-                <div class="text-[10px] text-slate-400">Nhân viên Kỹ thuật (Quyền nhân viên cơ bản)</div>
-              </div>
-            </div>
-            <i class="fa-solid fa-arrow-right text-slate-600 group-hover:text-white text-xs transition"></i>
-          </button>
-
-          <button type="button" onclick="fillAndLogin('tri.tran@vintech.vn')" class="p-2.5 rounded-xl bg-slate-800/50 hover:bg-slate-800 border border-slate-700/60 text-left flex items-center justify-between transition group">
-            <div class="flex items-center space-x-2.5">
-              <div class="w-7 h-7 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center text-xs"><i class="fa-solid fa-user-tie"></i></div>
-              <div>
-                <div class="text-xs font-bold text-white group-hover:text-amber-400 transition">2. Trần Minh Trí</div>
-                <div class="text-[10px] text-slate-400">Trưởng phòng (Quản lý & Duyệt đơn nghỉ phép)</div>
-              </div>
-            </div>
-            <i class="fa-solid fa-arrow-right text-slate-600 group-hover:text-white text-xs transition"></i>
-          </button>
-
-          <button type="button" onclick="fillAndLogin('huong.nguyen@vintech.vn')" class="p-2.5 rounded-xl bg-slate-800/50 hover:bg-slate-800 border border-slate-700/60 text-left flex items-center justify-between transition group">
-            <div class="flex items-center space-x-2.5">
-              <div class="w-7 h-7 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-xs"><i class="fa-solid fa-shield-halved"></i></div>
-              <div>
-                <div class="text-xs font-bold text-white group-hover:text-emerald-400 transition">3. Nguyễn Thu Hương</div>
-                <div class="text-[10px] text-slate-400">Kế toán trưởng / HR Lead (Duyệt BHXH & Quản lý Lương)</div>
-              </div>
-            </div>
-            <i class="fa-solid fa-arrow-right text-slate-600 group-hover:text-white text-xs transition"></i>
-          </button>
-
-        </div>
-      </div>
-
     </div>
   </div>
 
@@ -124,20 +135,23 @@
   <!-- 2. GIAO DIỆN CHÍNH DOANH NGHIỆP (MAIN APP SCREEN) -->
   <!-- ============================================================= -->
   <div id="screen-app" class="flex-col min-h-screen hidden">
-    
+
     <!-- Topbar chuẩn Corporate SaaS -->
     <header class="bg-slate-900 border-b border-slate-800 text-white sticky top-0 z-40 shadow-sm">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-        
+
         <!-- Brand & Company -->
         <div class="flex items-center space-x-3">
-          <div class="h-9 w-9 rounded-lg bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center shadow-lg shadow-blue-500/30">
+          <div
+            class="h-9 w-9 rounded-lg bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center shadow-lg shadow-blue-500/30">
             <i class="fa-solid fa-building-user text-white text-base"></i>
           </div>
           <div>
             <div class="flex items-center space-x-2">
               <span class="font-bold text-base tracking-tight text-white">VinTech Solutions</span>
-              <span class="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/30">HRM & E-Office</span>
+              <span
+                class="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/30">HRM
+                & E-Office</span>
             </div>
             <p class="text-[11px] text-slate-400">Hệ Thống Quản Trị Doanh Nghiệp Toàn Diện</p>
           </div>
@@ -145,7 +159,8 @@
 
         <!-- Sync Indicator & Profile Menu -->
         <div class="flex items-center space-x-4">
-          <div id="sync-status" class="hidden sm:flex items-center space-x-1.5 text-[11px] text-emerald-400 bg-emerald-950/40 border border-emerald-800/40 px-2.5 py-1 rounded-full">
+          <div id="sync-status"
+            class="hidden sm:flex items-center space-x-1.5 text-[11px] text-emerald-400 bg-emerald-950/40 border border-emerald-800/40 px-2.5 py-1 rounded-full">
             <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
             <span>Google Sheets Connected</span>
           </div>
@@ -160,7 +175,8 @@
           </div>
 
           <!-- Nút Đăng xuất -->
-          <button onclick="handleLogout()" title="Đăng xuất tài khoản" class="text-xs bg-slate-800 hover:bg-rose-900/40 text-slate-300 hover:text-rose-300 border border-slate-700 hover:border-rose-500/50 px-3 py-1.5 rounded-xl flex items-center space-x-1.5 transition">
+          <button onclick="handleLogout()" title="Đăng xuất tài khoản"
+            class="text-xs bg-slate-800 hover:bg-rose-900/40 text-slate-300 hover:text-rose-300 border border-slate-700 hover:border-rose-500/50 px-3 py-1.5 rounded-xl flex items-center space-x-1.5 transition">
             <i class="fa-solid fa-arrow-right-from-bracket"></i>
             <span class="hidden sm:inline">Đăng Xuất</span>
           </button>
@@ -173,37 +189,47 @@
     <div class="bg-white border-b border-slate-200 shadow-sm sticky top-16 z-30">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <nav class="flex space-x-1 sm:space-x-3 overflow-x-auto py-2" id="nav-tabs">
-          <button onclick="switchTab('dashboard')" id="tab-btn-dashboard" class="nav-tab active px-3.5 py-2 rounded-lg text-sm font-semibold flex items-center space-x-2 text-blue-600 bg-blue-50">
+          <button onclick="switchTab('dashboard')" id="tab-btn-dashboard"
+            class="nav-tab active px-3.5 py-2 rounded-lg text-sm font-semibold flex items-center space-x-2 text-blue-600 bg-blue-50">
             <i class="fa-solid fa-chart-pie text-sm"></i>
             <span>Tổng Quan</span>
           </button>
-          <button onclick="switchTab('employees')" id="tab-btn-employees" class="nav-tab px-3.5 py-2 rounded-lg text-sm font-semibold flex items-center space-x-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100">
+          <button onclick="switchTab('employees')" id="tab-btn-employees"
+            class="nav-tab px-3.5 py-2 rounded-lg text-sm font-semibold flex items-center space-x-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100">
             <i class="fa-solid fa-users text-sm"></i>
             <span>Nhân Sự</span>
           </button>
-          <button onclick="switchTab('timesheet')" id="tab-btn-timesheet" class="nav-tab px-3.5 py-2 rounded-lg text-sm font-semibold flex items-center space-x-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100">
+          <button onclick="switchTab('timesheet')" id="tab-btn-timesheet"
+            class="nav-tab px-3.5 py-2 rounded-lg text-sm font-semibold flex items-center space-x-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100">
             <i class="fa-solid fa-calendar-check text-sm"></i>
             <span>Bảng Chấm Công</span>
           </button>
-          <button onclick="switchTab('leave')" id="tab-btn-leave" class="nav-tab px-3.5 py-2 rounded-lg text-sm font-semibold flex items-center space-x-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100">
+          <button onclick="switchTab('leave')" id="tab-btn-leave"
+            class="nav-tab px-3.5 py-2 rounded-lg text-sm font-semibold flex items-center space-x-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100">
             <i class="fa-solid fa-file-signature text-sm"></i>
             <span>Xin Nghỉ Phép</span>
-            <span id="leave-pending-badge" class="ml-1 text-[10px] px-1.5 py-0.2 rounded-full bg-amber-500 text-white font-bold hidden">0</span>
+            <span id="leave-pending-badge"
+              class="ml-1 text-[10px] px-1.5 py-0.2 rounded-full bg-amber-500 text-white font-bold hidden">0</span>
           </button>
-          <button onclick="switchTab('sick')" id="tab-btn-sick" class="nav-tab px-3.5 py-2 rounded-lg text-sm font-semibold flex items-center space-x-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100">
+          <button onclick="switchTab('sick')" id="tab-btn-sick"
+            class="nav-tab px-3.5 py-2 rounded-lg text-sm font-semibold flex items-center space-x-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100">
             <i class="fa-solid fa-briefcase-medical text-sm"></i>
             <span>Hồ Sơ Ốm Đau (BHXH)</span>
-            <span id="sick-pending-badge" class="ml-1 text-[10px] px-1.5 py-0.2 rounded-full bg-rose-500 text-white font-bold hidden">0</span>
+            <span id="sick-pending-badge"
+              class="ml-1 text-[10px] px-1.5 py-0.2 rounded-full bg-rose-500 text-white font-bold hidden">0</span>
           </button>
-          <button onclick="switchTab('payroll')" id="tab-btn-payroll" class="nav-tab px-3.5 py-2 rounded-lg text-sm font-semibold flex items-center space-x-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100">
+          <button onclick="switchTab('payroll')" id="tab-btn-payroll"
+            class="nav-tab px-3.5 py-2 rounded-lg text-sm font-semibold flex items-center space-x-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100">
             <i class="fa-solid fa-money-check-dollar text-sm"></i>
             <span>Tiền Lương</span>
           </button>
-          <button onclick="switchTab('tasks')" id="tab-btn-tasks" class="nav-tab px-3.5 py-2 rounded-lg text-sm font-semibold flex items-center space-x-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100">
+          <button onclick="switchTab('tasks')" id="tab-btn-tasks"
+            class="nav-tab px-3.5 py-2 rounded-lg text-sm font-semibold flex items-center space-x-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100">
             <i class="fa-solid fa-list-check text-sm"></i>
             <span>Công Việc</span>
           </button>
-          <button onclick="switchTab('docs')" id="tab-btn-docs" class="nav-tab px-3.5 py-2 rounded-lg text-sm font-semibold flex items-center space-x-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100">
+          <button onclick="switchTab('docs')" id="tab-btn-docs"
+            class="nav-tab px-3.5 py-2 rounded-lg text-sm font-semibold flex items-center space-x-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100">
             <i class="fa-solid fa-folder-tree text-sm"></i>
             <span>Văn Bản & Quy Chế</span>
           </button>
@@ -213,26 +239,30 @@
 
     <!-- Main Content Area -->
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-grow w-full">
-      
+
       <!-- ========================================== -->
       <!-- TAB 1: DASHBOARD -->
       <!-- ========================================== -->
       <section id="pane-dashboard" class="tab-pane space-y-6">
         <!-- Banner Greeting -->
-        <div class="bg-gradient-to-r from-slate-900 via-indigo-950 to-blue-900 rounded-2xl p-6 text-white shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div
+          class="bg-gradient-to-r from-slate-900 via-indigo-950 to-blue-900 rounded-2xl p-6 text-white shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div>
             <div class="flex items-center space-x-2">
               <h2 class="text-2xl font-bold tracking-tight">Xin chào, <span id="greet-name">--</span> 👋</h2>
-              <span id="greet-badge" class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-500/30 text-blue-300 border border-blue-400/30">--</span>
+              <span id="greet-badge"
+                class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-500/30 text-blue-300 border border-blue-400/30">--</span>
             </div>
             <p class="text-slate-300 text-sm mt-1">Chúc bạn một ngày làm việc hiệu quả tại VinTech Solutions!</p>
           </div>
           <div class="flex items-center space-x-3">
-            <button onclick="openLeaveModal()" class="px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-semibold shadow-md flex items-center space-x-2 transition">
+            <button onclick="openLeaveModal()"
+              class="px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-semibold shadow-md flex items-center space-x-2 transition">
               <i class="fa-solid fa-plus"></i>
               <span>Tạo Đơn Nghỉ Phép</span>
             </button>
-            <button onclick="openSickModal()" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-xl text-xs font-semibold shadow-sm flex items-center space-x-2 transition">
+            <button onclick="openSickModal()"
+              class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-xl text-xs font-semibold shadow-sm flex items-center space-x-2 transition">
               <i class="fa-solid fa-file-medical"></i>
               <span>Gửi Hồ Sơ Ốm Đau</span>
             </button>
@@ -244,7 +274,8 @@
           <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
             <div class="flex items-center justify-between">
               <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Quân Số Nhân Sự</span>
-              <div class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center text-xs"><i class="fa-solid fa-users"></i></div>
+              <div class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center text-xs"><i
+                  class="fa-solid fa-users"></i></div>
             </div>
             <div id="kpi-total-emp" class="mt-2 text-2xl font-extrabold text-slate-900">5</div>
             <p class="text-[11px] text-slate-400 mt-0.5">3 phòng ban chức năng</p>
@@ -253,16 +284,19 @@
           <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
             <div class="flex items-center justify-between">
               <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Đi Làm Hôm Nay</span>
-              <div class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center text-xs"><i class="fa-solid fa-user-check"></i></div>
+              <div class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center text-xs"><i
+                  class="fa-solid fa-user-check"></i></div>
             </div>
-            <div class="mt-2 text-2xl font-extrabold text-emerald-600"><span id="kpi-working-today">4</span> / <span id="kpi-total-emp-sub">5</span></div>
+            <div class="mt-2 text-2xl font-extrabold text-emerald-600"><span id="kpi-working-today">4</span> / <span
+                id="kpi-total-emp-sub">5</span></div>
             <p class="text-[11px] text-slate-400 mt-0.5">Tỷ lệ chuyên cần 92.4%</p>
           </div>
 
           <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
             <div class="flex items-center justify-between">
               <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Đơn Chờ Xử Lý</span>
-              <div class="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center text-xs"><i class="fa-solid fa-clock-rotate-left"></i></div>
+              <div class="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center text-xs"><i
+                  class="fa-solid fa-clock-rotate-left"></i></div>
             </div>
             <div id="kpi-pending-total" class="mt-2 text-2xl font-extrabold text-amber-600">0</div>
             <p class="text-[11px] text-slate-400 mt-0.5">Nghỉ phép & chế độ BHXH</p>
@@ -271,7 +305,8 @@
           <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
             <div class="flex items-center justify-between">
               <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Nhiệm Vụ Đang Chạy</span>
-              <div class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center text-xs"><i class="fa-solid fa-list-check"></i></div>
+              <div class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center text-xs"><i
+                  class="fa-solid fa-list-check"></i></div>
             </div>
             <div id="kpi-active-tasks" class="mt-2 text-2xl font-extrabold text-indigo-600">3</div>
             <p class="text-[11px] text-slate-400 mt-0.5">Kỳ đánh giá Q4/2026</p>
@@ -297,7 +332,8 @@
       <!-- TAB 2: QUẢN LÝ NHÂN SỰ (EMPLOYEES) [NEW!] -->
       <!-- ========================================== -->
       <section id="pane-employees" class="tab-pane hidden space-y-4">
-        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div
+          class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <h2 class="text-lg font-bold text-slate-900 flex items-center space-x-2">
               <i class="fa-solid fa-users text-blue-600"></i>
@@ -306,7 +342,8 @@
             <p class="text-xs text-slate-500">Quản lý hồ sơ nhân viên, chức danh, phòng ban và phân quyền hệ thống</p>
           </div>
           <div class="flex items-center space-x-2">
-            <button id="btn-add-employee" onclick="openEmployeeModal()" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-semibold shadow-md flex items-center space-x-1.5 transition">
+            <button id="btn-add-employee" onclick="openEmployeeModal()"
+              class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-semibold shadow-md flex items-center space-x-1.5 transition">
               <i class="fa-solid fa-user-plus"></i>
               <span>Thêm Nhân Viên Mới</span>
             </button>
@@ -314,19 +351,24 @@
         </div>
 
         <!-- Search & Filter Bar -->
-        <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+        <div
+          class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
           <div class="relative w-full sm:w-80">
             <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400"></i>
-            <input type="text" id="emp-search-input" oninput="filterEmployees()" placeholder="Tìm kiếm theo tên, mã NV, email..." class="w-full pl-9 pr-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <input type="text" id="emp-search-input" oninput="filterEmployees()"
+              placeholder="Tìm kiếm theo tên, mã NV, email..."
+              class="w-full pl-9 pr-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500">
           </div>
           <div class="flex items-center space-x-3 w-full sm:w-auto">
-            <select id="emp-filter-dept" onchange="filterEmployees()" class="border border-slate-300 rounded-xl px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <select id="emp-filter-dept" onchange="filterEmployees()"
+              class="border border-slate-300 rounded-xl px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
               <option value="all">Tất cả phòng ban</option>
               <option value="Kỹ thuật">Kỹ thuật</option>
               <option value="Kế toán">Kế toán</option>
               <option value="Kinh doanh">Kinh doanh</option>
             </select>
-            <select id="emp-filter-status" onchange="filterEmployees()" class="border border-slate-300 rounded-xl px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <select id="emp-filter-status" onchange="filterEmployees()"
+              class="border border-slate-300 rounded-xl px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
               <option value="all">Tất cả trạng thái</option>
               <option value="Đang làm việc">Đang làm việc</option>
               <option value="Đã nghỉ việc">Đã nghỉ việc</option>
@@ -338,7 +380,8 @@
         <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
           <div class="overflow-x-auto">
             <table class="w-full text-xs text-left">
-              <thead class="bg-slate-100/80 text-slate-700 uppercase font-semibold text-[11px] border-b border-slate-200">
+              <thead
+                class="bg-slate-100/80 text-slate-700 uppercase font-semibold text-[11px] border-b border-slate-200">
                 <tr>
                   <th class="py-3 px-4">Mã NV</th>
                   <th class="py-3 px-4">Họ và Tên</th>
@@ -363,7 +406,8 @@
       <!-- TAB 3: BẢNG CHẤM CÔNG (TIMESHEET) -->
       <!-- ========================================== -->
       <section id="pane-timesheet" class="tab-pane hidden space-y-4">
-        <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div
+          class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div class="flex flex-wrap items-center gap-3">
             <span class="text-xs font-bold text-slate-500 uppercase">Kỳ Chấm Công: Tháng 10/2026</span>
             <div class="flex items-center space-x-2 text-[11px] font-semibold text-slate-600">
@@ -373,7 +417,8 @@
               <span class="px-1.5 py-0.5 rounded cell-cn">CN: Chủ nhật</span>
             </div>
           </div>
-          <button onclick="showToast('Dữ liệu chấm công đang được đồng bộ trực tiếp với Google Sheets!', 'success')" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm flex items-center space-x-1.5 transition">
+          <button onclick="showToast('Dữ liệu chấm công đang được đồng bộ trực tiếp với Google Sheets!', 'success')"
+            class="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm flex items-center space-x-1.5 transition">
             <i class="fa-solid fa-file-excel"></i>
             <span>Xuất Báo Cáo Google Sheet / Excel</span>
           </button>
@@ -384,11 +429,15 @@
             <table class="w-full border-collapse text-xs text-left" id="timesheet-table">
               <thead class="bg-slate-900 text-white sticky top-0 z-20">
                 <tr>
-                  <th class="py-3 px-3 font-semibold sticky left-0 bg-slate-900 z-30 min-w-[70px] text-center border-r border-slate-800">Mã NV</th>
-                  <th class="py-3 px-3 font-semibold sticky left-[70px] bg-slate-900 z-30 min-w-[170px] border-r border-slate-800">Họ và Tên</th>
+                  <th
+                    class="py-3 px-3 font-semibold sticky left-0 bg-slate-900 z-30 min-w-[70px] text-center border-r border-slate-800">
+                    Mã NV</th>
+                  <th
+                    class="py-3 px-3 font-semibold sticky left-[70px] bg-slate-900 z-30 min-w-[170px] border-r border-slate-800">
+                    Họ và Tên</th>
                   <th class="py-3 px-2 font-semibold min-w-[90px] border-r border-slate-800 text-center">Phòng Ban</th>
                   <script>
-                    for(let d=1; d<=31; d++) {
+                    for (let d = 1; d <= 31; d++) {
                       const isSunday = (d % 7 === 4);
                       document.write(`<th class="p-1 font-semibold text-center border-r border-slate-800 matrix-cell ${isSunday ? 'bg-rose-950 text-rose-300' : ''}">${d}</th>`);
                     }
@@ -415,7 +464,8 @@
             <h2 class="text-lg font-bold text-slate-900">Danh Sách Đơn Xin Nghỉ Phép</h2>
             <p class="text-xs text-slate-500">Đơn được duyệt sẽ tự động cập nhật ký hiệu [P] vào Bảng chấm công</p>
           </div>
-          <button onclick="openLeaveModal()" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-semibold shadow-md flex items-center space-x-1.5 transition">
+          <button onclick="openLeaveModal()"
+            class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-semibold shadow-md flex items-center space-x-1.5 transition">
             <i class="fa-solid fa-plus"></i>
             <span>Tạo Đơn Nghỉ Phép</span>
           </button>
@@ -449,7 +499,8 @@
             <h2 class="text-lg font-bold text-slate-900">Hồ Sơ Nghỉ Ốm Hưởng Chế Độ BHXH</h2>
             <p class="text-xs text-slate-500">Duyệt hồ sơ sẽ tự động xác nhận ngày ốm [O] trên Bảng chấm công</p>
           </div>
-          <button onclick="openSickModal()" class="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white rounded-xl text-xs font-semibold shadow-md flex items-center space-x-1.5 transition">
+          <button onclick="openSickModal()"
+            class="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white rounded-xl text-xs font-semibold shadow-md flex items-center space-x-1.5 transition">
             <i class="fa-solid fa-file-medical"></i>
             <span>Nộp Hồ Sơ Ốm Đau</span>
           </button>
@@ -484,7 +535,8 @@
             <p class="text-xs text-slate-500" id="payroll-desc">Tự động kết xuất từ dữ liệu chấm công thực tế</p>
           </div>
           <div class="flex items-center space-x-2">
-            <button onclick="printPayslip(currentUser.id)" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-900 hover:bg-slate-800 text-white shadow-sm flex items-center space-x-1.5 transition">
+            <button onclick="printPayslip(currentUser.id)"
+              class="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-900 hover:bg-slate-800 text-white shadow-sm flex items-center space-x-1.5 transition">
               <i class="fa-solid fa-receipt"></i>
               <span>Xem Phiếu Lương Của Tôi</span>
             </button>
@@ -515,7 +567,8 @@
       <!-- TAB 7: CÔNG VIỆC (TASKS) [NEW!] -->
       <!-- ========================================== -->
       <section id="pane-tasks" class="tab-pane hidden space-y-4">
-        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div
+          class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <h2 class="text-lg font-bold text-slate-900 flex items-center space-x-2">
               <i class="fa-solid fa-list-check text-indigo-600"></i>
@@ -523,7 +576,8 @@
             </h2>
             <p class="text-xs text-slate-500">Quản lý nhiệm vụ phòng ban, người phụ trách và hạn hoàn thành</p>
           </div>
-          <button onclick="openTaskModal()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-semibold shadow-md flex items-center space-x-1.5 transition">
+          <button onclick="openTaskModal()"
+            class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-semibold shadow-md flex items-center space-x-1.5 transition">
             <i class="fa-solid fa-plus"></i>
             <span>Giao Việc Mới</span>
           </button>
@@ -552,15 +606,18 @@
       <!-- TAB 8: VĂN BẢN & QUY CHẾ (DOCUMENTS) [NEW!] -->
       <!-- ========================================== -->
       <section id="pane-docs" class="tab-pane hidden space-y-4">
-        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div
+          class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <h2 class="text-lg font-bold text-slate-900 flex items-center space-x-2">
               <i class="fa-solid fa-folder-tree text-amber-600"></i>
               <span>Kho Văn Bản, Quy Chế & Pháp Luật</span>
             </h2>
-            <p class="text-xs text-slate-500">Lưu trữ văn bản hành chính, quyết định nội bộ và tra cứu văn bản pháp luật</p>
+            <p class="text-xs text-slate-500">Lưu trữ văn bản hành chính, quyết định nội bộ và tra cứu văn bản pháp luật
+            </p>
           </div>
-          <button onclick="openDocModal()" class="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-xl text-xs font-semibold shadow-md flex items-center space-x-1.5 transition">
+          <button onclick="openDocModal()"
+            class="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-xl text-xs font-semibold shadow-md flex items-center space-x-1.5 transition">
             <i class="fa-solid fa-upload"></i>
             <span>Thêm Văn Bản Mới</span>
           </button>
@@ -592,33 +649,40 @@
   <!-- ============================================================= -->
 
   <!-- MODAL 1: THÊM / SỬA NHÂN VIÊN (EMPLOYEE MODAL) -->
-  <div id="modal-employee" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
-    <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto">
+  <div id="modal-employee"
+    class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+    <div
+      class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto">
       <div class="flex items-center justify-between pb-3 border-b border-slate-100">
         <h3 id="modal-employee-title" class="text-base font-bold text-slate-900">Thêm Nhân Sự Mới</h3>
-        <button onclick="closeModal('modal-employee')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+        <button onclick="closeModal('modal-employee')" class="text-slate-400 hover:text-slate-600"><i
+            class="fa-solid fa-xmark"></i></button>
       </div>
       <form onsubmit="handleSaveEmployee(event)" class="mt-4 space-y-3.5 text-xs">
         <input type="hidden" id="emp-form-mode" value="add">
         <div class="grid grid-cols-2 gap-3">
           <div>
             <label class="block font-semibold text-slate-700 mb-1">Mã nhân viên</label>
-            <input type="text" id="emp-form-id" placeholder="VT-006..." required class="w-full border border-slate-300 rounded-lg px-3 py-2">
+            <input type="text" id="emp-form-id" placeholder="VT-006..." required
+              class="w-full border border-slate-300 rounded-lg px-3 py-2">
           </div>
           <div>
             <label class="block font-semibold text-slate-700 mb-1">Họ và Tên</label>
-            <input type="text" id="emp-form-name" placeholder="Nguyễn Văn A..." required class="w-full border border-slate-300 rounded-lg px-3 py-2">
+            <input type="text" id="emp-form-name" placeholder="Nguyễn Văn A..." required
+              class="w-full border border-slate-300 rounded-lg px-3 py-2">
           </div>
         </div>
 
         <div class="grid grid-cols-2 gap-3">
           <div>
             <label class="block font-semibold text-slate-700 mb-1">Email nội bộ</label>
-            <input type="email" id="emp-form-email" placeholder="a.nguyen@vintech.vn..." required class="w-full border border-slate-300 rounded-lg px-3 py-2">
+            <input type="email" id="emp-form-email" placeholder="a.nguyen@vintech.vn..." required
+              class="w-full border border-slate-300 rounded-lg px-3 py-2">
           </div>
           <div>
             <label class="block font-semibold text-slate-700 mb-1">Số điện thoại</label>
-            <input type="text" id="emp-form-phone" placeholder="0901234567..." class="w-full border border-slate-300 rounded-lg px-3 py-2">
+            <input type="text" id="emp-form-phone" placeholder="0901234567..."
+              class="w-full border border-slate-300 rounded-lg px-3 py-2">
           </div>
         </div>
 
@@ -634,7 +698,8 @@
           </div>
           <div>
             <label class="block font-semibold text-slate-700 mb-1">Chức vụ / Vị trí</label>
-            <input type="text" id="emp-form-title" placeholder="Kỹ sư phần mềm..." required class="w-full border border-slate-300 rounded-lg px-3 py-2">
+            <input type="text" id="emp-form-title" placeholder="Kỹ sư phần mềm..." required
+              class="w-full border border-slate-300 rounded-lg px-3 py-2">
           </div>
         </div>
 
@@ -649,7 +714,8 @@
           </div>
           <div>
             <label class="block font-semibold text-slate-700 mb-1">Lương cơ bản (VND)</label>
-            <input type="number" id="emp-form-salary" value="15000000" step="500000" required class="w-full border border-slate-300 rounded-lg px-3 py-2">
+            <input type="number" id="emp-form-salary" value="15000000" step="500000" required
+              class="w-full border border-slate-300 rounded-lg px-3 py-2">
           </div>
         </div>
 
@@ -663,29 +729,36 @@
           </div>
           <div>
             <label class="block font-semibold text-slate-700 mb-1">Ngày vào làm</label>
-            <input type="text" id="emp-form-date" value="08/10/2026" class="w-full border border-slate-300 rounded-lg px-3 py-2">
+            <input type="text" id="emp-form-date" value="08/10/2026"
+              class="w-full border border-slate-300 rounded-lg px-3 py-2">
           </div>
         </div>
 
         <div class="pt-3 border-t border-slate-100 flex justify-end space-x-2">
-          <button type="button" onclick="closeModal('modal-employee')" class="px-4 py-2 border border-slate-300 rounded-xl text-slate-600 font-semibold">Hủy</button>
-          <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-semibold shadow-md">Lưu Nhân Viên</button>
+          <button type="button" onclick="closeModal('modal-employee')"
+            class="px-4 py-2 border border-slate-300 rounded-xl text-slate-600 font-semibold">Hủy</button>
+          <button type="submit"
+            class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-semibold shadow-md">Lưu Nhân
+            Viên</button>
         </div>
       </form>
     </div>
   </div>
 
   <!-- MODAL 2: GIAO VIỆC MỚI (TASK MODAL) -->
-  <div id="modal-task" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+  <div id="modal-task"
+    class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
     <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200">
       <div class="flex items-center justify-between pb-3 border-b border-slate-100">
         <h3 class="text-base font-bold text-slate-900">Giao Việc & Phân Công Nhiệm Vụ</h3>
-        <button onclick="closeModal('modal-task')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+        <button onclick="closeModal('modal-task')" class="text-slate-400 hover:text-slate-600"><i
+            class="fa-solid fa-xmark"></i></button>
       </div>
       <form onsubmit="handleSaveTask(event)" class="mt-4 space-y-3.5 text-xs">
         <div>
           <label class="block font-semibold text-slate-700 mb-1">Tiêu đề công việc</label>
-          <input type="text" id="task-form-title" placeholder="Rà soát báo cáo tài chính..." required class="w-full border border-slate-300 rounded-lg px-3 py-2">
+          <input type="text" id="task-form-title" placeholder="Rà soát báo cáo tài chính..." required
+            class="w-full border border-slate-300 rounded-lg px-3 py-2">
         </div>
         <div class="grid grid-cols-2 gap-3">
           <div>
@@ -704,31 +777,41 @@
           </div>
         </div>
         <div class="grid grid-cols-2 gap-3">
-          <div><label class="block font-semibold text-slate-700 mb-1">Ngày bắt đầu</label><input type="date" id="task-form-start" value="2026-10-08" required class="w-full border border-slate-300 rounded-lg px-3 py-2"></div>
-          <div><label class="block font-semibold text-slate-700 mb-1">Hạn chót (Deadline)</label><input type="date" id="task-form-deadline" value="2026-10-25" required class="w-full border border-slate-300 rounded-lg px-3 py-2"></div>
+          <div><label class="block font-semibold text-slate-700 mb-1">Ngày bắt đầu</label><input type="date"
+              id="task-form-start" value="2026-10-08" required
+              class="w-full border border-slate-300 rounded-lg px-3 py-2"></div>
+          <div><label class="block font-semibold text-slate-700 mb-1">Hạn chót (Deadline)</label><input type="date"
+              id="task-form-deadline" value="2026-10-25" required
+              class="w-full border border-slate-300 rounded-lg px-3 py-2"></div>
         </div>
         <div>
           <label class="block font-semibold text-slate-700 mb-1">Ghi chú & Yêu cầu cụ thể</label>
-          <textarea id="task-form-note" rows="2" placeholder="Chi tiết yêu cầu..." class="w-full border border-slate-300 rounded-lg p-2.5"></textarea>
+          <textarea id="task-form-note" rows="2" placeholder="Chi tiết yêu cầu..."
+            class="w-full border border-slate-300 rounded-lg p-2.5"></textarea>
         </div>
         <div class="pt-3 flex justify-end space-x-2">
-          <button type="button" onclick="closeModal('modal-task')" class="px-4 py-2 border border-slate-300 rounded-xl text-slate-600 font-semibold">Hủy</button>
-          <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-semibold">Giao Việc</button>
+          <button type="button" onclick="closeModal('modal-task')"
+            class="px-4 py-2 border border-slate-300 rounded-xl text-slate-600 font-semibold">Hủy</button>
+          <button type="submit"
+            class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-semibold">Giao Việc</button>
         </div>
       </form>
     </div>
   </div>
 
   <!-- MODAL 3: THÊM VĂN BẢN (DOCUMENT MODAL) -->
-  <div id="modal-doc" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+  <div id="modal-doc"
+    class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
     <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200">
       <div class="flex items-center justify-between pb-3 border-b border-slate-100">
         <h3 class="text-base font-bold text-slate-900">Lưu Trữ Văn Bản & Quy Chế Mới</h3>
-        <button onclick="closeModal('modal-doc')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+        <button onclick="closeModal('modal-doc')" class="text-slate-400 hover:text-slate-600"><i
+            class="fa-solid fa-xmark"></i></button>
       </div>
       <form onsubmit="handleSaveDoc(event)" class="mt-4 space-y-3.5 text-xs">
         <div class="grid grid-cols-2 gap-3">
-          <div><label class="block font-semibold text-slate-700 mb-1">Số hiệu</label><input type="text" id="doc-form-id" placeholder="05/2026/QĐ-VT" required class="w-full border border-slate-300 rounded-lg px-3 py-2"></div>
+          <div><label class="block font-semibold text-slate-700 mb-1">Số hiệu</label><input type="text" id="doc-form-id"
+              placeholder="05/2026/QĐ-VT" required class="w-full border border-slate-300 rounded-lg px-3 py-2"></div>
           <div>
             <label class="block font-semibold text-slate-700 mb-1">Loại văn bản</label>
             <select id="doc-form-type" class="w-full border border-slate-300 rounded-lg px-3 py-2 bg-white">
@@ -741,31 +824,41 @@
         </div>
         <div>
           <label class="block font-semibold text-slate-700 mb-1">Trích yếu / Tiêu đề văn bản</label>
-          <input type="text" id="doc-form-title" placeholder="Quy định sử dụng tài sản doanh nghiệp..." required class="w-full border border-slate-300 rounded-lg px-3 py-2">
+          <input type="text" id="doc-form-title" placeholder="Quy định sử dụng tài sản doanh nghiệp..." required
+            class="w-full border border-slate-300 rounded-lg px-3 py-2">
         </div>
         <div class="grid grid-cols-2 gap-3">
-          <div><label class="block font-semibold text-slate-700 mb-1">Cơ quan / Người ký</label><input type="text" id="doc-form-issuer" placeholder="Tổng Giám Đốc" required class="w-full border border-slate-300 rounded-lg px-3 py-2"></div>
-          <div><label class="block font-semibold text-slate-700 mb-1">Link tài liệu (Drive/Web)</label><input type="text" id="doc-form-url" value="https://drive.google.com/sample.pdf" class="w-full border border-slate-300 rounded-lg px-3 py-2"></div>
+          <div><label class="block font-semibold text-slate-700 mb-1">Cơ quan / Người ký</label><input type="text"
+              id="doc-form-issuer" placeholder="Tổng Giám Đốc" required
+              class="w-full border border-slate-300 rounded-lg px-3 py-2"></div>
+          <div><label class="block font-semibold text-slate-700 mb-1">Link tài liệu (Drive/Web)</label><input
+              type="text" id="doc-form-url" value="https://drive.google.com/sample.pdf"
+              class="w-full border border-slate-300 rounded-lg px-3 py-2"></div>
         </div>
         <div class="pt-3 flex justify-end space-x-2">
-          <button type="button" onclick="closeModal('modal-doc')" class="px-4 py-2 border border-slate-300 rounded-xl text-slate-600 font-semibold">Hủy</button>
-          <button type="submit" class="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-xl font-semibold">Lưu Văn Bản</button>
+          <button type="button" onclick="closeModal('modal-doc')"
+            class="px-4 py-2 border border-slate-300 rounded-xl text-slate-600 font-semibold">Hủy</button>
+          <button type="submit"
+            class="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-xl font-semibold">Lưu Văn Bản</button>
         </div>
       </form>
     </div>
   </div>
 
   <!-- MODAL 4: ĐƠN NGHỈ PHÉP -->
-  <div id="modal-leave" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+  <div id="modal-leave"
+    class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
     <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200">
       <div class="flex items-center justify-between pb-3 border-b border-slate-100">
         <h3 class="text-base font-bold text-slate-900">Tạo Đơn Xin Nghỉ Phép</h3>
-        <button onclick="closeModal('modal-leave')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+        <button onclick="closeModal('modal-leave')" class="text-slate-400 hover:text-slate-600"><i
+            class="fa-solid fa-xmark"></i></button>
       </div>
       <form id="form-leave" onsubmit="handleCreateLeave(event)" class="mt-4 space-y-3.5 text-xs">
         <div>
           <label class="block font-semibold text-slate-700 mb-1">Nhân viên làm đơn</label>
-          <input type="text" id="leave-emp-name" readonly class="w-full bg-slate-100 border border-slate-200 rounded-lg px-3 py-2 text-slate-600 font-medium">
+          <input type="text" id="leave-emp-name" readonly
+            class="w-full bg-slate-100 border border-slate-200 rounded-lg px-3 py-2 text-slate-600 font-medium">
         </div>
         <div class="grid grid-cols-2 gap-3">
           <div>
@@ -777,72 +870,89 @@
           </div>
           <div>
             <label class="block font-semibold text-slate-700 mb-1">Số ngày</label>
-            <input type="number" id="leave-days" value="2" min="1" max="10" required class="w-full border border-slate-300 rounded-lg px-3 py-2">
+            <input type="number" id="leave-days" value="2" min="1" max="10" required
+              class="w-full border border-slate-300 rounded-lg px-3 py-2">
           </div>
         </div>
         <div class="grid grid-cols-2 gap-3">
-          <div><label class="block font-semibold text-slate-700 mb-1">Từ ngày</label><input type="date" id="leave-from" value="2026-10-10" required class="w-full border border-slate-300 rounded-lg px-3 py-2"></div>
-          <div><label class="block font-semibold text-slate-700 mb-1">Đến ngày</label><input type="date" id="leave-to" value="2026-10-11" required class="w-full border border-slate-300 rounded-lg px-3 py-2"></div>
+          <div><label class="block font-semibold text-slate-700 mb-1">Từ ngày</label><input type="date" id="leave-from"
+              value="2026-10-10" required class="w-full border border-slate-300 rounded-lg px-3 py-2"></div>
+          <div><label class="block font-semibold text-slate-700 mb-1">Đến ngày</label><input type="date" id="leave-to"
+              value="2026-10-11" required class="w-full border border-slate-300 rounded-lg px-3 py-2"></div>
         </div>
         <div>
           <label class="block font-semibold text-slate-700 mb-1">Lý do nghỉ cụ thể</label>
-          <textarea id="leave-reason" rows="2" placeholder="Ghi rõ lý do..." required class="w-full border border-slate-300 rounded-lg p-2.5"></textarea>
+          <textarea id="leave-reason" rows="2" placeholder="Ghi rõ lý do..." required
+            class="w-full border border-slate-300 rounded-lg p-2.5"></textarea>
         </div>
         <div class="pt-3 flex justify-end space-x-2">
-          <button type="button" onclick="closeModal('modal-leave')" class="px-4 py-2 border border-slate-300 rounded-xl text-slate-600 font-semibold">Hủy</button>
-          <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-semibold">Gửi Đơn Duyệt</button>
+          <button type="button" onclick="closeModal('modal-leave')"
+            class="px-4 py-2 border border-slate-300 rounded-xl text-slate-600 font-semibold">Hủy</button>
+          <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-semibold">Gửi
+            Đơn Duyệt</button>
         </div>
       </form>
     </div>
   </div>
 
   <!-- MODAL 5: PHIẾU LƯƠNG CÁ NHÂN -->
-  <div id="modal-payslip" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+  <div id="modal-payslip"
+    class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
     <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200">
       <div class="flex items-center justify-between pb-3 border-b border-slate-200">
         <div>
           <h3 class="text-base font-bold text-slate-900">PHIẾU LƯƠNG THÁNG 10/2026</h3>
           <p class="text-xs text-slate-500">VinTech Solutions JSC</p>
         </div>
-        <button onclick="closeModal('modal-payslip')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+        <button onclick="closeModal('modal-payslip')" class="text-slate-400 hover:text-slate-600"><i
+            class="fa-solid fa-xmark"></i></button>
       </div>
       <div id="payslip-content" class="py-4 text-xs space-y-3"></div>
       <div class="pt-3 border-t border-slate-200 flex justify-end">
-        <button onclick="closeModal('modal-payslip')" class="px-4 py-2 border border-slate-300 rounded-xl text-slate-600 font-semibold text-xs">Đóng</button>
+        <button onclick="closeModal('modal-payslip')"
+          class="px-4 py-2 border border-slate-300 rounded-xl text-slate-600 font-semibold text-xs">Đóng</button>
       </div>
     </div>
   </div>
 
   <!-- MODAL 6: HỒ SƠ ỐM ĐAU -->
-  <div id="modal-sick" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+  <div id="modal-sick"
+    class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
     <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200">
       <div class="flex items-center justify-between pb-3 border-b border-slate-100">
         <h3 class="text-base font-bold text-slate-900">Nộp Hồ Sơ Nghỉ Ốm (BHXH)</h3>
-        <button onclick="closeModal('modal-sick')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+        <button onclick="closeModal('modal-sick')" class="text-slate-400 hover:text-slate-600"><i
+            class="fa-solid fa-xmark"></i></button>
       </div>
       <form onsubmit="handleCreateSick(event)" class="mt-4 space-y-3.5 text-xs">
         <div>
           <label class="block font-semibold text-slate-700 mb-1">Cơ sở khám bệnh / Bệnh viện</label>
-          <input type="text" id="sick-hospital" placeholder="Bệnh viện Bạch Mai..." required class="w-full border border-slate-300 rounded-lg px-3 py-2">
+          <input type="text" id="sick-hospital" placeholder="Bệnh viện Bạch Mai..." required
+            class="w-full border border-slate-300 rounded-lg px-3 py-2">
         </div>
         <div class="grid grid-cols-2 gap-3">
-          <div><label class="block font-semibold text-slate-700 mb-1">Từ ngày</label><input type="date" id="sick-from" value="2026-10-12" required class="w-full border border-slate-300 rounded-lg px-3 py-2"></div>
-          <div><label class="block font-semibold text-slate-700 mb-1">Đến ngày</label><input type="date" id="sick-to" value="2026-10-13" required class="w-full border border-slate-300 rounded-lg px-3 py-2"></div>
+          <div><label class="block font-semibold text-slate-700 mb-1">Từ ngày</label><input type="date" id="sick-from"
+              value="2026-10-12" required class="w-full border border-slate-300 rounded-lg px-3 py-2"></div>
+          <div><label class="block font-semibold text-slate-700 mb-1">Đến ngày</label><input type="date" id="sick-to"
+              value="2026-10-13" required class="w-full border border-slate-300 rounded-lg px-3 py-2"></div>
         </div>
         <div class="p-3 border border-dashed border-slate-300 rounded-xl bg-slate-50 text-center">
           <i class="fa-solid fa-file-pdf text-rose-500 text-lg mb-1"></i>
           <p class="text-[11px] text-slate-500">Giấy_chứng_nhận_nghi_BHXH_BV_BachMai.pdf (Chứng từ hợp lệ)</p>
         </div>
         <div class="pt-3 flex justify-end space-x-2">
-          <button type="button" onclick="closeModal('modal-sick')" class="px-4 py-2 border border-slate-300 rounded-xl text-slate-600 font-semibold">Hủy</button>
-          <button type="submit" class="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white rounded-xl font-semibold">Nộp Hồ Sơ</button>
+          <button type="button" onclick="closeModal('modal-sick')"
+            class="px-4 py-2 border border-slate-300 rounded-xl text-slate-600 font-semibold">Hủy</button>
+          <button type="submit" class="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white rounded-xl font-semibold">Nộp
+            Hồ Sơ</button>
         </div>
       </form>
     </div>
   </div>
 
   <!-- TOAST NOTIFICATION -->
-  <div id="toast" class="fixed bottom-5 right-5 z-50 transform transition-all duration-300 translate-y-20 opacity-0 pointer-events-none flex items-center space-x-3 bg-slate-900 text-white px-4 py-3 rounded-xl shadow-2xl border border-slate-700">
+  <div id="toast"
+    class="fixed bottom-5 right-5 z-50 transform transition-all duration-300 translate-y-20 opacity-0 pointer-events-none flex items-center space-x-3 bg-slate-900 text-white px-4 py-3 rounded-xl shadow-2xl border border-slate-700">
     <div id="toast-icon" class="text-emerald-400 text-base"><i class="fa-solid fa-circle-check"></i></div>
     <div id="toast-msg" class="text-sm font-medium">Thao tác thành công!</div>
   </div>
@@ -862,11 +972,11 @@
 
     let appData = {
       timesheet: {
-        'VT-001': ['X','X','X','X','CN','X','X','X','X','X','CN','X','X','X','X','X','CN','X','X','X','X','X','CN','X','X','X','X','X','CN','X','X'],
-        'VT-002': ['X','X','X','X','CN','X','X','X','X','X','CN','X','X','X','X','X','CN','X','X','X','X','X','CN','X','X','X','X','X','CN','X','X'],
-        'VT-003': ['X','X','X','X','CN','X','X','X','X','X','CN','X','X','X','X','X','CN','X','X','X','X','X','CN','X','X','X','X','X','CN','X','X'],
-        'VT-004': ['X','X','X','X','CN','X','X','X','X','X','CN','X','X','X','X','X','CN','X','X','X','X','X','CN','X','X','X','X','X','CN','X','X'],
-        'VT-005': ['X','X','X','X','CN','X','X','X','X','X','CN','O','O','X','X','X','CN','X','X','X','X','X','CN','X','X','X','X','X','CN','X','X'],
+        'VT-001': ['X', 'X', 'X', 'X', 'CN', 'X', 'X', 'X', 'X', 'X', 'CN', 'X', 'X', 'X', 'X', 'X', 'CN', 'X', 'X', 'X', 'X', 'X', 'CN', 'X', 'X', 'X', 'X', 'X', 'CN', 'X', 'X'],
+        'VT-002': ['X', 'X', 'X', 'X', 'CN', 'X', 'X', 'X', 'X', 'X', 'CN', 'X', 'X', 'X', 'X', 'X', 'CN', 'X', 'X', 'X', 'X', 'X', 'CN', 'X', 'X', 'X', 'X', 'X', 'CN', 'X', 'X'],
+        'VT-003': ['X', 'X', 'X', 'X', 'CN', 'X', 'X', 'X', 'X', 'X', 'CN', 'X', 'X', 'X', 'X', 'X', 'CN', 'X', 'X', 'X', 'X', 'X', 'CN', 'X', 'X', 'X', 'X', 'X', 'CN', 'X', 'X'],
+        'VT-004': ['X', 'X', 'X', 'X', 'CN', 'X', 'X', 'X', 'X', 'X', 'CN', 'X', 'X', 'X', 'X', 'X', 'CN', 'X', 'X', 'X', 'X', 'X', 'CN', 'X', 'X', 'X', 'X', 'X', 'CN', 'X', 'X'],
+        'VT-005': ['X', 'X', 'X', 'X', 'CN', 'X', 'X', 'X', 'X', 'X', 'CN', 'O', 'O', 'X', 'X', 'X', 'CN', 'X', 'X', 'X', 'X', 'X', 'CN', 'X', 'X', 'X', 'X', 'X', 'CN', 'X', 'X'],
       },
       leaveRequests: [
         { id: 'LV-2610-01', empId: 'VT-001', empName: 'Lê Thị Phương', type: 'Nghỉ phép năm', from: '2026-10-10', to: '2026-10-11', days: 2, daysIndexes: [9, 10], reason: 'Gia đình có việc hiếu hỉ ở quê', status: 'PENDING' },
@@ -911,11 +1021,11 @@
 
     // --- AUTH LOGIC ---
     function handleLoginSubmit(e) {
-      if(e) e.preventDefault();
+      if (e) e.preventDefault();
       const email = document.getElementById('login-username').value.trim();
       const user = USERS_DB.find(u => u.email.toLowerCase() === email.toLowerCase());
 
-      if(user) {
+      if (user) {
         loginAsUser(user);
       } else {
         alert('Tài khoản không chính xác! Vui lòng chọn một trong các tài khoản mẫu bên dưới.');
@@ -926,7 +1036,7 @@
       document.getElementById('login-username').value = email;
       document.getElementById('login-password').value = '123456';
       const user = USERS_DB.find(u => u.email === email);
-      if(user) loginAsUser(user);
+      if (user) loginAsUser(user);
     }
 
     function loginAsUser(user) {
@@ -956,13 +1066,13 @@
 
       // Kết nối fetch dữ liệu thật từ Google Sheets nếu có
       callBackend('apiGetInitialAppData', [user.email], (res) => {
-        if(res && res.success && res.data) {
-          if(res.data.users && res.data.users.length) USERS_DB = res.data.users;
-          if(res.data.timesheet) appData.timesheet = res.data.timesheet;
-          if(res.data.leaves) appData.leaveRequests = res.data.leaves;
-          if(res.data.sickCases) appData.sickCases = res.data.sickCases;
-          if(res.data.tasks) appData.tasks = res.data.tasks;
-          if(res.data.documents) appData.documents = res.data.documents;
+        if (res && res.success && res.data) {
+          if (res.data.users && res.data.users.length) USERS_DB = res.data.users;
+          if (res.data.timesheet) appData.timesheet = res.data.timesheet;
+          if (res.data.leaves) appData.leaveRequests = res.data.leaves;
+          if (res.data.sickCases) appData.sickCases = res.data.sickCases;
+          if (res.data.tasks) appData.tasks = res.data.tasks;
+          if (res.data.documents) appData.documents = res.data.documents;
           document.getElementById('sync-status').classList.remove('hidden');
         }
         initApp();
@@ -987,19 +1097,19 @@
       });
 
       const pane = document.getElementById(`pane-${tabId}`);
-      if(pane) pane.classList.remove('hidden');
+      if (pane) pane.classList.remove('hidden');
 
       const btn = document.getElementById(`tab-btn-${tabId}`);
-      if(btn) btn.className = 'nav-tab px-3.5 py-2 rounded-lg text-sm font-semibold flex items-center space-x-2 text-blue-600 bg-blue-50';
+      if (btn) btn.className = 'nav-tab px-3.5 py-2 rounded-lg text-sm font-semibold flex items-center space-x-2 text-blue-600 bg-blue-50';
 
-      if(tabId === 'dashboard') renderDashboard();
-      if(tabId === 'employees') renderEmployees();
-      if(tabId === 'timesheet') renderTimesheet();
-      if(tabId === 'leave') renderLeaveTable();
-      if(tabId === 'sick') renderSickTable();
-      if(tabId === 'payroll') renderPayrollTable();
-      if(tabId === 'tasks') renderTasksTable();
-      if(tabId === 'docs') renderDocsTable();
+      if (tabId === 'dashboard') renderDashboard();
+      if (tabId === 'employees') renderEmployees();
+      if (tabId === 'timesheet') renderTimesheet();
+      if (tabId === 'leave') renderLeaveTable();
+      if (tabId === 'sick') renderSickTable();
+      if (tabId === 'payroll') renderPayrollTable();
+      if (tabId === 'tasks') renderTasksTable();
+      if (tabId === 'docs') renderDocsTable();
     }
 
     // --- RENDER 1: DASHBOARD ---
@@ -1041,29 +1151,29 @@
       });
 
       kpiPending.innerText = pendings.length;
-      if(pendings.filter(p => p.type === 'leave').length > 0) {
+      if (pendings.filter(p => p.type === 'leave').length > 0) {
         badgeLeave.innerText = pendings.filter(p => p.type === 'leave').length;
         badgeLeave.classList.remove('hidden');
       } else {
         badgeLeave.classList.add('hidden');
       }
 
-      if(pendings.filter(p => p.type === 'sick').length > 0) {
+      if (pendings.filter(p => p.type === 'sick').length > 0) {
         badgeSick.innerText = pendings.filter(p => p.type === 'sick').length;
         badgeSick.classList.remove('hidden');
       } else {
         badgeSick.classList.add('hidden');
       }
 
-      if(currentUser.role === 'employee') {
+      if (currentUser.role === 'employee') {
         roleNotice.innerText = 'Bạn đang đăng nhập quyền Nhân viên: Xem tiến độ đơn';
-      } else if(currentUser.role === 'manager') {
+      } else if (currentUser.role === 'manager') {
         roleNotice.innerText = 'Quyền Trưởng phòng: Bạn có thẩm quyền phê duyệt Đơn xin nghỉ phép';
       } else {
         roleNotice.innerText = 'Quyền HR/Kế toán: Thẩm quyền duyệt hồ sơ BHXH & Bảng lương';
       }
 
-      if(pendings.length === 0) {
+      if (pendings.length === 0) {
         pList.innerHTML = `
           <div class="text-center py-8 text-slate-400">
             <i class="fa-solid fa-circle-check text-emerald-500 text-3xl mb-2"></i>
@@ -1076,8 +1186,8 @@
       let html = '';
       pendings.forEach(p => {
         let actionBtn = '';
-        if(p.canApprove) {
-          if(p.type === 'leave') {
+        if (p.canApprove) {
+          if (p.type === 'leave') {
             actionBtn = `<button onclick="approveLeave('${p.id}')" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold shadow-sm transition"><i class="fa-solid fa-check mr-1"></i>Duyệt Ngay</button>`;
           } else {
             actionBtn = `<button onclick="approveSick('${p.id}')" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold shadow-sm transition"><i class="fa-solid fa-check mr-1"></i>Duyệt BHXH</button>`;
@@ -1112,18 +1222,18 @@
       const query = (document.getElementById('emp-search-input').value || '').trim().toLowerCase();
 
       let filtered = USERS_DB.filter(u => {
-        if(deptFilter !== 'all' && u.dept !== deptFilter) return false;
-        if(statusFilter !== 'all' && u.status !== statusFilter) return false;
-        if(query) {
+        if (deptFilter !== 'all' && u.dept !== deptFilter) return false;
+        if (statusFilter !== 'all' && u.status !== statusFilter) return false;
+        if (query) {
           const matchName = u.name.toLowerCase().includes(query);
           const matchId = u.id.toLowerCase().includes(query);
           const matchEmail = (u.email || '').toLowerCase().includes(query);
-          if(!matchName && !matchId && !matchEmail) return false;
+          if (!matchName && !matchId && !matchEmail) return false;
         }
         return true;
       });
 
-      if(filtered.length === 0) {
+      if (filtered.length === 0) {
         tbody.innerHTML = `<tr><td colspan="9" class="text-center py-6 text-slate-400">Không tìm thấy nhân sự phù hợp</td></tr>`;
         return;
       }
@@ -1131,11 +1241,11 @@
       let html = '';
       filtered.forEach(u => {
         const canEdit = (currentUser.role === 'manager' || currentUser.role === 'hr');
-        const roleBadge = u.role === 'manager' 
+        const roleBadge = u.role === 'manager'
           ? `<span class="px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 font-bold text-[10px]">Quản lý</span>`
           : u.role === 'hr'
-          ? `<span class="px-2 py-0.5 rounded-full bg-purple-100 text-purple-800 font-bold text-[10px]">HR/Kế toán</span>`
-          : `<span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 font-medium text-[10px]">Nhân viên</span>`;
+            ? `<span class="px-2 py-0.5 rounded-full bg-purple-100 text-purple-800 font-bold text-[10px]">HR/Kế toán</span>`
+            : `<span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 font-medium text-[10px]">Nhân viên</span>`;
 
         const statusBadge = u.status === 'Đang làm việc'
           ? `<span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-semibold text-[10px]">Đang làm việc</span>`
@@ -1143,12 +1253,12 @@
 
         // Bảo mật mức lương
         let salaryText = '•••••••• đ';
-        if(currentUser.role === 'manager' || currentUser.role === 'hr' || currentUser.id === u.id) {
+        if (currentUser.role === 'manager' || currentUser.role === 'hr' || currentUser.id === u.id) {
           salaryText = (u.salary || 0).toLocaleString('vi-VN') + ' đ';
         }
 
         let actionHtml = '---';
-        if(canEdit) {
+        if (canEdit) {
           actionHtml = `
             <div class="flex items-center justify-end space-x-1.5">
               <button onclick="editEmployee('${u.id}')" title="Sửa thông tin" class="p-1.5 bg-slate-100 hover:bg-blue-100 text-slate-600 hover:text-blue-700 rounded-lg transition"><i class="fa-solid fa-pen-to-square"></i></button>
@@ -1201,7 +1311,7 @@
 
     function editEmployee(empId) {
       const u = USERS_DB.find(x => x.id === empId);
-      if(!u) return;
+      if (!u) return;
       document.getElementById('emp-form-mode').value = 'edit';
       document.getElementById('modal-employee-title').innerText = 'Chỉnh Sửa Nhân Sự: ' + u.name;
       document.getElementById('emp-form-id').value = u.id;
@@ -1234,9 +1344,9 @@
         avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=faces'
       };
 
-      if(mode === 'add') {
+      if (mode === 'add') {
         USERS_DB.push(empData);
-        if(!appData.timesheet[empData.id]) {
+        if (!appData.timesheet[empData.id]) {
           const defaultDays = Array(31).fill('X');
           [3, 10, 17, 24].forEach(idx => { defaultDays[idx] = 'CN'; });
           appData.timesheet[empData.id] = defaultDays;
@@ -1244,13 +1354,13 @@
         showToast(`Thêm nhân sự mới [${empData.id}] ${empData.name} thành công!`, 'success');
       } else {
         const idx = USERS_DB.findIndex(x => x.id === empData.id);
-        if(idx >= 0) USERS_DB[idx] = empData;
+        if (idx >= 0) USERS_DB[idx] = empData;
         showToast(`Cập nhật thông tin nhân sự [${empData.id}] thành công!`, 'success');
       }
 
       // Lưu xuống Google Sheets
       callBackend('apiSaveEmployee', [empData], (res) => {
-        if(res && res.message) showToast(res.message, 'success');
+        if (res && res.message) showToast(res.message, 'success');
       });
 
       closeModal('modal-employee');
@@ -1260,9 +1370,9 @@
     }
 
     function deleteEmployee(empId) {
-      if(!confirm(`Bạn có chắc chắn muốn chuyển trạng thái nhân viên [${empId}] sang 'Đã nghỉ việc'?`)) return;
+      if (!confirm(`Bạn có chắc chắn muốn chuyển trạng thái nhân viên [${empId}] sang 'Đã nghỉ việc'?`)) return;
       const u = USERS_DB.find(x => x.id === empId);
-      if(u) u.status = 'Đã nghỉ việc';
+      if (u) u.status = 'Đã nghỉ việc';
       callBackend('apiDeleteEmployee', [empId]);
       showToast(`Đã chuyển trạng thái nhân viên ${empId} sang Đã nghỉ việc!`, 'success');
       renderEmployees();
@@ -1280,9 +1390,9 @@
 
         days.forEach(sym => {
           let cClass = 'cell-x';
-          if(sym === 'P') { cClass = 'cell-p'; totalP++; }
-          else if(sym === 'O') { cClass = 'cell-o'; totalO++; }
-          else if(sym === 'CN') { cClass = 'cell-cn'; }
+          if (sym === 'P') { cClass = 'cell-p'; totalP++; }
+          else if (sym === 'O') { cClass = 'cell-o'; totalO++; }
+          else if (sym === 'CN') { cClass = 'cell-cn'; }
           else { totalX++; }
           cellsHtml += `<td class="p-0 text-center border-r border-slate-100 matrix-cell ${cClass}">${sym}</td>`;
         });
@@ -1312,12 +1422,12 @@
       let html = '';
       appData.leaveRequests.forEach(r => {
         const canApprove = (currentUser.role === 'manager' || currentUser.role === 'hr');
-        let stBadge = r.status === 'APPROVED' 
+        let stBadge = r.status === 'APPROVED'
           ? `<span class="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 font-bold text-[10px]"><i class="fa-solid fa-check mr-1"></i>Đã duyệt (Sync Sheet)</span>`
           : `<span class="px-2.5 py-1 rounded-full bg-amber-100 text-amber-800 font-bold text-[10px]"><i class="fa-solid fa-clock mr-1"></i>Chờ duyệt</span>`;
 
         let actions = '---';
-        if(r.status === 'PENDING' && canApprove) {
+        if (r.status === 'PENDING' && canApprove) {
           actions = `<button onclick="approveLeave('${r.id}')" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded font-bold text-[11px] shadow-sm">Duyệt Đơn</button>`;
         }
 
@@ -1343,12 +1453,12 @@
       let html = '';
       appData.sickCases.forEach(s => {
         const canApproveSick = (currentUser.role === 'hr');
-        let stBadge = s.status === 'APPROVED' 
+        let stBadge = s.status === 'APPROVED'
           ? `<span class="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 font-bold text-[10px]"><i class="fa-solid fa-check mr-1"></i>Đã duyệt BHXH</span>`
           : `<span class="px-2.5 py-1 rounded-full bg-amber-100 text-amber-800 font-bold text-[10px]"><i class="fa-solid fa-clock mr-1"></i>Chờ HR duyệt</span>`;
 
         let actions = '---';
-        if(s.status === 'PENDING' && canApproveSick) {
+        if (s.status === 'PENDING' && canApproveSick) {
           actions = `<button onclick="approveSick('${s.id}')" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded font-bold text-[11px] shadow-sm">Duyệt BHXH</button>`;
         }
 
@@ -1373,7 +1483,7 @@
       const tbody = document.getElementById('payroll-tbody');
       const desc = document.getElementById('payroll-desc');
 
-      if(currentUser.role === 'employee') {
+      if (currentUser.role === 'employee') {
         desc.innerText = 'Chế độ xem cá nhân: Chỉ hiển thị dữ liệu phiếu lương của bạn';
       } else {
         desc.innerText = 'Chế độ quản trị: Bảng lương tổng hợp toàn bộ nhân sự công ty';
@@ -1383,7 +1493,7 @@
       const workingDaysNorm = 22;
 
       USERS_DB.filter(u => u.status !== 'Đã nghỉ việc').forEach(u => {
-        if(currentUser.role === 'employee' && u.id !== currentUser.id) return;
+        if (currentUser.role === 'employee' && u.id !== currentUser.id) return;
 
         const days = appData.timesheet[u.id] || [];
         const actualDays = days.filter(d => d === 'X').length;
@@ -1418,11 +1528,11 @@
       let html = '';
       appData.tasks.forEach(t => {
         const isDone = (t.status === 'Hoàn thành');
-        const stBadge = isDone 
+        const stBadge = isDone
           ? `<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">Hoàn thành</span>`
           : `<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800">${t.status}</span>`;
 
-        let actionBtn = isDone 
+        let actionBtn = isDone
           ? `<span class="text-emerald-600 text-xs font-semibold"><i class="fa-solid fa-check-double mr-1"></i>Đã xong</span>`
           : `<button onclick="markTaskDone('${t.id}')" class="px-2.5 py-1 bg-indigo-600 hover:bg-indigo-500 text-white rounded text-[11px] font-semibold transition">Đánh dấu Xong</button>`;
 
@@ -1473,17 +1583,17 @@
     // --- WORKFLOW ACTIONS ---
     function approveLeave(reqId) {
       const req = appData.leaveRequests.find(r => r.id === reqId);
-      if(!req) return;
+      if (!req) return;
       req.status = 'APPROVED';
 
-      if(!appData.timesheet[req.empId]) appData.timesheet[req.empId] = Array(31).fill('X');
+      if (!appData.timesheet[req.empId]) appData.timesheet[req.empId] = Array(31).fill('X');
       const fromDayNum = parseInt(req.from.split('-')[2]) - 1;
-      for(let i=0; i<req.days; i++) {
-        if(fromDayNum + i < 31) appData.timesheet[req.empId][fromDayNum + i] = 'P';
+      for (let i = 0; i < req.days; i++) {
+        if (fromDayNum + i < 31) appData.timesheet[req.empId][fromDayNum + i] = 'P';
       }
 
       callBackend('apiApproveLeave', [reqId, currentUser.name], (res) => {
-        if(res && res.message) showToast(res.message, 'success');
+        if (res && res.message) showToast(res.message, 'success');
       });
 
       showToast(`Đã duyệt đơn ${req.id} và tự động điền ký hiệu [P] vào Bảng Chấm Công!`, 'success');
@@ -1493,17 +1603,17 @@
 
     function approveSick(sickId) {
       const sc = appData.sickCases.find(s => s.id === sickId);
-      if(!sc) return;
+      if (!sc) return;
       sc.status = 'APPROVED';
 
-      if(!appData.timesheet[sc.empId]) appData.timesheet[sc.empId] = Array(31).fill('X');
+      if (!appData.timesheet[sc.empId]) appData.timesheet[sc.empId] = Array(31).fill('X');
       const fromDayNum = parseInt(sc.from.split('-')[2]) - 1;
-      for(let i=0; i<sc.days; i++) {
-        if(fromDayNum + i < 31) appData.timesheet[sc.empId][fromDayNum + i] = 'O';
+      for (let i = 0; i < sc.days; i++) {
+        if (fromDayNum + i < 31) appData.timesheet[sc.empId][fromDayNum + i] = 'O';
       }
 
       callBackend('apiApproveSick', [sickId, currentUser.name], (res) => {
-        if(res && res.message) showToast(res.message, 'success');
+        if (res && res.message) showToast(res.message, 'success');
       });
 
       showToast(`Đã xác nhận hồ sơ BHXH ${sc.id} và tự động điền [O] vào Bảng Chấm Công!`, 'success');
@@ -1602,7 +1712,7 @@
 
     function markTaskDone(taskId) {
       const t = appData.tasks.find(x => x.id === taskId);
-      if(!t) return;
+      if (!t) return;
       t.status = 'Hoàn thành';
       callBackend('apiUpdateTaskStatus', [taskId, 'Hoàn thành']);
       showToast(`Đã xác nhận hoàn thành công việc [${taskId}]!`, 'success');
@@ -1639,7 +1749,7 @@
 
     function UtilitiesFormatToday() {
       const d = new Date();
-      return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
+      return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
     }
 
     function printPayslip(empId) {
@@ -1680,7 +1790,7 @@
 
     function populateAssigneeSelect() {
       const select = document.getElementById('task-form-assignee');
-      if(!select) return;
+      if (!select) return;
       select.innerHTML = USERS_DB.map(u => `<option value="${u.name}">${u.name} (${u.dept})</option>`).join('');
     }
 
@@ -1702,7 +1812,7 @@
     }
 
     let toastTimer;
-    function showToast(msg, type='success') {
+    function showToast(msg, type = 'success') {
       clearTimeout(toastTimer);
       const toast = document.getElementById('toast');
       document.getElementById('toast-msg').innerText = msg;
@@ -1724,4 +1834,5 @@
     }
   </script>
 </body>
+
 </html>
