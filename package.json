@@ -5,7 +5,8 @@
   "main": "Attendance.js",
   "scripts": {
     "type-check": "tsc -p jsconfig.json --noEmit",
-    "push": "clasp push -f"
+    "push": "clasp push -f",
+    "watch": "clasp push --watch"
   },
   "repository": {
     "type": "git",

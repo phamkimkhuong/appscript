@@ -138,7 +138,7 @@
 
     <!-- Topbar chuẩn Corporate SaaS -->
     <header class="bg-slate-900 border-b border-slate-800 text-white sticky top-0 z-40 shadow-sm">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
 
         <!-- Brand & Company -->
         <div class="flex items-center space-x-3">
@@ -153,16 +153,16 @@
                 class="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/30">HRM
                 & E-Office</span>
             </div>
-            <p class="text-[11px] text-slate-400">Hệ Thống Quản Trị Doanh Nghiệp Toàn Diện</p>
+            <p class="text-xs text-slate-400">Hệ Thống Quản Trị Doanh Nghiệp Toàn Diện</p>
           </div>
         </div>
 
         <!-- Sync Indicator & Profile Menu -->
         <div class="flex items-center space-x-4">
           <div id="sync-status"
-            class="hidden sm:flex items-center space-x-1.5 text-[11px] text-emerald-400 bg-emerald-950/40 border border-emerald-800/40 px-2.5 py-1 rounded-full">
-            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-            <span>Google Sheets Connected</span>
+            class="hidden sm:flex items-center space-x-1.5 text-xs text-emerald-400 bg-emerald-950/40 border border-emerald-800/40 px-3 py-1 rounded-full">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span class="font-medium">Google Sheets Connected</span>
           </div>
 
           <!-- User info -->
@@ -170,7 +170,7 @@
             <img id="user-avatar" src="" class="w-8 h-8 rounded-full border border-slate-700 object-cover" alt="Avatar">
             <div class="text-left hidden sm:block">
               <div id="user-name" class="text-xs font-bold text-white leading-tight">--</div>
-              <div id="user-role-label" class="text-[10px] text-blue-400 font-medium">--</div>
+              <div id="user-role-label" class="text-[11px] text-blue-400 font-medium">--</div>
             </div>
           </div>
 
@@ -187,49 +187,49 @@
 
     <!-- Navigation Tabs -->
     <div class="bg-white border-b border-slate-200 shadow-sm sticky top-16 z-30">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <nav class="flex space-x-1 sm:space-x-3 overflow-x-auto py-2" id="nav-tabs">
+      <div class="max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8">
+        <nav class="flex space-x-1 sm:space-x-2 overflow-x-auto py-2.5" id="nav-tabs">
           <button onclick="switchTab('dashboard')" id="tab-btn-dashboard"
-            class="nav-tab active px-3.5 py-2 rounded-lg text-sm font-semibold flex items-center space-x-2 text-blue-600 bg-blue-50">
+            class="nav-tab active px-3.5 py-2 rounded-lg text-sm font-semibold flex items-center space-x-2 text-blue-600 bg-blue-50 whitespace-nowrap shrink-0 transition">
             <i class="fa-solid fa-chart-pie text-sm"></i>
             <span>Tổng Quan</span>
           </button>
           <button onclick="switchTab('employees')" id="tab-btn-employees"
-            class="nav-tab px-3.5 py-2 rounded-lg text-sm font-semibold flex items-center space-x-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100">
+            class="nav-tab px-3.5 py-2 rounded-lg text-sm font-semibold flex items-center space-x-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 whitespace-nowrap shrink-0 transition">
             <i class="fa-solid fa-users text-sm"></i>
             <span>Nhân Sự</span>
           </button>
           <button onclick="switchTab('timesheet')" id="tab-btn-timesheet"
-            class="nav-tab px-3.5 py-2 rounded-lg text-sm font-semibold flex items-center space-x-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100">
+            class="nav-tab px-3.5 py-2 rounded-lg text-sm font-semibold flex items-center space-x-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 whitespace-nowrap shrink-0 transition">
             <i class="fa-solid fa-calendar-check text-sm"></i>
             <span>Bảng Chấm Công</span>
           </button>
           <button onclick="switchTab('leave')" id="tab-btn-leave"
-            class="nav-tab px-3.5 py-2 rounded-lg text-sm font-semibold flex items-center space-x-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100">
+            class="nav-tab px-3.5 py-2 rounded-lg text-sm font-semibold flex items-center space-x-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 whitespace-nowrap shrink-0 transition">
             <i class="fa-solid fa-file-signature text-sm"></i>
             <span>Xin Nghỉ Phép</span>
             <span id="leave-pending-badge"
-              class="ml-1 text-[10px] px-1.5 py-0.2 rounded-full bg-amber-500 text-white font-bold hidden">0</span>
+              class="ml-1 text-[11px] px-2 py-0.5 rounded-full bg-amber-500 text-white font-bold hidden">0</span>
           </button>
           <button onclick="switchTab('sick')" id="tab-btn-sick"
-            class="nav-tab px-3.5 py-2 rounded-lg text-sm font-semibold flex items-center space-x-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100">
+            class="nav-tab px-3.5 py-2 rounded-lg text-sm font-semibold flex items-center space-x-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 whitespace-nowrap shrink-0 transition">
             <i class="fa-solid fa-briefcase-medical text-sm"></i>
             <span>Hồ Sơ Ốm Đau (BHXH)</span>
             <span id="sick-pending-badge"
-              class="ml-1 text-[10px] px-1.5 py-0.2 rounded-full bg-rose-500 text-white font-bold hidden">0</span>
+              class="ml-1 text-[11px] px-2 py-0.5 rounded-full bg-rose-500 text-white font-bold hidden">0</span>
           </button>
           <button onclick="switchTab('payroll')" id="tab-btn-payroll"
-            class="nav-tab px-3.5 py-2 rounded-lg text-sm font-semibold flex items-center space-x-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100">
+            class="nav-tab px-3.5 py-2 rounded-lg text-sm font-semibold flex items-center space-x-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 whitespace-nowrap shrink-0 transition">
             <i class="fa-solid fa-money-check-dollar text-sm"></i>
             <span>Tiền Lương</span>
           </button>
           <button onclick="switchTab('tasks')" id="tab-btn-tasks"
-            class="nav-tab px-3.5 py-2 rounded-lg text-sm font-semibold flex items-center space-x-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100">
+            class="nav-tab px-3.5 py-2 rounded-lg text-sm font-semibold flex items-center space-x-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 whitespace-nowrap shrink-0 transition">
             <i class="fa-solid fa-list-check text-sm"></i>
             <span>Công Việc</span>
           </button>
           <button onclick="switchTab('docs')" id="tab-btn-docs"
-            class="nav-tab px-3.5 py-2 rounded-lg text-sm font-semibold flex items-center space-x-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100">
+            class="nav-tab px-3.5 py-2 rounded-lg text-sm font-semibold flex items-center space-x-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 whitespace-nowrap shrink-0 transition">
             <i class="fa-solid fa-folder-tree text-sm"></i>
             <span>Văn Bản & Quy Chế</span>
           </button>
@@ -238,7 +238,7 @@
     </div>
 
     <!-- Main Content Area -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-grow w-full">
+    <main class="max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-grow w-full">
 
       <!-- ========================================== -->
       <!-- TAB 1: DASHBOARD -->
@@ -246,24 +246,25 @@
       <section id="pane-dashboard" class="tab-pane space-y-6">
         <!-- Banner Greeting -->
         <div
-          class="bg-gradient-to-r from-slate-900 via-indigo-950 to-blue-900 rounded-2xl p-6 text-white shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-          <div>
-            <div class="flex items-center space-x-2">
-              <h2 class="text-2xl font-bold tracking-tight">Xin chào, <span id="greet-name">--</span> 👋</h2>
+          class="bg-gradient-to-r from-slate-950 via-slate-900 to-indigo-950 rounded-2xl p-6 text-white shadow-xl border border-slate-800 flex flex-col md:flex-row items-start md:items-center justify-between gap-5 relative overflow-hidden">
+          <div class="absolute -right-10 -bottom-10 w-44 h-44 bg-blue-600/10 rounded-full blur-3xl pointer-events-none"></div>
+          <div class="relative z-10">
+            <div class="flex items-center space-x-2.5">
+              <h2 class="text-2xl font-extrabold tracking-tight">Xin chào, <span id="greet-name">--</span> 👋</h2>
               <span id="greet-badge"
-                class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-500/30 text-blue-300 border border-blue-400/30">--</span>
+                class="px-3 py-0.5 rounded-full text-xs font-bold bg-blue-500/25 text-blue-300 border border-blue-400/40">--</span>
             </div>
-            <p class="text-slate-300 text-sm mt-1">Chúc bạn một ngày làm việc hiệu quả tại VinTech Solutions!</p>
+            <p class="text-slate-300 text-sm mt-1.5 font-medium">Chúc bạn một ngày làm việc tràn đầy năng lượng tại VinTech Solutions!</p>
           </div>
-          <div class="flex items-center space-x-3">
+          <div class="flex items-center space-x-3 shrink-0 relative z-10">
             <button onclick="openLeaveModal()"
-              class="px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-semibold shadow-md flex items-center space-x-2 transition">
+              class="px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs sm:text-sm font-bold shadow-lg shadow-blue-600/30 flex items-center space-x-2 transition duration-150">
               <i class="fa-solid fa-plus"></i>
               <span>Tạo Đơn Nghỉ Phép</span>
             </button>
             <button onclick="openSickModal()"
-              class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-xl text-xs font-semibold shadow-sm flex items-center space-x-2 transition">
-              <i class="fa-solid fa-file-medical"></i>
+              class="px-4 py-2.5 bg-white/10 hover:bg-white/20 text-white border border-white/25 backdrop-blur-md rounded-xl text-xs sm:text-sm font-semibold shadow-sm flex items-center space-x-2 transition duration-150">
+              <i class="fa-solid fa-file-medical text-rose-300"></i>
               <span>Gửi Hồ Sơ Ốm Đau</span>
             </button>
           </div>
@@ -271,56 +272,56 @@
 
         <!-- Metric Cards -->
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
+          <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md hover:border-slate-300 transition duration-150">
             <div class="flex items-center justify-between">
-              <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Quân Số Nhân Sự</span>
-              <div class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center text-xs"><i
+              <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Quân Số Nhân Sự</span>
+              <div class="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-sm shadow-sm"><i
                   class="fa-solid fa-users"></i></div>
             </div>
             <div id="kpi-total-emp" class="mt-2 text-2xl font-extrabold text-slate-900">5</div>
-            <p class="text-[11px] text-slate-400 mt-0.5">3 phòng ban chức năng</p>
+            <p class="text-xs text-slate-500 font-medium mt-0.5">3 phòng ban chức năng</p>
           </div>
 
-          <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
+          <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md hover:border-slate-300 transition duration-150">
             <div class="flex items-center justify-between">
-              <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Đi Làm Hôm Nay</span>
-              <div class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center text-xs"><i
+              <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Đi Làm Hôm Nay</span>
+              <div class="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-sm shadow-sm"><i
                   class="fa-solid fa-user-check"></i></div>
             </div>
             <div class="mt-2 text-2xl font-extrabold text-emerald-600"><span id="kpi-working-today">4</span> / <span
                 id="kpi-total-emp-sub">5</span></div>
-            <p class="text-[11px] text-slate-400 mt-0.5">Tỷ lệ chuyên cần 92.4%</p>
+            <p class="text-xs text-slate-500 font-medium mt-0.5">Tỷ lệ chuyên cần 92.4%</p>
           </div>
 
-          <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
+          <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md hover:border-slate-300 transition duration-150">
             <div class="flex items-center justify-between">
-              <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Đơn Chờ Xử Lý</span>
-              <div class="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center text-xs"><i
+              <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Đơn Chờ Xử Lý</span>
+              <div class="w-9 h-9 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-sm shadow-sm"><i
                   class="fa-solid fa-clock-rotate-left"></i></div>
             </div>
             <div id="kpi-pending-total" class="mt-2 text-2xl font-extrabold text-amber-600">0</div>
-            <p class="text-[11px] text-slate-400 mt-0.5">Nghỉ phép & chế độ BHXH</p>
+            <p class="text-xs text-slate-500 font-medium mt-0.5">Nghỉ phép & chế độ BHXH</p>
           </div>
 
-          <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
+          <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md hover:border-slate-300 transition duration-150">
             <div class="flex items-center justify-between">
-              <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Nhiệm Vụ Đang Chạy</span>
-              <div class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center text-xs"><i
+              <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Nhiệm Vụ Đang Chạy</span>
+              <div class="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-sm shadow-sm"><i
                   class="fa-solid fa-list-check"></i></div>
             </div>
             <div id="kpi-active-tasks" class="mt-2 text-2xl font-extrabold text-indigo-600">3</div>
-            <p class="text-[11px] text-slate-400 mt-0.5">Kỳ đánh giá Q4/2026</p>
+            <p class="text-xs text-slate-500 font-medium mt-0.5">Kỳ đánh giá Q4/2026</p>
           </div>
         </div>
 
         <!-- Workflow Review Box -->
         <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm">
-          <div class="flex items-center justify-between mb-4">
-            <h3 class="text-sm font-bold text-slate-900 flex items-center space-x-2">
-              <i class="fa-solid fa-bell text-amber-500"></i>
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4 pb-3 border-b border-slate-100">
+            <h3 class="text-base font-bold text-slate-900 flex items-center space-x-2.5">
+              <i class="fa-solid fa-bell text-amber-500 text-base"></i>
               <span>Danh Sách Đơn Cần Phê Duyệt & Xử Lý</span>
             </h3>
-            <span id="role-notice" class="text-xs text-slate-500"></span>
+            <span id="role-notice" class="text-xs font-semibold px-3 py-1 rounded-full bg-slate-100 text-slate-600 border border-slate-200/80 w-fit"></span>
           </div>
           <div id="dash-pending-list" class="space-y-3">
             <!-- Rendered by JS -->
@@ -1093,14 +1094,14 @@
     function switchTab(tabId) {
       document.querySelectorAll('.tab-pane').forEach(p => p.classList.add('hidden'));
       document.querySelectorAll('.nav-tab').forEach(t => {
-        t.className = 'nav-tab px-3.5 py-2 rounded-lg text-sm font-semibold flex items-center space-x-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100';
+        t.className = 'nav-tab px-3.5 py-2 rounded-lg text-sm font-semibold flex items-center space-x-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 whitespace-nowrap shrink-0 transition';
       });
 
       const pane = document.getElementById(`pane-${tabId}`);
       if (pane) pane.classList.remove('hidden');
 
       const btn = document.getElementById(`tab-btn-${tabId}`);
-      if (btn) btn.className = 'nav-tab px-3.5 py-2 rounded-lg text-sm font-semibold flex items-center space-x-2 text-blue-600 bg-blue-50';
+      if (btn) btn.className = 'nav-tab active px-3.5 py-2 rounded-lg text-sm font-semibold flex items-center space-x-2 text-blue-600 bg-blue-50 whitespace-nowrap shrink-0 transition';
 
       if (tabId === 'dashboard') renderDashboard();
       if (tabId === 'employees') renderEmployees();
@@ -1128,56 +1129,74 @@
       kpiActiveTasks.innerText = appData.tasks.filter(t => t.status !== 'Hoàn thành').length;
 
       let pendings = [];
+
+      // Lọc đơn nghỉ phép theo quyền hạn bảo mật
       appData.leaveRequests.filter(r => r.status === 'PENDING').forEach(r => {
+        // Nhân viên chỉ thấy đơn của chính mình
+        if (currentUser.role === 'employee' && r.empId !== currentUser.id) return;
+
         pendings.push({
           type: 'leave',
           id: r.id,
           title: `Đơn xin nghỉ phép (${r.type} - ${r.days} ngày)`,
-          sub: `${r.empName} • ${r.from} đến ${r.to} • "${r.reason}"`,
+          sub: `${r.empName} • Từ ${r.from} đến ${r.to} • Lý do: "${r.reason}"`,
           canApprove: (currentUser.role === 'manager' || currentUser.role === 'hr'),
-          roleReq: 'Quản lý duyệt'
+          roleReq: currentUser.role === 'employee' ? 'Đang chờ Quản lý duyệt' : 'Quản lý duyệt'
         });
       });
 
+      // Lọc hồ sơ ốm đau theo quyền hạn bảo mật
       appData.sickCases.filter(s => s.status === 'PENDING').forEach(s => {
+        // Nhân viên chỉ thấy hồ sơ ốm đau của chính mình (bảo mật thông tin y tế)
+        if (currentUser.role === 'employee' && s.empId !== currentUser.id) return;
+
         pendings.push({
           type: 'sick',
           id: s.id,
           title: `Hồ sơ nghỉ ốm hưởng BHXH (${s.days} ngày)`,
-          sub: `${s.empName} • ${s.hospital} • ${s.from} đến ${s.to}`,
+          sub: `${s.empName} • ${s.hospital} • Từ ${s.from} đến ${s.to}`,
           canApprove: (currentUser.role === 'hr'),
-          roleReq: 'HR & Kế toán duyệt'
+          roleReq: currentUser.role === 'employee' ? 'Đang chờ HR duyệt BHXH' : 'HR & Kế toán duyệt'
         });
       });
 
       kpiPending.innerText = pendings.length;
-      if (pendings.filter(p => p.type === 'leave').length > 0) {
-        badgeLeave.innerText = pendings.filter(p => p.type === 'leave').length;
+
+      // Cập nhật Badge trên thanh Menu Tab theo quyền
+      const leavesPendingCount = appData.leaveRequests.filter(r => r.status === 'PENDING' && (currentUser.role !== 'employee' || r.empId === currentUser.id)).length;
+      const sickPendingCount = appData.sickCases.filter(s => s.status === 'PENDING' && (currentUser.role !== 'employee' || s.empId === currentUser.id)).length;
+
+      if (leavesPendingCount > 0) {
+        badgeLeave.innerText = leavesPendingCount;
         badgeLeave.classList.remove('hidden');
       } else {
         badgeLeave.classList.add('hidden');
       }
 
-      if (pendings.filter(p => p.type === 'sick').length > 0) {
-        badgeSick.innerText = pendings.filter(p => p.type === 'sick').length;
+      if (sickPendingCount > 0) {
+        badgeSick.innerText = sickPendingCount;
         badgeSick.classList.remove('hidden');
       } else {
         badgeSick.classList.add('hidden');
       }
 
       if (currentUser.role === 'employee') {
-        roleNotice.innerText = 'Bạn đang đăng nhập quyền Nhân viên: Xem tiến độ đơn';
+        roleNotice.innerText = 'Chế độ cá nhân: Theo dõi tiến độ phê duyệt hồ sơ của bạn';
       } else if (currentUser.role === 'manager') {
-        roleNotice.innerText = 'Quyền Trưởng phòng: Bạn có thẩm quyền phê duyệt Đơn xin nghỉ phép';
+        roleNotice.innerText = 'Quyền Trưởng phòng: Thẩm quyền phê duyệt Đơn xin nghỉ phép';
       } else {
         roleNotice.innerText = 'Quyền HR/Kế toán: Thẩm quyền duyệt hồ sơ BHXH & Bảng lương';
       }
 
       if (pendings.length === 0) {
         pList.innerHTML = `
-          <div class="text-center py-8 text-slate-400">
-            <i class="fa-solid fa-circle-check text-emerald-500 text-3xl mb-2"></i>
-            <p class="text-xs">Hiện tại không có đơn nào đang chờ xử lý. Tất cả quy trình đã hoàn tất!</p>
+          <div class="text-center py-10 text-slate-400">
+            <i class="fa-solid fa-circle-check text-emerald-500 text-3xl mb-2.5"></i>
+            <p class="text-xs sm:text-sm font-medium text-slate-600">
+              ${currentUser.role === 'employee'
+                ? 'Bạn hiện không có đơn nào đang chờ xử lý. Tất cả quy trình đã hoàn tất!'
+                : 'Hiện tại không có đơn nào đang chờ xử lý. Tất cả quy trình đã hoàn tất!'}
+            </p>
           </div>
         `;
         return;
@@ -1188,26 +1207,26 @@
         let actionBtn = '';
         if (p.canApprove) {
           if (p.type === 'leave') {
-            actionBtn = `<button onclick="approveLeave('${p.id}')" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold shadow-sm transition"><i class="fa-solid fa-check mr-1"></i>Duyệt Ngay</button>`;
+            actionBtn = `<button onclick="approveLeave('${p.id}')" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold shadow-sm transition flex items-center space-x-1.5"><i class="fa-solid fa-check"></i><span>Duyệt Ngay</span></button>`;
           } else {
-            actionBtn = `<button onclick="approveSick('${p.id}')" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold shadow-sm transition"><i class="fa-solid fa-check mr-1"></i>Duyệt BHXH</button>`;
+            actionBtn = `<button onclick="approveSick('${p.id}')" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold shadow-sm transition flex items-center space-x-1.5"><i class="fa-solid fa-check"></i><span>Duyệt BHXH</span></button>`;
           }
         } else {
-          actionBtn = `<span class="text-[11px] px-2.5 py-1 rounded-full bg-slate-100 text-slate-500 font-semibold"><i class="fa-solid fa-lock mr-1"></i>${p.roleReq}</span>`;
+          actionBtn = `<span class="text-xs px-3 py-1.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200/80 font-semibold flex items-center space-x-1"><i class="fa-solid fa-clock"></i><span>${p.roleReq}</span></span>`;
         }
 
         html += `
-          <div class="flex items-center justify-between p-3.5 bg-slate-50 hover:bg-slate-100/80 rounded-xl border border-slate-200 transition">
-            <div class="flex items-center space-x-3">
-              <div class="w-8 h-8 rounded-lg ${p.type === 'leave' ? 'bg-amber-100 text-amber-700' : 'bg-rose-100 text-rose-700'} flex items-center justify-center text-sm font-bold">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-slate-50/70 hover:bg-slate-100/80 rounded-2xl border border-slate-200/80 transition duration-150 gap-3">
+            <div class="flex items-center space-x-3.5">
+              <div class="w-10 h-10 rounded-xl ${p.type === 'leave' ? 'bg-amber-100 text-amber-700' : 'bg-rose-100 text-rose-700'} flex items-center justify-center text-base font-bold shrink-0 shadow-sm">
                 <i class="${p.type === 'leave' ? 'fa-solid fa-file-pen' : 'fa-solid fa-heart-pulse'}"></i>
               </div>
               <div>
-                <div class="text-xs font-bold text-slate-800">${p.title}</div>
-                <div class="text-[11px] text-slate-500 mt-0.5">${p.sub}</div>
+                <div class="text-sm font-bold text-slate-900">${p.title}</div>
+                <div class="text-xs text-slate-500 mt-0.5">${p.sub}</div>
               </div>
             </div>
-            <div>${actionBtn}</div>
+            <div class="self-end sm:self-center shrink-0">${actionBtn}</div>
           </div>
         `;
       });

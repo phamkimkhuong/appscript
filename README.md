@@ -38,12 +38,22 @@ npm run type-check
 ```
 * **Ý nghĩa:** Chạy `tsc --noEmit` với từ điển `@types/google-apps-script`. Nếu có lỗi, terminal sẽ chỉ rõ tên file, số dòng và vị trí lỗi.
 
-### 🔹 Bước 2: Đẩy code lên Cloud trong lúc đang viết tính năng (Dev Mode)
-Khi bạn sửa HTML, CSS hoặc logic JS và muốn test ngay mà không cần deploy:
+### 🔹 Bước 2: Chế độ Live Code Tự Động (Watch Mode - Khuyên Dùng Khi Đang Dev)
+Khi bạn đang code và muốn **mỗi khi lưu file (`Ctrl + S`), code tự động đẩy lên Cloud ngay lập tức** mà không cần gõ lệnh push thủ công:
 ```bash
-clasp push -f
+npm run watch
 # hoặc
+npx @google/clasp push --watch
+```
+* **Cơ chế:** Terminal sẽ chạy ngầm theo dõi các file. Hễ phát hiện file thay đổi, Clasp tự động push lên Cloud trong 2-3 giây.
+* **Cách xem kết quả:** Mở link **Dev Test (`/dev`)** ở mục 1 và bấm **F5 (Reload)**.
+
+### 🔹 Bước 2b: Đẩy code thủ công một lần (Manual Push)
+Nếu không dùng watch mode, bạn có thể đẩy thủ công bất kỳ lúc nào:
+```bash
 npm run push
+# hoặc
+clasp push -f
 ```
 * **Cách test:** Mở link đuôi `/dev` ở mục 1 và bấm **F5 (Reload)**. Code mới sẽ cập nhật ngay lập tức.
 * *Lưu ý: Chỉ tài khoản sở hữu Google của bạn mới mở được link `/dev`.*
@@ -53,7 +63,7 @@ Khi tính năng đã test ổn định và bạn muốn tự mình deploy bàn g
 ```bash
 clasp deploy -i AKfycbwl4UliPG82gPztpgvmcv7OWsWk4yuPIvx8ysnmVxOdlC6ciQ7jb7LgumtQ1XHnM3CC -d "Mô tả nội dung cập nhật"
 ```
-* **Kết quả:** Code của Version 3 được ghi đè, khách hàng chỉ cần bấm **F5** trên link `/exec` là thấy giao diện mới.
+* **Kết quả:** Code của Version được ghi đè, khách hàng chỉ cần bấm **F5** trên link `/exec` là thấy giao diện mới.
 
 ---
 
@@ -61,6 +71,8 @@ clasp deploy -i AKfycbwl4UliPG82gPztpgvmcv7OWsWk4yuPIvx8ysnmVxOdlC6ciQ7jb7LgumtQ
 
 | Lệnh | Ý nghĩa |
 | :--- | :--- |
+| `npm run watch` | **Live Code Mode**: Tự động theo dõi và đẩy code lên Cloud ngay khi lưu file |
+| `npm run push` | Đẩy toàn bộ mã nguồn lên Cloud 1 lần thủ công (`clasp push -f`) |
 | `npm run type-check` | Quét lỗi tĩnh, type-check toàn bộ dự án với từ điển Google Apps Script |
 | `clasp deployments` | Xem danh sách tất cả các phiên bản triển khai kèm ID |
 | `clasp pull` | Kéo mã nguồn mới nhất từ trên Google Cloud về máy tính cục bộ |
