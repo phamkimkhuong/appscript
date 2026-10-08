@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <title>Quản Lý Dòng Tiền - Web App</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* BƯỚC 1: THAY ĐỔI FONT VÀ MÀU NỀN (ĐÃ LÀM NHẠT HƠN 3 TÔNG) */
+    body { 
+        font-family: 'Times New Roman', Times, serif; 
+        background-color: #673AB7; /* Nền tím nhạt hơn */
+        color: #fff; /* Chữ trắng */
+    }
+    .container { max-width: 1000px; }
+    
+    /* CÁC PHẦN TỬ CHỨA NỘI DUNG (FORMS/TABLES) */
+    .bg-white, .bg-gray-100 {
+        background-color: #9575CD !important; /* Tím Lavender cho các khối chính */
+        color: #fff !important;
+        border-color: #B39DDB !important;
+    }
+    
+    /* THAY ĐỔI MÀU CÁC THẺ CARD TÓM TẮT */
+    #summary-cards > div {
+        /* Phối màu gradient nhẹ nhàng hơn */
+        background-image: linear-gradient(135deg, #7E57C2 0%, #5E35B1 100%) !important;
+        border: 1px solid #D1C4E9;
+    }
+
+    /* CHỮ TRONG CÁC Ô INPUT (MÀU TỐI DỄ ĐỌC) */
+    input, select {
+        color: #333 !important;
+        background-color: #D1C4E9 !important; /* Nền input rất nhạt */
+        border: 1px solid #7E57C2 !important;
+    }
+    
+    /* MÀU NÚT BẤM */
+    #save-button, .bg-blue-600 {
+        background-color: #7E57C2 !important; /* Tím nhấn */
+    }
+    #save-button:hover, .bg-blue-600:hover {
+        background-color: #5E35B1 !important; /* Tím đậm hơn khi hover */
+    }
+    .bg-gray-400 {
+        background-color: #BDBDBD !important;
+    }
+    
+    /* MÀU CHỮ TRONG BẢNG (Giữ nguyên các màu nhạt) */
+    #transaction-table .text-green-600 { color: #A5D6A7 !important; } 
+    #transaction-table .text-red-600 { color: #EF9A9A !important; }    
+    #transaction-table .text-blue-600 { color: #C5CAE9 !important; }   
+    #transaction-table .text-orange-600 { color: #FFCC80 !important; } 
+    
+    /* BƯỚC 2: THÊM TRANG TRÍ TRÁI TIM */
+    /* Định nghĩa hình trái tim */
+    .heart {
+        position: absolute;
+        width: 15px;
+        height: 15px;
+        background: #FFCDD2; /* Màu hồng rất nhạt */
+        transform: rotate(-45deg);
+        z-index: -1; 
+        opacity: 0.7;
+    }
+    .heart:before, .heart:after {
+        content: "";
+        position: absolute;
+        width: 15px;
+        height: 15px;
+        background: #FFCDD2;
+        border-radius: 50%;
+    }
+    .heart:before {
+        left: -50%;
+    }
+    .heart:after {
+        top: -50%;
+    }
+    
+    /* Vị trí ngẫu nhiên của các trái tim */
+    .heart-top-left { top: 10px; left: 10px; transform: rotate(-45deg); }
+    .heart-top-right { top: 50px; right: 50px; transform: rotate(15deg); width: 20px; height: 20px; }
+    .heart-middle-left { top: 350px; left: -10px; transform: rotate(60deg); opacity: 0.5; }
+    .heart-middle-right { top: 200px; right: 10px; transform: rotate(-80deg); width: 10px; height: 10px; }
+    .heart-bottom-right { bottom: 50px; right: 200px; transform: rotate(-45deg); }
+    .heart-bottom-left { bottom: 20px; left: 150px; transform: rotate(45deg); opacity: 0.6; width: 12px; height: 12px; }
+    
+    /* Tùy chỉnh nhỏ cho bảng trên mobile */
+    @media (max-width: 640px) {
+        #transaction-table thead { display: none; }
+        #transaction-table tr { 
+            display: block; margin-bottom: 0.5rem; padding: 0.5rem; 
+            border: 1px solid #B39DDB; border-radius: 0.375rem; 
+        }
+        #transaction-table td { 
+            display: block; text-align: right; 
+            border-bottom: 1px dotted #B39DDB; padding: 0.25rem 0; 
+        }
+        #transaction-table td::before { content: attr(data-label); float: left; font-weight: bold; }
+        #transaction-table td:last-child { border-bottom: none; }
+    }
+  </style>
+</head>
+<body class="p-4 sm:p-8">
+
+  <div class="heart heart-top-left"></div>
+  <div class="heart heart-top-right"></div>
+  <div class="heart heart-middle-left"></div>
+  <div class="heart heart-middle-right"></div>
+  <div class="heart heart-bottom-right"></div>
+  <div class="heart heart-bottom-left"></div>
+
+  <div id="loading-overlay" class="fixed inset-0 flex items-center justify-center z-50 hidden">
+      <div class="bg-white p-6 rounded-lg shadow-2xl w-64 text-center" style="background-color: #D1C4E9 !important;">
+          <svg class="animate-pulse h-10 w-10 text-red-500 mx-auto mb-4" viewBox="0 0 24 24" fill="currentColor" style="color: #FFCDD2 !important;">
+              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+          </svg>
+          <p id="loading-text" class="text-lg font-semibold text-gray-800" style="color: #4A148C !important;">Đang xử lý...</p>
+          <p id="loading-percent" class="text-sm text-blue-600 mt-1" style="color: #7E57C2 !important;">0%</p>
+      </div>
+  </div>
+
+  <audio id="success-sound" preload="auto">
+      <source src="data:audio/mpeg;base64,TUxAUAASdGFnZm10Z3NhbXJsYXRlc3VtbXN1c3R5cGFwZXJpb2RpY3d" type="audio/mpeg">
+  </audio>
+  <div class="container mx-auto">
+    <h1 class="text-3xl font-bold mb-6 text-white border-b pb-2">💵 Quản Lý Dòng Tiền Cá Nhân</h1>
+
+    <div id="summary-cards" class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+      </div>
+
+    <div class="p-6 rounded-lg shadow-xl mb-8">
+      <h2 id="form-title" class="text-2xl font-semibold mb-4 text-white">➕ Thêm Giao Dịch Mới</h2>
+      <form id="transaction-form" class="grid grid-cols-1 md:grid-cols-6 gap-4 items-end">
+        <input type="hidden" name="rowNum" value=""> 
+        <input type="hidden" name="id" value=""> 
+
+        <div class="md:col-span-1">
+          <label for="date" class="block text-sm font-medium text-white">Ngày</label>
+          <input type="date" name="date" required id="date" class="mt-1 w-full p-2 border rounded-md">
+        </div>
+        
+        <div class="md:col-span-1">
+          <label for="type" class="block text-sm font-medium text-white">Loại</label>
+          <select name="type" required id="type" class="mt-1 w-full p-2 border rounded-md">
+            <option value="Chi">Chi tiêu</option>
+            <option value="Thu">Thu nhập</option>
+          </select>
+        </div>
+        
+        <div class="md:col-span-1">
+          <label for="category" class="block text-sm font-medium text-white">Danh Mục</label>
+          <select name="category" required id="category" class="mt-1 w-full p-2 border rounded-md">
+            </select>
+        </div>
+        
+        <div class="md:col-span-2">
+          <label for="description" class="block text-sm font-medium text-white">Mô Tả (Chi làm gì)</label>
+          <input type="text" name="description" required id="description" placeholder="Ví dụ: Ăn trưa tại quán X, Lương tháng 10" class="mt-1 w-full p-2 border rounded-md">
+        </div>
+        
+        <div class="md:col-span-1">
+          <label for="amount" class="block text-sm font-medium text-white">Số Tiền (VND)</label>
+          <input type="number" name="amount" min="1" required id="amount" class="mt-1 w-full p-2 border rounded-md">
+        </div>
+        
+        <div class="md:col-span-6 flex justify-end space-x-2">
+          <button type="submit" id="save-button" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition duration-150">Lưu Giao Dịch</button>
+          <button type="button" id="cancel-button" class="bg-gray-400 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded transition duration-150 hidden" onclick="resetForm()">Hủy Sửa</button>
+        </div>
+      </form>
+    </div>
+
+    <div id="message" class="mb-4 p-3 rounded text-white hidden"></div>
+
+    <div class="p-6 rounded-lg shadow-xl">
+      <h2 class="text-2xl font-semibold mb-4 text-white">🔎 Danh Sách Giao Dịch & Tìm Kiếm</h2>
+      
+      <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 mb-4">
+          <input type="text" id="search-input" onkeyup="filterTable()" placeholder="Tìm kiếm theo Mô Tả..." class="flex-grow p-2 border rounded-md">
+          <select type="text" id="filter-type" onchange="filterTable()" class="p-2 border rounded-md">
+              <option value="">Lọc theo Loại (Tất cả)</option>
+              <option value="Thu">Thu nhập</option>
+              <option value="Chi">Chi tiêu</option>
+          </select>
+          <select id="filter-category" onchange="filterTable()" class="p-2 border rounded-md">
+              <option value="">Lọc theo Danh Mục (Tất cả)</option>
+              </select>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table id="transaction-table" class="min-w-full border">
+          <thead class="bg-gray-100">
+            <tr>
+              <th class="py-2 px-4 border-b text-left text-sm font-semibold">Ngày</th>
+              <th class="py-2 px-4 border-b text-left text-sm font-semibold">Loại</th>
+              <th class="py-2 px-4 border-b text-left text-sm font-semibold">Danh Mục</th>
+              <th class="py-2 px-4 border-b text-left text-sm font-semibold">Mô Tả</th>
+              <th class="py-2 px-4 border-b text-right text-sm font-semibold">Số Tiền (VND)</th>
+              <th class="py-2 px-4 border-b text-center text-sm font-semibold">Hành Động</th>
+            </tr>
+          </thead>
+          <tbody id="transaction-tbody">
+            <tr><td colspan="6" class="text-center py-4">Đang tải dữ liệu...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    
+    <p class="text-center text-white text-sm mt-8">Web App Dòng Tiền sử dụng Google Sheets và Apps Script.</p>
+
+  </div>
+
+  <script>
+  // Mock google.script.run for local browser preview
+  window.google = {
+    script: {
+      run: {
+        withSuccessHandler: function(cb) {
+          return {
+            withFailureHandler: function(failCb) {
+              return {
+                getCategories: function() {
+                  setTimeout(() => cb(["Ăn uống", "Lương", "Mua sắm", "Tiền nhà", "Xăng xe", "Đầu tư"]), 300);
+                },
+                getTransactions: function() {
+                  setTimeout(() => cb([
+                    { rowNum: 2, id: "1001", date: "2026-10-01", type: "Thu", category: "Lương", description: "Lương tháng 09/2026", amount: 25000000 },
+                    { rowNum: 3, id: "1002", date: "2026-10-02", type: "Chi", category: "Tiền nhà", description: "Thanh toán tiền thuê nhà", amount: 6000000 },
+                    { rowNum: 4, id: "1003", date: "2026-10-03", type: "Chi", category: "Ăn uống", description: "Đi siêu thị WinMart", amount: 1250000 },
+                    { rowNum: 5, id: "1004", date: "2026-10-05", type: "Chi", category: "Xăng xe", description: "Đổ xăng xe máy", amount: 120000 },
+                    { rowNum: 6, id: "1005", date: "2026-10-07", type: "Thu", category: "Đầu tư", description: "Cổ tức quý 3", amount: 3500000 }
+                  ]), 500);
+                },
+                addTransaction: function(d) {
+                  setTimeout(() => cb({ success: true, message: "Thêm giao dịch thành công (MOCK)!" }), 400);
+                },
+                updateTransaction: function(d) {
+                  setTimeout(() => cb({ success: true, message: "Cập nhật thành công (MOCK)!" }), 400);
+                },
+                deleteTransaction: function(r) {
+                  setTimeout(() => cb({ success: true, message: "Xóa thành công (MOCK)!" }), 400);
+                }
+              };
+            }
+          };
+        }
+      }
+    }
+  };
+</script>
+<script>
+  let allTransactions = []; 
+  let loadingInterval; 
+
+  // --- HÀM KHỞI TẠO ---
+  document.addEventListener('DOMContentLoaded', function() {
+    loadCategories();
+    loadTransactions();
+    
+    document.getElementById('transaction-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const form = e.target;
+      const data = {
+          rowNum: form.rowNum.value,
+          id: form.id.value,
+          date: form.date.value,
+          type: form.type.value,
+          category: form.category.value,
+          description: form.description.value,
+          amount: form.amount.value
+      };
+      
+      // Kích hoạt loading khi THÊM/SỬA
+      showLoading(true, data.rowNum ? 'Đang cập nhật giao dịch...' : 'Đang thêm giao dịch mới...');
+      
+      if (data.rowNum) {
+        google.script.run
+            .withSuccessHandler(handleSuccess)
+            .withFailureHandler(handleFailure)
+            .updateTransaction(data);
+      } else {
+        google.script.run
+            .withSuccessHandler(handleSuccess)
+            .withFailureHandler(handleFailure)
+            .addTransaction(data);
+      }
+    });
+
+    document.getElementById('date').valueAsDate = new Date();
+  });
+
+  // --- HÀM XỬ LÝ DỮ LIỆU TỪ BACK-END ---
+
+  function loadCategories() {
+    google.script.run
+        .withSuccessHandler(categories => {
+            const formCategorySelect = document.getElementById('category');
+            const filterCategorySelect = document.getElementById('filter-category');
+
+            // Xóa các option cũ trước khi thêm mới
+            formCategorySelect.innerHTML = '<option value="" disabled selected>Chọn Danh Mục</option>';
+            filterCategorySelect.innerHTML = '<option value="">Lọc theo Danh Mục (Tất cả)</option>';
+
+            categories.forEach(cat => {
+                const optionForm = new Option(cat, cat);
+                const optionFilter = new Option(cat, cat);
+                formCategorySelect.add(optionForm);
+                filterCategorySelect.add(optionFilter);
+            });
+            
+            // Nếu danh mục trống, bạn sẽ thấy "Chọn Danh Mục" bị disable, giúp dễ nhận ra lỗi dữ liệu đầu vào.
+            if(categories.length === 0) {
+                 formCategorySelect.innerHTML = '<option value="" disabled selected>LỖI: Chưa có dữ liệu Danh Mục!</option>';
+            }
+        })
+        .withFailureHandler(handleFailure)
+        .getCategories();
+  }
+
+  // ĐÃ SỬA: KHÔNG GỌI showLoading khi tải trang lần đầu
+  function loadTransactions() {
+    // Chỉ tải dữ liệu mà không hiển thị loading
+    google.script.run
+        .withSuccessHandler(data => {
+            allTransactions = data;
+            displayTransactions(allTransactions);
+            calculateSummary(allTransactions); 
+        })
+        .withFailureHandler(handleFailure)
+        .getTransactions();
+  }
+
+  function calculateSummary(data) {
+    let totalIncome = 0;
+    let totalExpense = 0;
+    
+    data.forEach(t => {
+      if (t.type === 'Thu') {
+        totalIncome += t.amount;
+      } else if (t.type === 'Chi') {
+        totalExpense += t.amount;
+      }
+    });
+    
+    const balance = totalIncome - totalExpense;
+    const runningBalance = calculateRunningBalance(allTransactions);
+    
+    const cards = [
+        { title: '💰 Tổng Thu', value: totalIncome, color: 'bg-green-600' },
+        { title: '💸 Tổng Chi', value: totalExpense, color: 'bg-red-600' },
+        { title: '⚖️ Cân Đối (Đã Lọc)', value: balance, color: (balance >= 0 ? 'bg-blue-600' : 'bg-red-800') },
+        { title: '📈 Số Dư Lũy Kế (Toàn Bộ)', value: runningBalance, color: 'bg-indigo-600' }
+    ];
+
+    const cardHtml = cards.map(card => `
+        <div class="p-4 rounded-lg shadow-lg ${card.color} text-white">
+            <h3 class="text-sm font-medium opacity-80">${card.title}</h3>
+            <p class="text-2xl font-bold">${card.value.toLocaleString('vi-VN')} VND</p>
+        </div>
+    `).join('');
+
+    document.getElementById('summary-cards').innerHTML = cardHtml;
+  }
+  
+  function calculateRunningBalance(data) {
+      let balance = 0;
+      data.forEach(t => {
+          if (t.type === 'Thu') {
+              balance += t.amount;
+          } else if (t.type === 'Chi') {
+              balance -= t.amount;
+          }
+      });
+      return balance;
+  }
+
+  function displayTransactions(data) {
+    const tbody = document.getElementById('transaction-tbody');
+    let html = '';
+
+    if (data.length === 0) {
+      html = `<tr><td colspan="6" class="text-center py-4">Không tìm thấy giao dịch nào.</td></tr>`;
+    } else {
+      data.forEach(t => {
+        const amountClass = t.type === 'Thu' ? 'text-green-600' : 'text-red-600';
+        html += `
+          <tr class="hover:bg-gray-700 transition duration-100">
+            <td data-label="Ngày" class="py-2 px-4 border-b text-sm">${t.date}</td>
+            <td data-label="Loại" class="py-2 px-4 border-b text-sm"><span class="font-bold ${t.type === 'Thu' ? 'text-blue-600' : 'text-orange-600'}">${t.type}</span></td>
+            <td data-label="Danh Mục" class="py-2 px-4 border-b text-sm">${t.category}</td>
+            <td data-label="Mô Tả" class="py-2 px-4 border-b text-sm">${t.description}</td>
+            <td data-label="Số Tiền" class="py-2 px-4 border-b text-right font-semibold ${amountClass}">${t.amount.toLocaleString('vi-VN')}</td>
+            <td data-label="Hành Động" class="py-2 px-4 border-b text-center space-x-2">
+              <button onclick="editTransaction(${t.rowNum})" class="text-blue-500 hover:text-blue-300 text-sm">Sửa</button>
+              <button onclick="confirmDelete(${t.rowNum})" class="text-red-500 hover:text-red-300 text-sm">Xóa</button>
+            </td>
+          </tr>
+        `;
+      });
+    }
+
+    tbody.innerHTML = html;
+  }
+  
+  // --- CÁC HÀM TƯƠNG TÁC NGƯỜI DÙNG ---
+
+  function filterTable() {
+    const searchVal = document.getElementById('search-input').value.toLowerCase();
+    const typeVal = document.getElementById('filter-type').value;
+    const categoryVal = document.getElementById('filter-category').value;
+
+    const filtered = allTransactions.filter(t => {
+      const matchSearch = t.description.toLowerCase().includes(searchVal);
+      const matchType = typeVal === '' || t.type === typeVal; 
+      const matchCategory = categoryVal === '' || t.category === categoryVal;
+      
+      return matchSearch && matchType && matchCategory;
+    });
+
+    displayTransactions(filtered);
+    calculateSummary(filtered); 
+  }
+
+  function editTransaction(rowNum) {
+    const transaction = allTransactions.find(t => t.rowNum === rowNum);
+    if (!transaction) return;
+
+    const form = document.getElementById('transaction-form');
+    form.rowNum.value = transaction.rowNum;
+    form.id.value = transaction.id;
+    form.date.value = transaction.date;
+    form.type.value = transaction.type;
+    form.category.value = transaction.category;
+    form.description.value = transaction.description;
+    form.amount.value = transaction.amount;
+
+    document.getElementById('form-title').textContent = '✏️ Sửa Giao Dịch Đã Chọn';
+    document.getElementById('save-button').textContent = 'Cập Nhật';
+    document.getElementById('cancel-button').classList.remove('hidden');
+    window.scrollTo(0, 0); 
+  }
+
+  function confirmDelete(rowNum) {
+    // Sửa lại prompt của trình duyệt để nó gọn hơn
+    if (confirm("Bạn có chắc chắn muốn xóa giao dịch này không?")) {
+      // Kích hoạt loading khi XÓA
+      showLoading(true, 'Đang xóa giao dịch...');
+      google.script.run
+        .withSuccessHandler(handleSuccess)
+        .withFailureHandler(handleFailure)
+        .deleteTransaction(rowNum);
+    }
+  }
+
+  function resetForm() {
+    document.getElementById('transaction-form').reset();
+    document.getElementById('form-title').textContent = '➕ Thêm Giao Dịch Mới';
+    document.getElementById('save-button').textContent = 'Lưu Giao Dịch';
+    document.getElementById('cancel-button').classList.add('hidden');
+    document.getElementById('date').valueAsDate = new Date(); 
+  }
+  
+  // --- HÀM XỬ LÝ KẾT QUẢ VÀ HIỆU ỨNG TING TING ---
+  
+  function handleSuccess(result) {
+    clearInterval(loadingInterval); 
+
+    if (result.success) {
+      document.getElementById('loading-percent').textContent = '100%';
+      document.getElementById('loading-text').textContent = result.message || 'Thao tác thành công!';
+      
+      const sound = document.getElementById('success-sound');
+      if (sound) {
+        sound.currentTime = 0; 
+        sound.play().catch(e => console.error("Lỗi khi chơi âm thanh:", e));
+      }
+
+      resetForm();
+      loadTransactions(); 
+      
+      // Ẩn overlay sau 3 giây
+      setTimeout(() => {
+          document.getElementById('loading-overlay').classList.add('hidden');
+          showMessage(result.message, 'bg-green-500'); 
+      }, 3000); 
+
+    } else {
+      document.getElementById('loading-overlay').classList.add('hidden');
+      showMessage(result.message || 'Thao tác thất bại!', 'bg-red-500');
+    }
+  }
+
+  function handleFailure(error) {
+    clearInterval(loadingInterval);
+    document.getElementById('loading-overlay').classList.add('hidden');
+    showMessage('Lỗi: ' + (error.message || error), 'bg-red-500');
+  }
+  
+  // --- HÀM HIỂN THỊ TRẠNG THÁI LOADING % ---
+  
+  function showLoading(show, msg = 'Đang xử lý...') {
+    const overlay = document.getElementById('loading-overlay');
+    const percentText = document.getElementById('loading-percent');
+    const text = document.getElementById('loading-text');
+
+    if (show) {
+        // Reset và hiển thị
+        overlay.classList.remove('hidden');
+        text.textContent = msg;
+        percentText.textContent = '0%';
+        
+        let percent = 0;
+        loadingInterval = setInterval(() => {
+            if (percent < 90) {
+                // Tăng ngẫu nhiên, giới hạn ở 90%
+                percent += Math.floor(Math.random() * 5) + 1; 
+                if (percent > 90) percent = 90; 
+                percentText.textContent = percent + '%';
+            } else if (percent < 99) {
+                percent += 1; 
+                percentText.textContent = percent + '%';
+            } else {
+                 percentText.textContent = '99%';
+            }
+        }, 300); 
+
+    } else {
+        clearInterval(loadingInterval);
+        overlay.classList.add('hidden');
+    }
+  }
+
+  function showMessage(msg, className) {
+    const msgDiv = document.getElementById('message');
+    // Thay đổi màu thông báo cho phù hợp với nền tím
+    msgDiv.className = `mb-4 p-3 rounded text-white font-bold`; 
+    
+    // Đổi màu nền thông báo dựa trên loại (xanh lá cho success, đỏ cho error)
+    if (className.includes('bg-green')) {
+        msgDiv.style.backgroundColor = '#4CAF50'; 
+    } else if (className.includes('bg-red')) {
+        msgDiv.style.backgroundColor = '#F44336';
+    }
+    
+    msgDiv.textContent = msg;
+    msgDiv.classList.remove('hidden');
+    setTimeout(() => msgDiv.classList.add('hidden'), 5000);
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <title>Quản Lý Dòng Tiền - Web App</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* BƯỚC 1: THAY ĐỔI FONT VÀ MÀU NỀN (ĐÃ LÀM NHẠT HƠN 3 TÔNG) */
+    body { 
+        font-family: 'Times New Roman', Times, serif; 
+        background-color: #673AB7; /* Nền tím nhạt hơn */
+        color: #fff; /* Chữ trắng */
+    }
+    .container { max-width: 1000px; }
+    
+    /* CÁC PHẦN TỬ CHỨA NỘI DUNG (FORMS/TABLES) */
+    .bg-white, .bg-gray-100 {
+        background-color: #9575CD !important; /* Tím Lavender cho các khối chính */
+        color: #fff !important;
+        border-color: #B39DDB !important;
+    }
+    
+    /* THAY ĐỔI MÀU CÁC THẺ CARD TÓM TẮT */
+    #summary-cards > div {
+        /* Phối màu gradient nhẹ nhàng hơn */
+        background-image: linear-gradient(135deg, #7E57C2 0%, #5E35B1 100%) !important;
+        border: 1px solid #D1C4E9;
+    }
+
+    /* CHỮ TRONG CÁC Ô INPUT (MÀU TỐI DỄ ĐỌC) */
+    input, select {
+        color: #333 !important;
+        background-color: #D1C4E9 !important; /* Nền input rất nhạt */
+        border: 1px solid #7E57C2 !important;
+    }
+    
+    /* MÀU NÚT BẤM */
+    #save-button, .bg-blue-600 {
+        background-color: #7E57C2 !important; /* Tím nhấn */
+    }
+    #save-button:hover, .bg-blue-600:hover {
+        background-color: #5E35B1 !important; /* Tím đậm hơn khi hover */
+    }
+    .bg-gray-400 {
+        background-color: #BDBDBD !important;
+    }
+    
+    /* MÀU CHỮ TRONG BẢNG (Giữ nguyên các màu nhạt) */
+    #transaction-table .text-green-600 { color: #A5D6A7 !important; } 
+    #transaction-table .text-red-600 { color: #EF9A9A !important; }    
+    #transaction-table .text-blue-600 { color: #C5CAE9 !important; }   
+    #transaction-table .text-orange-600 { color: #FFCC80 !important; } 
+    
+    /* BƯỚC 2: THÊM TRANG TRÍ TRÁI TIM */
+    /* Định nghĩa hình trái tim */
+    .heart {
+        position: absolute;
+        width: 15px;
+        height: 15px;
+        background: #FFCDD2; /* Màu hồng rất nhạt */
+        transform: rotate(-45deg);
+        z-index: -1; 
+        opacity: 0.7;
+    }
+    .heart:before, .heart:after {
+        content: "";
+        position: absolute;
+        width: 15px;
+        height: 15px;
+        background: #FFCDD2;
+        border-radius: 50%;
+    }
+    .heart:before {
+        left: -50%;
+    }
+    .heart:after {
+        top: -50%;
+    }
+    
+    /* Vị trí ngẫu nhiên của các trái tim */
+    .heart-top-left { top: 10px; left: 10px; transform: rotate(-45deg); }
+    .heart-top-right { top: 50px; right: 50px; transform: rotate(15deg); width: 20px; height: 20px; }
+    .heart-middle-left { top: 350px; left: -10px; transform: rotate(60deg); opacity: 0.5; }
+    .heart-middle-right { top: 200px; right: 10px; transform: rotate(-80deg); width: 10px; height: 10px; }
+    .heart-bottom-right { bottom: 50px; right: 200px; transform: rotate(-45deg); }
+    .heart-bottom-left { bottom: 20px; left: 150px; transform: rotate(45deg); opacity: 0.6; width: 12px; height: 12px; }
+    
+    /* Tùy chỉnh nhỏ cho bảng trên mobile */
+    @media (max-width: 640px) {
+        #transaction-table thead { display: none; }
+        #transaction-table tr { 
+            display: block; margin-bottom: 0.5rem; padding: 0.5rem; 
+            border: 1px solid #B39DDB; border-radius: 0.375rem; 
+        }
+        #transaction-table td { 
+            display: block; text-align: right; 
+            border-bottom: 1px dotted #B39DDB; padding: 0.25rem 0; 
+        }
+        #transaction-table td::before { content: attr(data-label); float: left; font-weight: bold; }
+        #transaction-table td:last-child { border-bottom: none; }
+    }
+  </style>
+</head>
+<body class="p-4 sm:p-8">
+
+  <div class="heart heart-top-left"></div>
+  <div class="heart heart-top-right"></div>
+  <div class="heart heart-middle-left"></div>
+  <div class="heart heart-middle-right"></div>
+  <div class="heart heart-bottom-right"></div>
+  <div class="heart heart-bottom-left"></div>
+
+  <div id="loading-overlay" class="fixed inset-0 flex items-center justify-center z-50 hidden">
+      <div class="bg-white p-6 rounded-lg shadow-2xl w-64 text-center" style="background-color: #D1C4E9 !important;">
+          <svg class="animate-pulse h-10 w-10 text-red-500 mx-auto mb-4" viewBox="0 0 24 24" fill="currentColor" style="color: #FFCDD2 !important;">
+              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+          </svg>
+          <p id="loading-text" class="text-lg font-semibold text-gray-800" style="color: #4A148C !important;">Đang xử lý...</p>
+          <p id="loading-percent" class="text-sm text-blue-600 mt-1" style="color: #7E57C2 !important;">0%</p>
+      </div>
+  </div>
+
+  <audio id="success-sound" preload="auto">
+      <source src="data:audio/mpeg;base64,TUxAUAASdGFnZm10Z3NhbXJsYXRlc3VtbXN1c3R5cGFwZXJpb2RpY3d" type="audio/mpeg">
+  </audio>
+  <div class="container mx-auto">
+    <h1 class="text-3xl font-bold mb-6 text-white border-b pb-2">💵 Quản Lý Dòng Tiền Cá Nhân</h1>
+
+    <div id="summary-cards" class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+      </div>
+
+    <div class="p-6 rounded-lg shadow-xl mb-8">
+      <h2 id="form-title" class="text-2xl font-semibold mb-4 text-white">➕ Thêm Giao Dịch Mới</h2>
+      <form id="transaction-form" class="grid grid-cols-1 md:grid-cols-6 gap-4 items-end">
+        <input type="hidden" name="rowNum" value=""> 
+        <input type="hidden" name="id" value=""> 
+
+        <div class="md:col-span-1">
+          <label for="date" class="block text-sm font-medium text-white">Ngày</label>
+          <input type="date" name="date" required id="date" class="mt-1 w-full p-2 border rounded-md">
+        </div>
+        
+        <div class="md:col-span-1">
+          <label for="type" class="block text-sm font-medium text-white">Loại</label>
+          <select name="type" required id="type" class="mt-1 w-full p-2 border rounded-md">
+            <option value="Chi">Chi tiêu</option>
+            <option value="Thu">Thu nhập</option>
+          </select>
+        </div>
+        
+        <div class="md:col-span-1">
+          <label for="category" class="block text-sm font-medium text-white">Danh Mục</label>
+          <select name="category" required id="category" class="mt-1 w-full p-2 border rounded-md">
+            </select>
+        </div>
+        
+        <div class="md:col-span-2">
+          <label for="description" class="block text-sm font-medium text-white">Mô Tả (Chi làm gì)</label>
+          <input type="text" name="description" required id="description" placeholder="Ví dụ: Ăn trưa tại quán X, Lương tháng 10" class="mt-1 w-full p-2 border rounded-md">
+        </div>
+        
+        <div class="md:col-span-1">
+          <label for="amount" class="block text-sm font-medium text-white">Số Tiền (VND)</label>
+          <input type="number" name="amount" min="1" required id="amount" class="mt-1 w-full p-2 border rounded-md">
+        </div>
+        
+        <div class="md:col-span-6 flex justify-end space-x-2">
+          <button type="submit" id="save-button" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition duration-150">Lưu Giao Dịch</button>
+          <button type="button" id="cancel-button" class="bg-gray-400 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded transition duration-150 hidden" onclick="resetForm()">Hủy Sửa</button>
+        </div>
+      </form>
+    </div>
+
+    <div id="message" class="mb-4 p-3 rounded text-white hidden"></div>
+
+    <div class="p-6 rounded-lg shadow-xl">
+      <h2 class="text-2xl font-semibold mb-4 text-white">🔎 Danh Sách Giao Dịch & Tìm Kiếm</h2>
+      
+      <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 mb-4">
+          <input type="text" id="search-input" onkeyup="filterTable()" placeholder="Tìm kiếm theo Mô Tả..." class="flex-grow p-2 border rounded-md">
+          <select type="text" id="filter-type" onchange="filterTable()" class="p-2 border rounded-md">
+              <option value="">Lọc theo Loại (Tất cả)</option>
+              <option value="Thu">Thu nhập</option>
+              <option value="Chi">Chi tiêu</option>
+          </select>
+          <select id="filter-category" onchange="filterTable()" class="p-2 border rounded-md">
+              <option value="">Lọc theo Danh Mục (Tất cả)</option>
+              </select>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table id="transaction-table" class="min-w-full border">
+          <thead class="bg-gray-100">
+            <tr>
+              <th class="py-2 px-4 border-b text-left text-sm font-semibold">Ngày</th>
+              <th class="py-2 px-4 border-b text-left text-sm font-semibold">Loại</th>
+              <th class="py-2 px-4 border-b text-left text-sm font-semibold">Danh Mục</th>
+              <th class="py-2 px-4 border-b text-left text-sm font-semibold">Mô Tả</th>
+              <th class="py-2 px-4 border-b text-right text-sm font-semibold">Số Tiền (VND)</th>
+              <th class="py-2 px-4 border-b text-center text-sm font-semibold">Hành Động</th>
+            </tr>
+          </thead>
+          <tbody id="transaction-tbody">
+            <tr><td colspan="6" class="text-center py-4">Đang tải dữ liệu...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    
+    <p class="text-center text-white text-sm mt-8">Web App Dòng Tiền sử dụng Google Sheets và Apps Script.</p>
+
+  </div>
+
+  <?!= include('javascript') ?>
+</body>
+</html>
