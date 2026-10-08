@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>VinTech Solutions - HRM & E-Office Portal</title>
+  <title>VinTech Solutions - Hệ Thống Quản Trị Doanh Nghiệp (HRM & E-Office)</title>
   <!-- Google Fonts: Inter -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -15,36 +15,13 @@
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: { sans: ['Inter', 'sans-serif'] },
-          colors: {
-            brand: {
-              50: '#eff6ff',
-              100: '#dbeafe',
-              500: '#3b82f6',
-              600: '#2563eb',
-              700: '#1d4ed8',
-              800: '#1e40af',
-              900: '#1e3a8a',
-              950: '#0f172a'
-            }
-          }
-        }
-      }
-    }
-  </script>
-
   <style>
     body { font-family: 'Inter', sans-serif; }
-    /* Custom Scrollbar */
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: #f1f5f9; }
     ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
     ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-    .matrix-cell { min-width: 34px; max-width: 34px; height: 34px; font-size: 11px; }
+    .matrix-cell { min-width: 32px; max-width: 32px; height: 32px; font-size: 11px; }
     .cell-x { background-color: #f1f5f9; color: #334155; font-weight: 600; }
     .cell-p { background-color: #dbeafe; color: #1d4ed8; font-weight: 700; }
     .cell-o { background-color: #ffedd5; color: #c2410c; font-weight: 700; }
@@ -54,327 +31,312 @@
 </head>
 <body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col">
 
-  <!-- TOP BAR: ROLE SWITCHER & DEMO CONTROLS -->
-  <header class="bg-slate-900 border-b border-slate-800 text-white sticky top-0 z-50 shadow-md">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+  <!-- ============================================================= -->
+  <!-- 1. MÀN HÌNH ĐĂNG NHẬP CHUẨN DOANH NGHIỆP (LOGIN SCREEN) -->
+  <!-- ============================================================= -->
+  <div id="screen-login" class="fixed inset-0 z-50 bg-slate-950 flex items-center justify-center p-4">
+    <div class="max-w-md w-full bg-slate-900 border border-slate-800 rounded-3xl p-8 shadow-2xl relative overflow-hidden">
       
-      <!-- Brand & Company -->
-      <div class="flex items-center space-x-3">
-        <div class="h-9 w-9 rounded-lg bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center shadow-lg shadow-blue-500/30">
-          <i class="fa-solid fa-building-user text-white text-base"></i>
+      <!-- Top Glow Effect -->
+      <div class="absolute -top-24 -left-24 w-48 h-48 bg-blue-600/20 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute -bottom-24 -right-24 w-48 h-48 bg-indigo-600/20 rounded-full blur-3xl pointer-events-none"></div>
+
+      <!-- Brand Header -->
+      <div class="text-center mb-8 relative">
+        <div class="h-14 w-14 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-500 mx-auto flex items-center justify-center shadow-lg shadow-blue-500/30 mb-3">
+          <i class="fa-solid fa-building-user text-white text-2xl"></i>
         </div>
+        <h1 class="text-xl font-bold text-white tracking-tight">VinTech Solutions</h1>
+        <p class="text-xs text-slate-400 mt-1">Cổng Quản Trị Nhân Sự & Văn Phòng Số Doanh Nghiệp</p>
+      </div>
+
+      <!-- Login Form -->
+      <form onsubmit="handleLoginSubmit(event)" class="space-y-4 relative">
         <div>
-          <div class="flex items-center space-x-2">
-            <span class="font-bold text-base tracking-tight text-white">VinTech Solutions</span>
-            <span class="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/30">HRM & E-Office</span>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Tài khoản / Email nội bộ</label>
+          <div class="relative">
+            <i class="fa-regular fa-envelope absolute left-3.5 top-3 text-slate-500 text-xs"></i>
+            <input type="text" id="login-username" required placeholder="phuong.le@vintech.vn" class="w-full bg-slate-800/80 border border-slate-700 rounded-xl pl-9 pr-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
           </div>
-          <p class="text-[11px] text-slate-400">Hệ Thống Quản Trị Nhân Sự & Văn Phòng Số</p>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Mật khẩu</label>
+          <div class="relative">
+            <i class="fa-solid fa-lock absolute left-3.5 top-3 text-slate-500 text-xs"></i>
+            <input type="password" id="login-password" required value="123456" placeholder="••••••••" class="w-full bg-slate-800/80 border border-slate-700 rounded-xl pl-9 pr-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+          </div>
+        </div>
+
+        <button type="submit" class="w-full py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold shadow-lg shadow-blue-600/30 transition duration-150">
+          Đăng Nhập Hệ Thống
+        </button>
+      </form>
+
+      <!-- Quick Demo Account Fill (Dành cho trình diễn & kiểm thử nhanh) -->
+      <div class="mt-6 pt-5 border-t border-slate-800/80 relative text-left">
+        <div class="flex items-center justify-between mb-2.5">
+          <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Tài khoản mẫu trải nghiệm:</span>
+          <span class="text-[10px] text-slate-500">(Bấm để điền nhanh)</span>
+        </div>
+        <div class="grid grid-cols-1 gap-2">
+          
+          <button type="button" onclick="fillAndLogin('phuong.le@vintech.vn')" class="p-2.5 rounded-xl bg-slate-800/50 hover:bg-slate-800 border border-slate-700/60 text-left flex items-center justify-between transition group">
+            <div class="flex items-center space-x-2.5">
+              <div class="w-7 h-7 rounded-lg bg-blue-500/10 text-blue-400 flex items-center justify-center text-xs"><i class="fa-solid fa-user"></i></div>
+              <div>
+                <div class="text-xs font-bold text-white group-hover:text-blue-400 transition">1. Lê Thị Phương</div>
+                <div class="text-[10px] text-slate-400">Nhân viên Kỹ thuật (Quyền cơ bản)</div>
+              </div>
+            </div>
+            <i class="fa-solid fa-arrow-right text-slate-600 group-hover:text-white text-xs transition"></i>
+          </button>
+
+          <button type="button" onclick="fillAndLogin('tri.tran@vintech.vn')" class="p-2.5 rounded-xl bg-slate-800/50 hover:bg-slate-800 border border-slate-700/60 text-left flex items-center justify-between transition group">
+            <div class="flex items-center space-x-2.5">
+              <div class="w-7 h-7 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center text-xs"><i class="fa-solid fa-user-tie"></i></div>
+              <div>
+                <div class="text-xs font-bold text-white group-hover:text-amber-400 transition">2. Trần Minh Trí</div>
+                <div class="text-[10px] text-slate-400">Trưởng phòng (Quyền duyệt đơn nghỉ)</div>
+              </div>
+            </div>
+            <i class="fa-solid fa-arrow-right text-slate-600 group-hover:text-white text-xs transition"></i>
+          </button>
+
+          <button type="button" onclick="fillAndLogin('huong.nguyen@vintech.vn')" class="p-2.5 rounded-xl bg-slate-800/50 hover:bg-slate-800 border border-slate-700/60 text-left flex items-center justify-between transition group">
+            <div class="flex items-center space-x-2.5">
+              <div class="w-7 h-7 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-xs"><i class="fa-solid fa-shield-halved"></i></div>
+              <div>
+                <div class="text-xs font-bold text-white group-hover:text-emerald-400 transition">3. Nguyễn Thu Hương</div>
+                <div class="text-[10px] text-slate-400">Kế toán trưởng / HR (Duyệt BHXH & Quản lý lương)</div>
+              </div>
+            </div>
+            <i class="fa-solid fa-arrow-right text-slate-600 group-hover:text-white text-xs transition"></i>
+          </button>
+
         </div>
       </div>
 
-      <!-- Quick Role Switcher (DEMO TOOLBAR) -->
-      <div class="hidden md:flex items-center bg-slate-800/80 p-1 rounded-xl border border-slate-700 space-x-1">
-        <span class="text-xs text-slate-400 px-2 font-medium"><i class="fa-solid fa-sliders mr-1 text-slate-500"></i> Vai trò:</span>
-        
-        <button onclick="setRole('employee')" id="role-btn-employee" class="role-btn px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-150 flex items-center space-x-1.5 bg-blue-600 text-white shadow-sm">
-          <i class="fa-solid fa-user text-xs"></i>
-          <span>1. Nhân Viên</span>
-        </button>
-        
-        <button onclick="setRole('manager')" id="role-btn-manager" class="role-btn px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-150 flex items-center space-x-1.5 text-slate-300 hover:text-white hover:bg-slate-700/60">
-          <i class="fa-solid fa-user-tie text-xs"></i>
-          <span>2. Quản Lý / Trưởng Phòng</span>
-        </button>
-
-        <button onclick="setRole('hr')" id="role-btn-hr" class="role-btn px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-150 flex items-center space-x-1.5 text-slate-300 hover:text-white hover:bg-slate-700/60">
-          <i class="fa-solid fa-shield-halved text-xs"></i>
-          <span>3. HR & Kế Toán</span>
-        </button>
-      </div>
-
-      <!-- Action items -->
-      <div class="flex items-center space-x-3">
-        <!-- Reset Demo button -->
-        <button onclick="resetDemoData()" title="Khôi phục trạng thái ban đầu" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 px-2.5 py-1.5 rounded-lg flex items-center space-x-1.5 transition">
-          <i class="fa-solid fa-rotate text-blue-400"></i>
-          <span class="hidden sm:inline">Reset Demo</span>
-        </button>
-
-        <!-- Current User Profile Chip -->
-        <div class="flex items-center space-x-2 pl-2 border-l border-slate-800">
-          <img id="user-avatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=faces" class="w-8 h-8 rounded-full border border-slate-600 object-cover" alt="Avatar">
-          <div class="text-left hidden lg:block">
-            <div id="user-name" class="text-xs font-semibold text-white leading-tight">Lê Thị Phương</div>
-            <div id="user-role-label" class="text-[10px] text-blue-400 font-medium">Nhân viên Kỹ thuật</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </header>
-
-  <!-- MAIN NAVIGATION TABS -->
-  <div class="bg-white border-b border-slate-200 shadow-sm sticky top-16 z-40">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <nav class="flex space-x-1 sm:space-x-4 overflow-x-auto py-2" id="nav-tabs">
-        <button onclick="switchTab('dashboard')" id="tab-btn-dashboard" class="nav-tab active px-3.5 py-2 rounded-lg text-sm font-semibold flex items-center space-x-2 text-blue-600 bg-blue-50">
-          <i class="fa-solid fa-chart-pie text-sm"></i>
-          <span>Tổng Quan</span>
-        </button>
-        <button onclick="switchTab('timesheet')" id="tab-btn-timesheet" class="nav-tab px-3.5 py-2 rounded-lg text-sm font-semibold flex items-center space-x-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100">
-          <i class="fa-solid fa-calendar-check text-sm"></i>
-          <span>Bảng Chấm Công</span>
-        </button>
-        <button onclick="switchTab('leave')" id="tab-btn-leave" class="nav-tab px-3.5 py-2 rounded-lg text-sm font-semibold flex items-center space-x-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100">
-          <i class="fa-solid fa-file-signature text-sm"></i>
-          <span>Xin Nghỉ Phép</span>
-          <span id="leave-pending-badge" class="ml-1 text-[10px] px-1.5 py-0.2 rounded-full bg-amber-500 text-white font-bold">1</span>
-        </button>
-        <button onclick="switchTab('sick')" id="tab-btn-sick" class="nav-tab px-3.5 py-2 rounded-lg text-sm font-semibold flex items-center space-x-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100">
-          <i class="fa-solid fa-briefcase-medical text-sm"></i>
-          <span>Hồ Sơ Ốm Đau (BHXH)</span>
-          <span id="sick-pending-badge" class="ml-1 text-[10px] px-1.5 py-0.2 rounded-full bg-rose-500 text-white font-bold">1</span>
-        </button>
-        <button onclick="switchTab('payroll')" id="tab-btn-payroll" class="nav-tab px-3.5 py-2 rounded-lg text-sm font-semibold flex items-center space-x-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100">
-          <i class="fa-solid fa-money-check-dollar text-sm"></i>
-          <span>Tiền Lương</span>
-        </button>
-        <button onclick="switchTab('docs')" id="tab-btn-docs" class="nav-tab px-3.5 py-2 rounded-lg text-sm font-semibold flex items-center space-x-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100">
-          <i class="fa-solid fa-folder-tree text-sm"></i>
-          <span>Văn Bản & Công Văn</span>
-        </button>
-      </nav>
     </div>
   </div>
 
-  <!-- TOAST NOTIFICATION CONTAINER -->
-  <div id="toast" class="fixed bottom-5 right-5 z-50 transform transition-all duration-300 translate-y-20 opacity-0 pointer-events-none flex items-center space-x-3 bg-slate-900 text-white px-4 py-3 rounded-xl shadow-2xl border border-slate-700">
-    <div id="toast-icon" class="text-emerald-400 text-base"><i class="fa-solid fa-circle-check"></i></div>
-    <div id="toast-msg" class="text-sm font-medium">Thao tác thành công!</div>
-  </div>
-
-  <!-- CONTENT CONTAINER -->
-  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-grow">
-
-    <!-- ============================================================= -->
-    <!-- TAB 1: DASHBOARD (TỔNG QUAN) -->
-    <!-- ============================================================= -->
-    <section id="pane-dashboard" class="tab-pane space-y-6">
-      
-      <!-- Greeting Banner -->
-      <div class="bg-gradient-to-r from-slate-900 via-indigo-950 to-blue-900 rounded-2xl p-6 text-white shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-        <div>
-          <div class="flex items-center space-x-2">
-            <h2 class="text-2xl font-bold tracking-tight">Xin chào, <span id="greet-name">Lê Thị Phương</span> 👋</h2>
-            <span id="greet-badge" class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-500/30 text-blue-300 border border-blue-400/30">Nhân viên</span>
-          </div>
-          <p class="text-slate-300 text-sm mt-1">Hôm nay là Thứ Năm, ngày 08/10/2026 • Chúc bạn một ngày làm việc hiệu quả và năng suất!</p>
-        </div>
+  <!-- ============================================================= -->
+  <!-- 2. GIAO DIỆN CHÍNH DOANH NGHIỆP (MAIN APP SCREEN) -->
+  <!-- ============================================================= -->
+  <div id="screen-app" class="flex-col min-h-screen hidden">
+    
+    <!-- Topbar chuẩn Corporate SaaS (KHÔNG CÓ TOOL CHUYỂN ROLE LỘ LIỄU) -->
+    <header class="bg-slate-900 border-b border-slate-800 text-white sticky top-0 z-40 shadow-sm">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+        
+        <!-- Brand & Company -->
         <div class="flex items-center space-x-3">
-          <button onclick="openLeaveModal()" class="px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-semibold shadow-md flex items-center space-x-2 transition">
+          <div class="h-9 w-9 rounded-lg bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center shadow-lg shadow-blue-500/30">
+            <i class="fa-solid fa-building-user text-white text-base"></i>
+          </div>
+          <div>
+            <div class="flex items-center space-x-2">
+              <span class="font-bold text-base tracking-tight text-white">VinTech Solutions</span>
+              <span class="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/30">HRM & E-Office</span>
+            </div>
+            <p class="text-[11px] text-slate-400">Hệ Thống Quản Trị Nhân Sự Doanh Nghiệp</p>
+          </div>
+        </div>
+
+        <!-- User Profile & Logout Menu -->
+        <div class="flex items-center space-x-4">
+          <!-- User info -->
+          <div class="flex items-center space-x-3">
+            <img id="user-avatar" src="" class="w-8 h-8 rounded-full border border-slate-700 object-cover" alt="Avatar">
+            <div class="text-left hidden sm:block">
+              <div id="user-name" class="text-xs font-bold text-white leading-tight">--</div>
+              <div id="user-role-label" class="text-[10px] text-blue-400 font-medium">--</div>
+            </div>
+          </div>
+
+          <!-- Nút Đăng xuất chuẩn phần mềm -->
+          <button onclick="handleLogout()" title="Đăng xuất tài khoản" class="text-xs bg-slate-800 hover:bg-rose-900/40 text-slate-300 hover:text-rose-300 border border-slate-700 hover:border-rose-500/50 px-3 py-1.5 rounded-xl flex items-center space-x-1.5 transition">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+            <span class="hidden sm:inline">Đăng Xuất</span>
+          </button>
+        </div>
+
+      </div>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <div class="bg-white border-b border-slate-200 shadow-sm sticky top-16 z-30">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <nav class="flex space-x-1 sm:space-x-4 overflow-x-auto py-2" id="nav-tabs">
+          <button onclick="switchTab('dashboard')" id="tab-btn-dashboard" class="nav-tab active px-3.5 py-2 rounded-lg text-sm font-semibold flex items-center space-x-2 text-blue-600 bg-blue-50">
+            <i class="fa-solid fa-chart-pie text-sm"></i>
+            <span>Tổng Quan</span>
+          </button>
+          <button onclick="switchTab('timesheet')" id="tab-btn-timesheet" class="nav-tab px-3.5 py-2 rounded-lg text-sm font-semibold flex items-center space-x-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100">
+            <i class="fa-solid fa-calendar-check text-sm"></i>
+            <span>Bảng Chấm Công</span>
+          </button>
+          <button onclick="switchTab('leave')" id="tab-btn-leave" class="nav-tab px-3.5 py-2 rounded-lg text-sm font-semibold flex items-center space-x-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100">
+            <i class="fa-solid fa-file-signature text-sm"></i>
+            <span>Xin Nghỉ Phép</span>
+            <span id="leave-pending-badge" class="ml-1 text-[10px] px-1.5 py-0.2 rounded-full bg-amber-500 text-white font-bold hidden">0</span>
+          </button>
+          <button onclick="switchTab('sick')" id="tab-btn-sick" class="nav-tab px-3.5 py-2 rounded-lg text-sm font-semibold flex items-center space-x-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100">
+            <i class="fa-solid fa-briefcase-medical text-sm"></i>
+            <span>Hồ Sơ Ốm Đau (BHXH)</span>
+            <span id="sick-pending-badge" class="ml-1 text-[10px] px-1.5 py-0.2 rounded-full bg-rose-500 text-white font-bold hidden">0</span>
+          </button>
+          <button onclick="switchTab('payroll')" id="tab-btn-payroll" class="nav-tab px-3.5 py-2 rounded-lg text-sm font-semibold flex items-center space-x-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100">
+            <i class="fa-solid fa-money-check-dollar text-sm"></i>
+            <span>Tiền Lương</span>
+          </button>
+          <button onclick="switchTab('docs')" id="tab-btn-docs" class="nav-tab px-3.5 py-2 rounded-lg text-sm font-semibold flex items-center space-x-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100">
+            <i class="fa-solid fa-folder-tree text-sm"></i>
+            <span>Văn Bản & Công Văn</span>
+          </button>
+        </nav>
+      </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-grow w-full">
+      
+      <!-- TAB 1: DASHBOARD -->
+      <section id="pane-dashboard" class="tab-pane space-y-6">
+        <!-- Banner Greeting -->
+        <div class="bg-gradient-to-r from-slate-900 via-indigo-950 to-blue-900 rounded-2xl p-6 text-white shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <div>
+            <div class="flex items-center space-x-2">
+              <h2 class="text-2xl font-bold tracking-tight">Xin chào, <span id="greet-name">--</span> 👋</h2>
+              <span id="greet-badge" class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-500/30 text-blue-300 border border-blue-400/30">--</span>
+            </div>
+            <p class="text-slate-300 text-sm mt-1">Chúc bạn một ngày làm việc hiệu quả tại VinTech Solutions!</p>
+          </div>
+          <div class="flex items-center space-x-3">
+            <button onclick="openLeaveModal()" class="px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-semibold shadow-md flex items-center space-x-2 transition">
+              <i class="fa-solid fa-plus"></i>
+              <span>Tạo Đơn Nghỉ Phép</span>
+            </button>
+            <button onclick="openSickModal()" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-xl text-xs font-semibold shadow-sm flex items-center space-x-2 transition">
+              <i class="fa-solid fa-file-medical"></i>
+              <span>Gửi Hồ Sơ Ốm Đau</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Metric Cards -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Quân Số Công Ty</span>
+              <div class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center text-xs"><i class="fa-solid fa-users"></i></div>
+            </div>
+            <div class="mt-2 text-2xl font-extrabold text-slate-900">24</div>
+            <p class="text-[11px] text-slate-400 mt-0.5">4 phòng ban chức năng</p>
+          </div>
+
+          <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Đi Làm Hôm Nay</span>
+              <div class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center text-xs"><i class="fa-solid fa-user-check"></i></div>
+            </div>
+            <div class="mt-2 text-2xl font-extrabold text-emerald-600">22 / 24</div>
+            <p class="text-[11px] text-slate-400 mt-0.5">Tỷ lệ chuyên cần 91.6%</p>
+          </div>
+
+          <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Đơn Chờ Xử Lý</span>
+              <div class="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center text-xs"><i class="fa-solid fa-clock-rotate-left"></i></div>
+            </div>
+            <div id="kpi-pending-total" class="mt-2 text-2xl font-extrabold text-amber-600">0</div>
+            <p class="text-[11px] text-slate-400 mt-0.5">Đơn xin nghỉ & hồ sơ BHXH</p>
+          </div>
+
+          <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Quỹ Lương Tháng Này</span>
+              <div class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center text-xs"><i class="fa-solid fa-coins"></i></div>
+            </div>
+            <div class="mt-2 text-2xl font-extrabold text-slate-900">385.5 Tr</div>
+            <p class="text-[11px] text-slate-400 mt-0.5">Kỳ lương Tháng 10/2026</p>
+          </div>
+        </div>
+
+        <!-- Workflow Review Box -->
+        <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-sm font-bold text-slate-900 flex items-center space-x-2">
+              <i class="fa-solid fa-bell text-amber-500"></i>
+              <span>Danh Sách Đơn Cần Phê Duyệt</span>
+            </h3>
+            <span id="role-notice" class="text-xs text-slate-500"></span>
+          </div>
+          <div id="dash-pending-list" class="space-y-3">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 2: TIMESHEET -->
+      <section id="pane-timesheet" class="tab-pane hidden space-y-4">
+        <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div class="flex flex-wrap items-center gap-3">
+            <span class="text-xs font-bold text-slate-500 uppercase">Kỳ Chấm Công: Tháng 10/2026</span>
+            <div class="flex items-center space-x-2 text-[11px] font-semibold text-slate-600">
+              <span class="px-1.5 py-0.5 rounded cell-x">X: Đi làm</span>
+              <span class="px-1.5 py-0.5 rounded cell-p">P: Nghỉ phép</span>
+              <span class="px-1.5 py-0.5 rounded cell-o">O: Nghỉ ốm</span>
+              <span class="px-1.5 py-0.5 rounded cell-cn">CN: Chủ nhật</span>
+            </div>
+          </div>
+          <button onclick="alert('Đã đồng bộ và xuất dữ liệu ra Google Sheet!')" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm flex items-center space-x-1.5 transition">
+            <i class="fa-solid fa-file-excel"></i>
+            <span>Xuất Báo Cáo Google Sheet / Excel</span>
+          </button>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+          <div class="overflow-x-auto max-h-[600px]">
+            <table class="w-full border-collapse text-xs text-left" id="timesheet-table">
+              <thead class="bg-slate-900 text-white sticky top-0 z-20">
+                <tr>
+                  <th class="py-3 px-3 font-semibold sticky left-0 bg-slate-900 z-30 min-w-[70px] text-center border-r border-slate-800">Mã NV</th>
+                  <th class="py-3 px-3 font-semibold sticky left-[70px] bg-slate-900 z-30 min-w-[170px] border-r border-slate-800">Họ và Tên</th>
+                  <th class="py-3 px-2 font-semibold min-w-[90px] border-r border-slate-800 text-center">Phòng Ban</th>
+                  <script>
+                    for(let d=1; d<=31; d++) {
+                      const isSunday = (d % 7 === 4);
+                      document.write(`<th class="p-1 font-semibold text-center border-r border-slate-800 matrix-cell ${isSunday ? 'bg-rose-950 text-rose-300' : ''}">${d}</th>`);
+                    }
+                  </script>
+                  <th class="py-3 px-2 font-bold text-center bg-blue-900 text-white min-w-[65px]">Công Thực</th>
+                  <th class="py-3 px-2 font-bold text-center bg-indigo-900 text-white min-w-[55px]">Phép (P)</th>
+                  <th class="py-3 px-2 font-bold text-center bg-amber-900 text-white min-w-[55px]">Ốm (O)</th>
+                </tr>
+              </thead>
+              <tbody id="timesheet-tbody" class="divide-y divide-slate-100">
+                <!-- Rendered by JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 3: LEAVE REQUESTS -->
+      <section id="pane-leave" class="tab-pane hidden space-y-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-lg font-bold text-slate-900">Danh Sách Đơn Xin Nghỉ Phép</h2>
+            <p class="text-xs text-slate-500">Đơn được duyệt sẽ tự động cập nhật ký hiệu [P] vào Bảng chấm công</p>
+          </div>
+          <button onclick="openLeaveModal()" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-semibold shadow-md flex items-center space-x-1.5 transition">
             <i class="fa-solid fa-plus"></i>
             <span>Tạo Đơn Nghỉ Phép</span>
           </button>
-          <button onclick="openSickModal()" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-xl text-xs font-semibold shadow-sm flex items-center space-x-2 transition">
-            <i class="fa-solid fa-file-medical"></i>
-            <span>Gửi Hồ Sơ Ốm Đau</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- KPI Metric Cards -->
-      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <!-- KPI 1 -->
-        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md transition">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Quân Số Nhân Sự</span>
-            <div class="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-sm"><i class="fa-solid fa-users"></i></div>
-          </div>
-          <div class="mt-3 flex items-baseline space-x-2">
-            <span class="text-2xl font-extrabold text-slate-900">24</span>
-            <span class="text-xs font-medium text-emerald-600"><i class="fa-solid fa-arrow-up"></i> 100% Hoạt động</span>
-          </div>
-          <p class="text-xs text-slate-400 mt-1">Gồm 4 phòng ban chuyên môn</p>
         </div>
 
-        <!-- KPI 2 -->
-        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md transition">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Đi Làm Hôm Nay</span>
-            <div class="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-sm"><i class="fa-solid fa-user-check"></i></div>
-          </div>
-          <div class="mt-3 flex items-baseline space-x-2">
-            <span class="text-2xl font-extrabold text-slate-900">22 / 24</span>
-            <span class="text-xs font-medium text-emerald-600">91.6%</span>
-          </div>
-          <p class="text-xs text-slate-400 mt-1">1 Nghỉ phép • 1 Nghỉ ốm BHXH</p>
-        </div>
-
-        <!-- KPI 3 -->
-        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md transition">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Đơn Cần Phê Duyệt</span>
-            <div class="w-9 h-9 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-sm"><i class="fa-solid fa-clock-rotate-left"></i></div>
-          </div>
-          <div class="mt-3 flex items-baseline space-x-2">
-            <span id="kpi-pending-total" class="text-2xl font-extrabold text-amber-600">2</span>
-            <span class="text-xs font-medium text-amber-600">Đang chờ xử lý</span>
-          </div>
-          <p class="text-xs text-slate-400 mt-1">1 Đơn phép • 1 Hồ sơ ốm đau</p>
-        </div>
-
-        <!-- KPI 4 -->
-        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md transition">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Quỹ Lương Tháng Này</span>
-            <div class="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-sm"><i class="fa-solid fa-coins"></i></div>
-          </div>
-          <div class="mt-3 flex items-baseline space-x-2">
-            <span class="text-2xl font-extrabold text-slate-900">385.5 Tr</span>
-            <span class="text-xs font-medium text-slate-500">Kỳ T10/2026</span>
-          </div>
-          <p class="text-xs text-slate-400 mt-1">Dự kiến chi trả ngày 05/11</p>
-        </div>
-      </div>
-
-      <!-- Charts & Recent Activities -->
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <!-- Attendance Donut Chart -->
-        <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm lg:col-span-1">
-          <div class="flex items-center justify-between mb-4">
-            <h3 class="text-sm font-bold text-slate-900 flex items-center space-x-2">
-              <i class="fa-solid fa-chart-pie text-blue-600"></i>
-              <span>Tỷ Lệ Chấm Công Tháng 10</span>
-            </h3>
-            <span class="text-xs text-slate-400 font-medium">Tổng 528 lượt</span>
-          </div>
-          <div class="h-56 relative flex items-center justify-center">
-            <canvas id="dashAttendanceChart"></canvas>
-          </div>
-          <div class="grid grid-cols-2 gap-2 mt-4 text-xs font-medium">
-            <div class="flex items-center space-x-1.5"><span class="w-2.5 h-2.5 rounded-full bg-slate-500"></span><span class="text-slate-600">Đi làm (X): 450</span></div>
-            <div class="flex items-center space-x-1.5"><span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span><span class="text-slate-600">Nghỉ phép (P): 28</span></div>
-            <div class="flex items-center space-x-1.5"><span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span><span class="text-slate-600">Nghỉ ốm (O): 16</span></div>
-            <div class="flex items-center space-x-1.5"><span class="w-2.5 h-2.5 rounded-full bg-purple-500"></span><span class="text-slate-600">Nghỉ lễ (L): 34</span></div>
-          </div>
-        </div>
-
-        <!-- Pending Workflow Quick Review Widget -->
-        <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm lg:col-span-2">
-          <div class="flex items-center justify-between mb-4">
-            <div>
-              <h3 class="text-sm font-bold text-slate-900 flex items-center space-x-2">
-                <i class="fa-solid fa-bell text-amber-500"></i>
-                <span>Đơn Nghỉ Phép & Hồ Sơ Đang Chờ Duyệt</span>
-              </h3>
-              <p class="text-xs text-slate-500 mt-0.5">Duyệt tại đây sẽ tự động cập nhật ký hiệu vào Bảng Chấm Công</p>
-            </div>
-            <span class="text-xs px-2.5 py-1 rounded-full bg-amber-100 text-amber-800 font-bold">2 đơn chờ</span>
-          </div>
-
-          <!-- Pending list -->
-          <div id="dash-pending-list" class="space-y-3">
-            <!-- Will be rendered by JS -->
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ============================================================= -->
-    <!-- TAB 2: TIMESHEET (BẢNG CHẤM CÔNG 31 NGÀY MA TRẬN) -->
-    <!-- ============================================================= -->
-    <section id="pane-timesheet" class="tab-pane hidden space-y-4">
-      
-      <!-- Timesheet Controls Bar -->
-      <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div class="flex flex-wrap items-center gap-3">
-          <div class="flex items-center space-x-2">
-            <span class="text-xs font-semibold text-slate-500 uppercase">Kỳ công:</span>
-            <select class="text-xs font-bold border border-slate-300 rounded-lg px-3 py-1.5 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500">
-              <option value="10-2026">Tháng 10 / 2026</option>
-              <option value="09-2026">Tháng 09 / 2026</option>
-            </select>
-          </div>
-
-          <div class="flex items-center space-x-2">
-            <span class="text-xs font-semibold text-slate-500 uppercase">Phòng ban:</span>
-            <select id="filter-ts-dept" onchange="renderTimesheet()" class="text-xs font-semibold border border-slate-300 rounded-lg px-3 py-1.5 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500">
-              <option value="all">Tất cả phòng ban</option>
-              <option value="Kỹ thuật">Kỹ thuật</option>
-              <option value="Kinh doanh">Kinh doanh</option>
-              <option value="Kế toán">Kế toán</option>
-            </select>
-          </div>
-
-          <!-- Search employee -->
-          <div class="relative">
-            <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-xs"></i>
-            <input type="text" id="search-ts-emp" onkeyup="renderTimesheet()" placeholder="Tìm tên nhân viên..." class="pl-8 pr-3 py-1.5 text-xs border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-44">
-          </div>
-        </div>
-
-        <div class="flex items-center space-x-2">
-          <!-- Legend badge -->
-          <div class="hidden xl:flex items-center space-x-2 text-[11px] font-semibold text-slate-600 mr-2">
-            <span class="px-1.5 py-0.5 rounded cell-x">X: Đi làm</span>
-            <span class="px-1.5 py-0.5 rounded cell-p">P: Phép</span>
-            <span class="px-1.5 py-0.5 rounded cell-o">O: Ốm</span>
-            <span class="px-1.5 py-0.5 rounded cell-cn">CN: Nghỉ tuần</span>
-          </div>
-
-          <button onclick="exportTimesheetExcel()" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm flex items-center space-x-1.5 transition">
-            <i class="fa-solid fa-file-excel"></i>
-            <span>Xuất Excel / Sheet</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- Timesheet Grid (Responsive Scroll) -->
-      <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
-        <div class="overflow-x-auto max-h-[600px]">
-          <table class="w-full border-collapse text-xs text-left" id="timesheet-table">
-            <thead class="bg-slate-900 text-white sticky top-0 z-20">
-              <tr>
-                <th class="py-3 px-3 font-semibold sticky left-0 bg-slate-900 z-30 min-w-[70px] text-center border-r border-slate-800">Mã NV</th>
-                <th class="py-3 px-3 font-semibold sticky left-[70px] bg-slate-900 z-30 min-w-[170px] border-r border-slate-800">Họ và Tên</th>
-                <th class="py-3 px-2 font-semibold min-w-[90px] border-r border-slate-800 text-center">Phòng Ban</th>
-                <!-- 31 Days Header -->
-                <script>
-                  for(let d=1; d<=31; d++) {
-                    const isSunday = (d % 7 === 4); // Fake Sunday for demo
-                    document.write(`<th class="p-1 font-semibold text-center border-r border-slate-800 matrix-cell ${isSunday ? 'bg-rose-950 text-rose-300' : ''}">${d}</th>`);
-                  }
-                </script>
-                <th class="py-3 px-2 font-bold text-center bg-blue-900 text-white min-w-[65px]">Công Thực</th>
-                <th class="py-3 px-2 font-bold text-center bg-indigo-900 text-white min-w-[55px]">Phép (P)</th>
-                <th class="py-3 px-2 font-bold text-center bg-amber-900 text-white min-w-[55px]">Ốm (O)</th>
-              </tr>
-            </thead>
-            <tbody id="timesheet-tbody" class="divide-y divide-slate-100">
-              <!-- Rendered by JS -->
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <!-- ============================================================= -->
-    <!-- TAB 3: LEAVE REQUESTS (XIN NGHỈ PHÉP) -->
-    <!-- ============================================================= -->
-    <section id="pane-leave" class="tab-pane hidden space-y-4">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div>
-          <h2 class="text-lg font-bold text-slate-900">Quản Lý Đơn Xin Nghỉ Phép</h2>
-          <p class="text-xs text-slate-500">Đơn được duyệt sẽ tự động bắn ký hiệu <strong>[P]</strong> vào bảng chấm công</p>
-        </div>
-        <button onclick="openLeaveModal()" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-semibold shadow-md flex items-center space-x-1.5 transition">
-          <i class="fa-solid fa-plus"></i>
-          <span>Tạo Đơn Nghỉ Mới</span>
-        </button>
-      </div>
-
-      <!-- Leave Table -->
-      <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
-        <div class="overflow-x-auto">
+        <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
           <table class="w-full text-xs text-left">
             <thead class="bg-slate-100/80 text-slate-700 uppercase font-semibold text-[11px] border-b border-slate-200">
               <tr>
@@ -388,38 +350,31 @@
                 <th class="py-3 px-4 text-right">Thao Tác</th>
               </tr>
             </thead>
-            <tbody id="leave-table-tbody" class="divide-y divide-slate-100">
-              <!-- Rendered by JS -->
-            </tbody>
+            <tbody id="leave-table-tbody" class="divide-y divide-slate-100"></tbody>
           </table>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- ============================================================= -->
-    <!-- TAB 4: SICK CASES (HỒ SƠ ỐM ĐAU - BHXH) -->
-    <!-- ============================================================= -->
-    <section id="pane-sick" class="tab-pane hidden space-y-4">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div>
-          <h2 class="text-lg font-bold text-slate-900">Hồ Sơ Nghỉ Ốm Hưởng Chế Độ BHXH</h2>
-          <p class="text-xs text-slate-500">Đính kèm giấy chứng nhận nghỉ việc hưởng BHXH. Khi duyệt sẽ tự động điền <strong>[O]</strong> vào Bảng chấm công</p>
+      <!-- TAB 4: SICK CASES -->
+      <section id="pane-sick" class="tab-pane hidden space-y-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-lg font-bold text-slate-900">Hồ Sơ Nghỉ Ốm Hưởng Chế Độ BHXH</h2>
+            <p class="text-xs text-slate-500">Duyệt hồ sơ sẽ tự động xác nhận ngày ốm [O] trên Bảng chấm công</p>
+          </div>
+          <button onclick="openSickModal()" class="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white rounded-xl text-xs font-semibold shadow-md flex items-center space-x-1.5 transition">
+            <i class="fa-solid fa-file-medical"></i>
+            <span>Nộp Hồ Sơ Ốm Đau</span>
+          </button>
         </div>
-        <button onclick="openSickModal()" class="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white rounded-xl text-xs font-semibold shadow-md flex items-center space-x-1.5 transition">
-          <i class="fa-solid fa-file-medical"></i>
-          <span>Nộp Hồ Sơ Ốm Đau</span>
-        </button>
-      </div>
 
-      <!-- Sick Table -->
-      <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
-        <div class="overflow-x-auto">
+        <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
           <table class="w-full text-xs text-left">
             <thead class="bg-slate-100/80 text-slate-700 uppercase font-semibold text-[11px] border-b border-slate-200">
               <tr>
                 <th class="py-3 px-4">Mã Hồ Sơ</th>
                 <th class="py-3 px-4">Nhân Viên</th>
-                <th class="py-3 px-4">Cơ Sở Khám Chữa Bệnh</th>
+                <th class="py-3 px-4">Cơ Sở Y Tế</th>
                 <th class="py-3 px-4">Thời Gian Nghỉ</th>
                 <th class="py-3 px-3 text-center">Số Ngày</th>
                 <th class="py-3 px-4 text-center">Chứng Từ Viện Phí</th>
@@ -427,32 +382,25 @@
                 <th class="py-3 px-4 text-right">Thao Tác</th>
               </tr>
             </thead>
-            <tbody id="sick-table-tbody" class="divide-y divide-slate-100">
-              <!-- Rendered by JS -->
-            </tbody>
+            <tbody id="sick-table-tbody" class="divide-y divide-slate-100"></tbody>
           </table>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- ============================================================= -->
-    <!-- TAB 5: PAYROLL (TIỀN LƯƠNG & PHIẾU LƯƠNG) -->
-    <!-- ============================================================= -->
-    <section id="pane-payroll" class="tab-pane hidden space-y-4">
-      <div class="flex items-center justify-between">
-        <div>
-          <h2 class="text-lg font-bold text-slate-900">Bảng Lương Doanh Nghiệp (Kỳ Tháng 10/2026)</h2>
-          <p class="text-xs text-slate-500">Tự động kết xuất từ dữ liệu công thực tế và ngày phép của nhân viên</p>
+      <!-- TAB 5: PAYROLL -->
+      <section id="pane-payroll" class="tab-pane hidden space-y-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-lg font-bold text-slate-900">Bảng Lương Doanh Nghiệp (Tháng 10/2026)</h2>
+            <p class="text-xs text-slate-500" id="payroll-desc">Tự động kết xuất từ dữ liệu chấm công thực tế</p>
+          </div>
+          <button onclick="printPayslip(currentUser.id)" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-900 hover:bg-slate-800 text-white shadow-sm flex items-center space-x-1.5 transition">
+            <i class="fa-solid fa-print"></i>
+            <span>In Phiếu Lương Của Tôi</span>
+          </button>
         </div>
-        <button onclick="printPayslip(currentEmployeeId)" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-900 hover:bg-slate-800 text-white shadow-sm flex items-center space-x-1.5 transition">
-          <i class="fa-solid fa-print"></i>
-          <span>In Phiếu Lương Của Tôi</span>
-        </button>
-      </div>
 
-      <!-- Payroll Table -->
-      <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
-        <div class="overflow-x-auto">
+        <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden" id="payroll-box">
           <table class="w-full text-xs text-left">
             <thead class="bg-slate-100/80 text-slate-700 uppercase font-semibold text-[11px] border-b border-slate-200">
               <tr>
@@ -467,40 +415,15 @@
                 <th class="py-3 px-4 text-center">Thao Tác</th>
               </tr>
             </thead>
-            <tbody id="payroll-tbody" class="divide-y divide-slate-100">
-              <!-- Rendered by JS -->
-            </tbody>
+            <tbody id="payroll-tbody" class="divide-y divide-slate-100"></tbody>
           </table>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- ============================================================= -->
-    <!-- TAB 6: DOCUMENTS (VĂN BẢN & CÔNG VĂN PHÁP LUẬT) -->
-    <!-- ============================================================= -->
-    <section id="pane-docs" class="tab-pane hidden space-y-6">
-      
-      <!-- Sub-tabs header -->
-      <div class="flex items-center justify-between border-b border-slate-200 pb-3">
-        <div class="flex space-x-3">
-          <button onclick="switchDocSubTab('work')" id="doc-subtab-work" class="text-sm font-bold text-blue-600 border-b-2 border-blue-600 pb-2 flex items-center space-x-2">
-            <i class="fa-solid fa-list-check"></i>
-            <span>Văn Bản & Giao Việc Nội Bộ</span>
-          </button>
-          <button onclick="switchDocSubTab('legal')" id="doc-subtab-legal" class="text-sm font-bold text-slate-500 hover:text-slate-800 pb-2 flex items-center space-x-2">
-            <i class="fa-solid fa-scale-balanced"></i>
-            <span>Kho Văn Bản Pháp Luật & Quy Chế</span>
-          </button>
-        </div>
-        <button onclick="openDocModal()" class="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-semibold shadow-sm flex items-center space-x-1.5 transition">
-          <i class="fa-solid fa-plus"></i>
-          <span>Thêm Văn Bản</span>
-        </button>
-      </div>
-
-      <!-- Work Documents Sub-tab -->
-      <div id="subpane-doc-work" class="space-y-4">
-        <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+      <!-- TAB 6: DOCUMENTS -->
+      <section id="pane-docs" class="tab-pane hidden space-y-4">
+        <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-5 space-y-4">
+          <h2 class="text-base font-bold text-slate-900">Văn Bản & Nhiệm Vụ Nội Bộ Được Giao</h2>
           <table class="w-full text-xs text-left">
             <thead class="bg-slate-100/80 text-slate-700 uppercase font-semibold text-[11px] border-b border-slate-200">
               <tr>
@@ -508,318 +431,210 @@
                 <th class="py-3 px-4">Tiêu Đề Công Việc</th>
                 <th class="py-3 px-4">Người Giao</th>
                 <th class="py-3 px-4">Người Phụ Trách</th>
-                <th class="py-3 px-4">Hạn Hoàn Thành</th>
+                <th class="py-3 px-4">Hạn Chót</th>
                 <th class="py-3 px-4 text-center">Trạng Thái</th>
-                <th class="py-3 px-4 text-center">Thao Tác</th>
               </tr>
             </thead>
-            <tbody id="work-docs-tbody" class="divide-y divide-slate-100">
-              <!-- Rendered by JS -->
-            </tbody>
+            <tbody id="work-docs-tbody" class="divide-y divide-slate-100"></tbody>
           </table>
         </div>
-      </div>
+      </section>
 
-      <!-- Legal Documents Sub-tab -->
-      <div id="subpane-doc-legal" class="hidden space-y-4">
-        <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
-          <table class="w-full text-xs text-left">
-            <thead class="bg-slate-100/80 text-slate-700 uppercase font-semibold text-[11px] border-b border-slate-200">
-              <tr>
-                <th class="py-3 px-4">Số Hiệu</th>
-                <th class="py-3 px-4">Tên Văn Bản / Quy Chế</th>
-                <th class="py-3 px-4">Cơ Quan Ban Hành</th>
-                <th class="py-3 px-4">Ngày Ban Hành</th>
-                <th class="py-3 px-4">Lĩnh Vực</th>
-                <th class="py-3 px-4 text-center">Tải Về / Xem</th>
-              </tr>
-            </thead>
-            <tbody id="legal-docs-tbody" class="divide-y divide-slate-100">
-              <!-- Rendered by JS -->
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </section>
+    </main>
+  </div>
 
-  </main>
-
-  <!-- ============================================================= -->
-  <!-- MODAL: TẠO ĐƠN NGHỈ PHÉP -->
-  <!-- ============================================================= -->
+  <!-- MODALS -->
   <div id="modal-leave" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
-    <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 animate-in fade-in zoom-in duration-150">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200">
       <div class="flex items-center justify-between pb-3 border-b border-slate-100">
-        <h3 class="text-base font-bold text-slate-900 flex items-center space-x-2">
-          <i class="fa-solid fa-calendar-plus text-blue-600"></i>
-          <span>Tạo Đơn Xin Nghỉ Phép</span>
-        </h3>
-        <button onclick="closeModal('modal-leave')" class="text-slate-400 hover:text-slate-600 text-lg"><i class="fa-solid fa-xmark"></i></button>
+        <h3 class="text-base font-bold text-slate-900">Tạo Đơn Xin Nghỉ Phép</h3>
+        <button onclick="closeModal('modal-leave')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
       </div>
-
       <form id="form-leave" onsubmit="handleCreateLeave(event)" class="mt-4 space-y-3.5 text-xs">
         <div>
           <label class="block font-semibold text-slate-700 mb-1">Nhân viên làm đơn</label>
           <input type="text" id="leave-emp-name" readonly class="w-full bg-slate-100 border border-slate-200 rounded-lg px-3 py-2 text-slate-600 font-medium">
         </div>
-
         <div class="grid grid-cols-2 gap-3">
           <div>
             <label class="block font-semibold text-slate-700 mb-1">Loại nghỉ</label>
-            <select id="leave-type" class="w-full border border-slate-300 rounded-lg px-3 py-2 bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none">
+            <select id="leave-type" class="w-full border border-slate-300 rounded-lg px-3 py-2 bg-white">
               <option value="Nghỉ phép năm">Nghỉ phép năm (hưởng lương)</option>
               <option value="Việc riêng">Việc riêng (không lương)</option>
-              <option value="Nghỉ chế độ">Nghỉ chế độ (kết hôn, tang lễ)</option>
             </select>
           </div>
           <div>
-            <label class="block font-semibold text-slate-700 mb-1">Số ngày dự kiến</label>
-            <input type="number" id="leave-days" value="2" min="1" max="10" required class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+            <label class="block font-semibold text-slate-700 mb-1">Số ngày</label>
+            <input type="number" id="leave-days" value="2" min="1" max="10" required class="w-full border border-slate-300 rounded-lg px-3 py-2">
           </div>
         </div>
-
         <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="block font-semibold text-slate-700 mb-1">Từ ngày</label>
-            <input type="date" id="leave-from" value="2026-10-09" required class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
-          </div>
-          <div>
-            <label class="block font-semibold text-slate-700 mb-1">Đến ngày</label>
-            <input type="date" id="leave-to" value="2026-10-10" required class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
-          </div>
+          <div><label class="block font-semibold text-slate-700 mb-1">Từ ngày</label><input type="date" id="leave-from" value="2026-10-10" required class="w-full border border-slate-300 rounded-lg px-3 py-2"></div>
+          <div><label class="block font-semibold text-slate-700 mb-1">Đến ngày</label><input type="date" id="leave-to" value="2026-10-11" required class="w-full border border-slate-300 rounded-lg px-3 py-2"></div>
         </div>
-
         <div>
           <label class="block font-semibold text-slate-700 mb-1">Lý do nghỉ cụ thể</label>
-          <textarea id="leave-reason" rows="2" placeholder="Ví dụ: Về quê giải quyết việc gia đình..." required class="w-full border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500 focus:outline-none"></textarea>
+          <textarea id="leave-reason" rows="2" placeholder="Ghi rõ lý do..." required class="w-full border border-slate-300 rounded-lg p-2.5"></textarea>
         </div>
-
         <div class="pt-3 flex justify-end space-x-2">
-          <button type="button" onclick="closeModal('modal-leave')" class="px-4 py-2 border border-slate-300 rounded-xl text-slate-600 font-semibold hover:bg-slate-50">Hủy</button>
-          <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-semibold shadow-md">Gửi Đơn Duyệt</button>
+          <button type="button" onclick="closeModal('modal-leave')" class="px-4 py-2 border border-slate-300 rounded-xl text-slate-600 font-semibold">Hủy</button>
+          <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-xl font-semibold">Gửi Đơn Duyệt</button>
         </div>
       </form>
     </div>
   </div>
 
-  <!-- ============================================================= -->
-  <!-- MODAL: NỘP HỒ SƠ ỐM ĐAU (BHXH) -->
-  <!-- ============================================================= -->
+  <!-- PAYSLIP MODAL -->
+  <div id="modal-payslip" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-200">
+        <div>
+          <h3 class="text-base font-bold text-slate-900">PHIẾU LƯƠNG THÁNG 10/2026</h3>
+          <p class="text-xs text-slate-500">VinTech Solutions JSC</p>
+        </div>
+        <button onclick="closeModal('modal-payslip')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div id="payslip-content" class="py-4 text-xs space-y-3"></div>
+      <div class="pt-3 border-t border-slate-200 flex justify-end">
+        <button onclick="closeModal('modal-payslip')" class="px-4 py-2 border border-slate-300 rounded-xl text-slate-600 font-semibold text-xs">Đóng</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SICK MODAL -->
   <div id="modal-sick" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
     <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200">
       <div class="flex items-center justify-between pb-3 border-b border-slate-100">
-        <h3 class="text-base font-bold text-slate-900 flex items-center space-x-2">
-          <i class="fa-solid fa-hospital-user text-rose-600"></i>
-          <span>Nộp Hồ Sơ Nghỉ Ốm Đau (Chế Độ BHXH)</span>
-        </h3>
-        <button onclick="closeModal('modal-sick')" class="text-slate-400 hover:text-slate-600 text-lg"><i class="fa-solid fa-xmark"></i></button>
+        <h3 class="text-base font-bold text-slate-900">Nộp Hồ Sơ Nghỉ Ốm (BHXH)</h3>
+        <button onclick="closeModal('modal-sick')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
       </div>
-
-      <form id="form-sick" onsubmit="handleCreateSick(event)" class="mt-4 space-y-3.5 text-xs">
+      <form onsubmit="handleCreateSick(event)" class="mt-4 space-y-3.5 text-xs">
         <div>
           <label class="block font-semibold text-slate-700 mb-1">Cơ sở khám bệnh / Bệnh viện</label>
-          <input type="text" id="sick-hospital" placeholder="Ví dụ: Bệnh viện Bạch Mai, PKĐK An Sinh..." required class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-rose-500 focus:outline-none">
+          <input type="text" id="sick-hospital" placeholder="Bệnh viện Bạch Mai..." required class="w-full border border-slate-300 rounded-lg px-3 py-2">
         </div>
-
         <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="block font-semibold text-slate-700 mb-1">Từ ngày</label>
-            <input type="date" id="sick-from" value="2026-10-12" required class="w-full border border-slate-300 rounded-lg px-3 py-2">
-          </div>
-          <div>
-            <label class="block font-semibold text-slate-700 mb-1">Đến ngày</label>
-            <input type="date" id="sick-to" value="2026-10-13" required class="w-full border border-slate-300 rounded-lg px-3 py-2">
-          </div>
+          <div><label class="block font-semibold text-slate-700 mb-1">Từ ngày</label><input type="date" id="sick-from" value="2026-10-12" required class="w-full border border-slate-300 rounded-lg px-3 py-2"></div>
+          <div><label class="block font-semibold text-slate-700 mb-1">Đến ngày</label><input type="date" id="sick-to" value="2026-10-13" required class="w-full border border-slate-300 rounded-lg px-3 py-2"></div>
         </div>
-
-        <div>
-          <label class="block font-semibold text-slate-700 mb-1">Chứng từ viện phí / Giấy nghỉ việc hưởng BHXH</label>
-          <div class="border-2 border-dashed border-slate-300 rounded-xl p-3 text-center bg-slate-50">
-            <i class="fa-solid fa-cloud-arrow-up text-xl text-slate-400 mb-1"></i>
-            <p class="text-[11px] text-slate-500">Giấy_chứng_nhận_nghi_BHXH_BV_BachMai.pdf (Có sẵn bản mẫu)</p>
-          </div>
+        <div class="p-3 border border-dashed border-slate-300 rounded-xl bg-slate-50 text-center">
+          <i class="fa-solid fa-file-pdf text-rose-500 text-lg mb-1"></i>
+          <p class="text-[11px] text-slate-500">Giấy_chứng_nhận_nghi_BHXH_BV_BachMai.pdf (Có sẵn)</p>
         </div>
-
         <div class="pt-3 flex justify-end space-x-2">
-          <button type="button" onclick="closeModal('modal-sick')" class="px-4 py-2 border border-slate-300 rounded-xl text-slate-600 font-semibold hover:bg-slate-50">Hủy</button>
-          <button type="submit" class="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white rounded-xl font-semibold shadow-md">Gửi Hồ Sơ</button>
+          <button type="button" onclick="closeModal('modal-sick')" class="px-4 py-2 border border-slate-300 rounded-xl text-slate-600 font-semibold">Hủy</button>
+          <button type="submit" class="px-4 py-2 bg-rose-600 text-white rounded-xl font-semibold">Nộp Hồ Sơ</button>
         </div>
       </form>
     </div>
   </div>
 
-  <!-- ============================================================= -->
-  <!-- MODAL: PHIẾU LƯƠNG CÁ NHÂN (PAYSLIP POPUP) -->
-  <!-- ============================================================= -->
-  <div id="modal-payslip" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
-    <div class="bg-white rounded-2xl max-w-xl w-full p-6 shadow-2xl border border-slate-200">
-      <div class="flex items-center justify-between pb-4 border-b border-slate-200">
-        <div>
-          <h3 class="text-base font-bold text-slate-900">PHIẾU LƯƠNG THÁNG 10/2026</h3>
-          <p class="text-xs text-slate-500">Công ty Cổ phần Công nghệ & Giải pháp VinTech</p>
-        </div>
-        <button onclick="closeModal('modal-payslip')" class="text-slate-400 hover:text-slate-600 text-lg"><i class="fa-solid fa-xmark"></i></button>
-      </div>
-
-      <div id="payslip-content" class="py-4 text-xs space-y-3">
-        <!-- Rendered by JS -->
-      </div>
-
-      <div class="pt-4 border-t border-slate-200 flex justify-end space-x-2">
-        <button onclick="closeModal('modal-payslip')" class="px-4 py-2 border border-slate-300 rounded-xl text-slate-600 font-semibold text-xs hover:bg-slate-50">Đóng</button>
-        <button onclick="alert('Đã gửi lệnh in phiếu lương ra máy in!')" class="px-4 py-2 bg-blue-600 text-white rounded-xl font-semibold text-xs shadow-md"><i class="fa-solid fa-print mr-1"></i> In Phiếu Lương</button>
-      </div>
-    </div>
+  <!-- TOAST -->
+  <div id="toast" class="fixed bottom-5 right-5 z-50 transform transition-all duration-300 translate-y-20 opacity-0 pointer-events-none flex items-center space-x-3 bg-slate-900 text-white px-4 py-3 rounded-xl shadow-2xl border border-slate-700">
+    <div id="toast-icon" class="text-emerald-400 text-base"><i class="fa-solid fa-circle-check"></i></div>
+    <div id="toast-msg" class="text-sm font-medium">Thao tác thành công!</div>
   </div>
 
-  <!-- ============================================================= -->
-  <!-- JAVASCRIPT STATE & WORKFLOW ENGINE -->
-  <!-- ============================================================= -->
+  <!-- JAVASCRIPT STATE & AUTH ENGINE -->
   <script>
-    // --- 1. INITIAL MOCK DATABASE (REALISTIC CORPORATE DATA) ---
-    const INITIAL_DATA = {
-      users: [
-        { id: 'VT-001', name: 'Lê Thị Phương', role: 'employee', dept: 'Kỹ thuật', title: 'Chuyên viên Lập trình', salary: 18000000, avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=faces' },
-        { id: 'VT-002', name: 'Trần Minh Trí', role: 'manager', dept: 'Kỹ thuật', title: 'Trưởng phòng Kỹ thuật', salary: 28000000, avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=faces' },
-        { id: 'VT-003', name: 'Nguyễn Thu Hương', role: 'hr', dept: 'Kế toán', title: 'Kế toán trưởng / HR Lead', salary: 24000000, avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=100&h=100&fit=crop&crop=faces' },
-        { id: 'VT-004', name: 'Hoàng Khương Duy', role: 'employee', dept: 'Kỹ thuật', title: 'Kỹ sư Hệ thống', salary: 16500000, avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop&crop=faces' },
-        { id: 'VT-005', name: 'Đinh Thị Huyền Trang', role: 'employee', dept: 'Kinh doanh', title: 'Chuyên viên Kinh doanh', salary: 15000000, avatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=100&h=100&fit=crop&crop=faces' },
-        { id: 'VT-006', name: 'Nguyễn Hùng Mạnh', role: 'employee', dept: 'Kinh doanh', title: 'Trưởng nhóm Bán hàng', salary: 19000000, avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=faces' },
-        { id: 'VT-007', name: 'Trần Thị Bình Nga', role: 'employee', dept: 'Kế toán', title: 'Kế toán viên Tổng hợp', salary: 14000000, avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&h=100&fit=crop&crop=faces' },
-      ],
+    const USERS_DB = [
+      { id: 'VT-001', email: 'phuong.le@vintech.vn', name: 'Lê Thị Phương', role: 'employee', dept: 'Kỹ thuật', title: 'Chuyên viên Lập trình', salary: 18000000, avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=faces' },
+      { id: 'VT-002', email: 'tri.tran@vintech.vn', name: 'Trần Minh Trí', role: 'manager', dept: 'Kỹ thuật', title: 'Trưởng phòng Kỹ thuật', salary: 28000000, avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=faces' },
+      { id: 'VT-003', email: 'huong.nguyen@vintech.vn', name: 'Nguyễn Thu Hương', role: 'hr', dept: 'Kế toán', title: 'Kế toán trưởng / HR Lead', salary: 24000000, avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=100&h=100&fit=crop&crop=faces' },
+      { id: 'VT-004', email: 'duy.hoang@vintech.vn', name: 'Hoàng Khương Duy', role: 'employee', dept: 'Kỹ thuật', title: 'Kỹ sư Hệ thống', salary: 16500000, avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop&crop=faces' },
+      { id: 'VT-005', email: 'trang.dinh@vintech.vn', name: 'Đinh Thị Huyền Trang', role: 'employee', dept: 'Kinh doanh', title: 'Chuyên viên Kinh doanh', salary: 15000000, avatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=100&h=100&fit=crop&crop=faces' },
+    ];
+
+    let appData = {
       timesheet: {
         'VT-001': ['X','X','X','X','CN','X','X','X','X','X','CN','X','X','X','X','X','CN','X','X','X','X','X','CN','X','X','X','X','X','CN','X','X'],
         'VT-002': ['X','X','X','X','CN','X','X','X','X','X','CN','X','X','X','X','X','CN','X','X','X','X','X','CN','X','X','X','X','X','CN','X','X'],
         'VT-003': ['X','X','X','X','CN','X','X','X','X','X','CN','X','X','X','X','X','CN','X','X','X','X','X','CN','X','X','X','X','X','CN','X','X'],
         'VT-004': ['X','X','X','X','CN','X','X','X','X','X','CN','X','X','X','X','X','CN','X','X','X','X','X','CN','X','X','X','X','X','CN','X','X'],
         'VT-005': ['X','X','X','X','CN','X','X','X','X','X','CN','O','O','X','X','X','CN','X','X','X','X','X','CN','X','X','X','X','X','CN','X','X'],
-        'VT-006': ['X','X','X','X','CN','X','X','X','X','X','CN','X','X','X','X','X','CN','X','X','X','X','X','CN','X','X','X','X','X','CN','X','X'],
-        'VT-007': ['X','X','X','X','CN','X','X','X','X','X','CN','X','X','X','X','X','CN','X','X','X','X','X','CN','X','X','X','X','X','CN','X','X'],
       },
       leaveRequests: [
         { id: 'LV-2610-01', empId: 'VT-001', empName: 'Lê Thị Phương', type: 'Nghỉ phép năm', from: '2026-10-10', to: '2026-10-11', days: 2, daysIndexes: [9, 10], reason: 'Gia đình có việc hiếu hỉ ở quê', status: 'PENDING' },
-        { id: 'LV-2610-02', empId: 'VT-006', empName: 'Nguyễn Hùng Mạnh', type: 'Việc riêng', from: '2026-10-15', to: '2026-10-15', days: 1, daysIndexes: [14], reason: 'Đăng ký đổi bằng lái xe', status: 'APPROVED' }
       ],
       sickCases: [
-        { id: 'SC-2610-01', empId: 'VT-005', empName: 'Đinh Thị Huyền Trang', hospital: 'Bệnh viện Bạch Mai', from: '2026-10-12', to: '2026-10-13', days: 2, daysIndexes: [11, 12], docUrl: 'https://drive.google.com/sample_cert.pdf', status: 'PENDING' }
+        { id: 'SC-2610-01', empId: 'VT-005', empName: 'Đinh Thị Huyền Trang', hospital: 'Bệnh viện Bạch Mai', from: '2026-10-12', to: '2026-10-13', days: 2, daysIndexes: [11, 12], status: 'PENDING' }
       ],
       workDocs: [
         { id: 'CV-101', title: 'Rà soát kế hoạch bảo mật dữ liệu quý IV', assigner: 'Trần Minh Trí', assignee: 'Lê Thị Phương', deadline: '2026-10-15', status: 'Đang xử lý' },
-        { id: 'CV-102', title: 'Quyết toán thuế TNCN và tạm ứng lương', assigner: 'Ban Giám Đốc', assignee: 'Nguyễn Thu Hương', deadline: '2026-10-20', status: 'Đang xử lý' },
-        { id: 'CV-103', title: 'Lập báo cáo chuyển đổi số phòng Kế toán', assigner: 'Trần Minh Trí', assignee: 'Trần Thị Bình Nga', deadline: '2026-10-12', status: 'Hoàn thành' }
-      ],
-      legalDocs: [
-        { id: 'QĐ-08/2026', title: 'Quy chế trả lương, thưởng và phụ cấp nội bộ năm 2026', issuer: 'Tổng Giám Đốc', date: '01/01/2026', type: 'Nội bộ công ty', link: '#' },
-        { id: 'TT-111/2013/TT-BTC', title: 'Thông tư hướng dẫn thi hành Luật Thuế thu nhập cá nhân', issuer: 'Bộ Tài Chính', date: '15/08/2013', type: 'Thuế & Tài chính', link: '#' },
-        { id: 'NĐ-12/2022/NĐ-CP', title: 'Nghị định quy định xử phạt vi phạm hành chính lĩnh vực lao động, BHXH', issuer: 'Chính Phủ', date: '17/01/2022', type: 'Lao động & BHXH', link: '#' }
+        { id: 'CV-102', title: 'Quyết toán thuế TNCN và tạm ứng lương', assigner: 'Ban Giám Đốc', assignee: 'Nguyễn Thu Hương', deadline: '2026-10-20', status: 'Đang xử lý' }
       ]
     };
 
-    // App State (Persisted in localStorage or cloned)
-    let appData = JSON.parse(localStorage.getItem('vintech_hrm_data')) || JSON.parse(JSON.stringify(INITIAL_DATA));
-    let currentRole = 'employee'; // 'employee', 'manager', 'hr'
-    let currentEmployeeId = 'VT-001';
+    let currentUser = null; // Stored user object when logged in
 
-    function saveState() {
-      localStorage.setItem('vintech_hrm_data', JSON.stringify(appData));
-    }
+    // --- AUTH LOGIC ---
+    function handleLoginSubmit(e) {
+      if(e) e.preventDefault();
+      const email = document.getElementById('login-username').value.trim();
+      const user = USERS_DB.find(u => u.email.toLowerCase() === email.toLowerCase());
 
-    function resetDemoData() {
-      if(confirm('Khôi phục toàn bộ dữ liệu mẫu ban đầu cho buổi Demo?')) {
-        appData = JSON.parse(JSON.stringify(INITIAL_DATA));
-        saveState();
-        showToast('Đã khôi phục dữ liệu Demo thành công!', 'success');
-        initApp();
+      if(user) {
+        loginAsUser(user);
+      } else {
+        alert('Tài khoản không chính xác! Vui lòng chọn một trong các tài khoản mẫu bên dưới.');
       }
     }
 
-    // --- 2. ROLE SWITCHER ---
-    function setRole(role) {
-      currentRole = role;
-      document.querySelectorAll('.role-btn').forEach(b => {
-        b.className = 'role-btn px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-150 flex items-center space-x-1.5 text-slate-300 hover:text-white hover:bg-slate-700/60';
-      });
+    function fillAndLogin(email) {
+      document.getElementById('login-username').value = email;
+      document.getElementById('login-password').value = '123456';
+      const user = USERS_DB.find(u => u.email === email);
+      if(user) loginAsUser(user);
+    }
 
-      const activeBtn = document.getElementById(`role-btn-${role}`);
-      if(activeBtn) {
-        activeBtn.className = 'role-btn px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-150 flex items-center space-x-1.5 bg-blue-600 text-white shadow-sm';
+    function loginAsUser(user) {
+      currentUser = user;
+      document.getElementById('screen-login').classList.add('hidden');
+      document.getElementById('screen-app').classList.remove('hidden');
+
+      // Update Header
+      document.getElementById('user-name').innerText = user.name;
+      document.getElementById('user-role-label').innerText = `${user.title} (${user.dept})`;
+      document.getElementById('user-avatar').src = user.avatar;
+      document.getElementById('greet-name').innerText = user.name;
+      document.getElementById('greet-badge').innerText = user.role === 'employee' ? 'Nhân Viên' : user.role === 'manager' ? 'Quản Lý / Trưởng Phòng' : 'HR & Kế Toán';
+
+      // Update Role Notice
+      const notice = document.getElementById('role-notice');
+      if(user.role === 'employee') {
+        notice.innerText = 'Bạn đang xem với quyền Nhân Viên (Không có quyền duyệt)';
+      } else if(user.role === 'manager') {
+        notice.innerText = 'Bạn có quyền Phê duyệt đơn xin nghỉ phép';
+      } else {
+        notice.innerText = 'Bạn có quyền Phê duyệt hồ sơ BHXH & Quản lý tiền lương';
       }
 
-      if (role === 'employee') {
-        currentEmployeeId = 'VT-001';
-        updateUserHeader('Lê Thị Phương', 'Nhân viên Kỹ thuật', 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=faces');
-      } else if (role === 'manager') {
-        currentEmployeeId = 'VT-002';
-        updateUserHeader('Trần Minh Trí', 'Trưởng phòng Kỹ thuật', 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=faces');
-      } else if (role === 'hr') {
-        currentEmployeeId = 'VT-003';
-        updateUserHeader('Nguyễn Thu Hương', 'Kế toán trưởng / HR Lead', 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=100&h=100&fit=crop&crop=faces');
-      }
-
-      showToast(`Đã chuyển sang vai trò: ${role === 'employee' ? 'Nhân Viên' : role === 'manager' ? 'Quản Lý / Trưởng Phòng' : 'HR & Kế Toán'}`, 'info');
+      showToast(`Đăng nhập thành công với vai trò: ${user.name} (${user.title})`, 'success');
       initApp();
     }
 
-    function updateUserHeader(name, title, avatar) {
-      document.getElementById('user-name').innerText = name;
-      document.getElementById('user-role-label').innerText = title;
-      document.getElementById('user-avatar').src = avatar;
-      document.getElementById('greet-name').innerText = name;
-      document.getElementById('greet-badge').innerText = title;
+    function handleLogout() {
+      currentUser = null;
+      document.getElementById('screen-app').classList.add('hidden');
+      document.getElementById('screen-login').classList.remove('hidden');
+      document.getElementById('login-password').value = '';
+      showToast('Đã đăng xuất khỏi hệ thống!', 'info');
     }
 
-    // --- 3. TAB NAVIGATION ---
-    function switchTab(tabId) {
-      document.querySelectorAll('.tab-pane').forEach(p => p.classList.add('hidden'));
-      document.querySelectorAll('.nav-tab').forEach(t => {
-        t.className = 'nav-tab px-3.5 py-2 rounded-lg text-sm font-semibold flex items-center space-x-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100';
-      });
-
-      const pane = document.getElementById(`pane-${tabId}`);
-      if(pane) pane.classList.remove('hidden');
-
-      const btn = document.getElementById(`tab-btn-${tabId}`);
-      if(btn) btn.className = 'nav-tab px-3.5 py-2 rounded-lg text-sm font-semibold flex items-center space-x-2 text-blue-600 bg-blue-50';
-
-      if(tabId === 'timesheet') renderTimesheet();
-      if(tabId === 'leave') renderLeaveTable();
-      if(tabId === 'sick') renderSickTable();
-      if(tabId === 'payroll') renderPayrollTable();
-      if(tabId === 'docs') renderDocs();
-    }
-
-    function switchDocSubTab(sub) {
-      if(sub === 'work') {
-        document.getElementById('subpane-doc-work').classList.remove('hidden');
-        document.getElementById('subpane-doc-legal').classList.add('hidden');
-        document.getElementById('doc-subtab-work').className = 'text-sm font-bold text-blue-600 border-b-2 border-blue-600 pb-2 flex items-center space-x-2';
-        document.getElementById('doc-subtab-legal').className = 'text-sm font-bold text-slate-500 hover:text-slate-800 pb-2 flex items-center space-x-2';
-      } else {
-        document.getElementById('subpane-doc-work').classList.add('hidden');
-        document.getElementById('subpane-doc-legal').classList.remove('hidden');
-        document.getElementById('doc-subtab-legal').className = 'text-sm font-bold text-blue-600 border-b-2 border-blue-600 pb-2 flex items-center space-x-2';
-        document.getElementById('doc-subtab-work').className = 'text-sm font-bold text-slate-500 hover:text-slate-800 pb-2 flex items-center space-x-2';
-      }
-    }
-
-    // --- 4. RENDER MODULES ---
-
-    // TAB 1: DASHBOARD
+    // --- WORKFLOW ENFORCEMENT & TAB RENDERING ---
     function renderDashboard() {
       const pendingLeaves = appData.leaveRequests.filter(r => r.status === 'PENDING');
       const pendingSicks = appData.sickCases.filter(r => r.status === 'PENDING');
       const totalPending = pendingLeaves.length + pendingSicks.length;
 
       document.getElementById('kpi-pending-total').innerText = totalPending;
-      document.getElementById('leave-pending-badge').innerText = pendingLeaves.length;
-      document.getElementById('sick-pending-badge').innerText = pendingSicks.length;
 
-      // Pending List
       let html = '';
       if(totalPending === 0) {
-        html = `<div class="p-8 text-center text-slate-400 text-xs">🎉 Tuyệt vời! Hiện không còn đơn nào chờ phê duyệt.</div>`;
+        html = `<div class="p-6 text-center text-slate-400 text-xs">🎉 Không có đơn nào đang chờ xử lý!</div>`;
       } else {
         pendingLeaves.forEach(l => {
+          const canApprove = (currentUser.role === 'manager' || currentUser.role === 'hr');
           html += `
             <div class="p-3.5 rounded-xl border border-amber-200 bg-amber-50/60 flex items-center justify-between gap-3">
               <div class="flex items-center space-x-3">
@@ -833,20 +648,21 @@
                 </div>
               </div>
               <div class="flex items-center space-x-2">
-                ${currentRole !== 'employee' ? `
+                ${canApprove ? `
                   <button onclick="approveLeave('${l.id}')" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-lg text-xs shadow-sm flex items-center space-x-1">
                     <i class="fa-solid fa-check"></i> <span>Duyệt</span>
                   </button>
                   <button onclick="rejectLeave('${l.id}')" class="px-2.5 py-1.5 bg-white border border-slate-300 hover:bg-slate-50 text-slate-600 font-semibold rounded-lg text-xs">
                     <i class="fa-solid fa-xmark"></i>
                   </button>
-                ` : `<span class="text-[11px] font-semibold text-amber-600 italic">Đang chờ quản lý duyệt</span>`}
+                ` : `<span class="text-[11px] font-semibold text-amber-600 italic">Chờ Quản lý duyệt</span>`}
               </div>
             </div>
           `;
         });
 
         pendingSicks.forEach(s => {
+          const canApproveSick = (currentUser.role === 'hr');
           html += `
             <div class="p-3.5 rounded-xl border border-rose-200 bg-rose-50/60 flex items-center justify-between gap-3">
               <div class="flex items-center space-x-3">
@@ -860,57 +676,42 @@
                 </div>
               </div>
               <div class="flex items-center space-x-2">
-                ${currentRole !== 'employee' ? `
+                ${canApproveSick ? `
                   <button onclick="approveSick('${s.id}')" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-lg text-xs shadow-sm flex items-center space-x-1">
                     <i class="fa-solid fa-check"></i> <span>Duyệt BHXH</span>
                   </button>
-                  <button onclick="rejectSick('${s.id}')" class="px-2.5 py-1.5 bg-white border border-slate-300 hover:bg-slate-50 text-slate-600 font-semibold rounded-lg text-xs">
-                    <i class="fa-solid fa-xmark"></i>
-                  </button>
-                ` : `<span class="text-[11px] font-semibold text-rose-600 italic">Đang chờ HR duyệt</span>`}
+                ` : `<span class="text-[11px] font-semibold text-rose-600 italic">Chờ HR đối soát BHXH</span>`}
               </div>
             </div>
           `;
         });
       }
       document.getElementById('dash-pending-list').innerHTML = html;
-      initDonutChart();
     }
 
-    // TAB 2: TIMESHEET
     function renderTimesheet() {
-      const deptFilter = document.getElementById('filter-ts-dept').value;
-      const searchTxt = document.getElementById('search-ts-emp').value.toLowerCase();
       const tbody = document.getElementById('timesheet-tbody');
-
-      let filteredUsers = appData.users.filter(u => {
-        const mDept = deptFilter === 'all' || u.dept === deptFilter;
-        const mName = u.name.toLowerCase().includes(searchTxt) || u.id.toLowerCase().includes(searchTxt);
-        return mDept && mName;
-      });
-
       let rows = '';
-      filteredUsers.forEach(u => {
+      USERS_DB.forEach(u => {
         const days = appData.timesheet[u.id] || Array(31).fill('X');
         let totalX = 0, totalP = 0, totalO = 0;
-
         let cellsHtml = '';
+
         days.forEach(sym => {
           let cClass = 'cell-x';
           if(sym === 'P') { cClass = 'cell-p'; totalP++; }
           else if(sym === 'O') { cClass = 'cell-o'; totalO++; }
           else if(sym === 'CN') { cClass = 'cell-cn'; }
-          else if(sym === 'L') { cClass = 'cell-l'; }
           else { totalX++; }
-
           cellsHtml += `<td class="p-0 text-center border-r border-slate-100 matrix-cell ${cClass}">${sym}</td>`;
         });
 
+        const isMe = (currentUser && currentUser.id === u.id);
         rows += `
-          <tr class="hover:bg-slate-50/80 transition">
+          <tr class="${isMe ? 'bg-blue-50/40 font-bold' : 'hover:bg-slate-50/80'} transition">
             <td class="py-2.5 px-3 font-bold sticky left-0 bg-white z-10 text-center border-r border-slate-200 text-slate-700">${u.id}</td>
             <td class="py-2.5 px-3 sticky left-[70px] bg-white z-10 border-r border-slate-200">
-              <div class="font-bold text-slate-900">${u.name}</div>
+              <div class="font-bold text-slate-900">${u.name} ${isMe ? '<span class="text-[10px] text-blue-600">(Tôi)</span>' : ''}</div>
               <div class="text-[10px] text-slate-400">${u.title}</div>
             </td>
             <td class="py-2.5 px-2 text-center border-r border-slate-200"><span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 font-semibold text-[10px]">${u.dept}</span></td>
@@ -921,27 +722,21 @@
           </tr>
         `;
       });
-
       tbody.innerHTML = rows;
     }
 
-    // TAB 3: LEAVE TABLE
     function renderLeaveTable() {
       const tbody = document.getElementById('leave-table-tbody');
       let html = '';
       appData.leaveRequests.forEach(r => {
+        const canApprove = (currentUser.role === 'manager' || currentUser.role === 'hr');
         let stBadge = r.status === 'APPROVED' 
           ? `<span class="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 font-bold text-[10px]"><i class="fa-solid fa-check mr-1"></i>Đã duyệt (Sync Sheet)</span>`
-          : r.status === 'REJECTED'
-          ? `<span class="px-2.5 py-1 rounded-full bg-rose-100 text-rose-800 font-bold text-[10px]">Từ chối</span>`
           : `<span class="px-2.5 py-1 rounded-full bg-amber-100 text-amber-800 font-bold text-[10px]"><i class="fa-solid fa-clock mr-1"></i>Chờ duyệt</span>`;
 
         let actions = '---';
-        if(r.status === 'PENDING' && currentRole !== 'employee') {
-          actions = `
-            <button onclick="approveLeave('${r.id}')" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded font-bold text-[11px] shadow-sm mr-1">Duyệt</button>
-            <button onclick="rejectLeave('${r.id}')" class="px-2 py-1 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded font-semibold text-[11px]">Từ chối</button>
-          `;
+        if(r.status === 'PENDING' && canApprove) {
+          actions = `<button onclick="approveLeave('${r.id}')" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded font-bold text-[11px] shadow-sm">Duyệt Đơn</button>`;
         }
 
         html += `
@@ -960,23 +755,18 @@
       tbody.innerHTML = html;
     }
 
-    // TAB 4: SICK TABLE
     function renderSickTable() {
       const tbody = document.getElementById('sick-table-tbody');
       let html = '';
       appData.sickCases.forEach(s => {
+        const canApproveSick = (currentUser.role === 'hr');
         let stBadge = s.status === 'APPROVED' 
           ? `<span class="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 font-bold text-[10px]"><i class="fa-solid fa-check mr-1"></i>Đã duyệt BHXH</span>`
-          : s.status === 'REJECTED'
-          ? `<span class="px-2.5 py-1 rounded-full bg-rose-100 text-rose-800 font-bold text-[10px]">Từ chối</span>`
           : `<span class="px-2.5 py-1 rounded-full bg-amber-100 text-amber-800 font-bold text-[10px]"><i class="fa-solid fa-clock mr-1"></i>Chờ HR duyệt</span>`;
 
         let actions = '---';
-        if(s.status === 'PENDING' && currentRole !== 'employee') {
-          actions = `
-            <button onclick="approveSick('${s.id}')" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded font-bold text-[11px] shadow-sm mr-1">Duyệt BHXH</button>
-            <button onclick="rejectSick('${s.id}')" class="px-2 py-1 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded font-semibold text-[11px]">Từ chối</button>
-          `;
+        if(s.status === 'PENDING' && canApproveSick) {
+          actions = `<button onclick="approveSick('${s.id}')" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded font-bold text-[11px] shadow-sm">Duyệt BHXH</button>`;
         }
 
         html += `
@@ -986,11 +776,7 @@
             <td class="py-3 px-4 font-medium text-slate-700">${s.hospital}</td>
             <td class="py-3 px-4 text-slate-600 font-medium">${s.from} ➔ ${s.to}</td>
             <td class="py-3 px-3 text-center font-bold text-rose-600">${s.days}</td>
-            <td class="py-3 px-4 text-center">
-              <button onclick="viewCertFile('${s.id}')" class="text-blue-600 hover:text-blue-800 font-semibold underline text-[11px] flex items-center justify-center space-x-1">
-                <i class="fa-solid fa-paperclip"></i> <span>Xem Chứng Từ</span>
-              </button>
-            </td>
+            <td class="py-3 px-4 text-center"><span class="text-blue-600 font-semibold underline text-[11px]"><i class="fa-solid fa-file-pdf mr-1"></i>Giay_BHXH.pdf</span></td>
             <td class="py-3 px-4 text-center">${stBadge}</td>
             <td class="py-3 px-4 text-right">${actions}</td>
           </tr>
@@ -999,13 +785,24 @@
       tbody.innerHTML = html;
     }
 
-    // TAB 5: PAYROLL TABLE
     function renderPayrollTable() {
       const tbody = document.getElementById('payroll-tbody');
+      const desc = document.getElementById('payroll-desc');
+
+      // Phân quyền bảo mật: Nhân viên chỉ thấy phiếu lương của mình!
+      if(currentUser.role === 'employee') {
+        desc.innerText = 'Chế độ xem cá nhân: Chỉ hiển thị dữ liệu lương của bạn';
+      } else {
+        desc.innerText = 'Chế độ quản trị: Bảng lương tổng hợp toàn bộ nhân sự công ty';
+      }
+
       let html = '';
       const workingDaysNorm = 22;
 
-      appData.users.forEach(u => {
+      USERS_DB.forEach(u => {
+        // Nếu là nhân viên, không render dòng của nhân viên khác!
+        if(currentUser.role === 'employee' && u.id !== currentUser.id) return;
+
         const days = appData.timesheet[u.id] || [];
         const actualDays = days.filter(d => d === 'X').length;
         const allowance = 1500000;
@@ -1024,7 +821,7 @@
             <td class="py-3 px-4 text-right font-extrabold text-blue-700 text-sm">${netSalary.toLocaleString('vi-VN')} đ</td>
             <td class="py-3 px-4 text-center">
               <button onclick="printPayslip('${u.id}')" class="px-2.5 py-1 bg-slate-100 hover:bg-blue-50 text-blue-600 hover:text-blue-700 rounded font-semibold text-[11px] border border-slate-200 transition">
-                <i class="fa-solid fa-receipt mr-1"></i> Phiếu Lương
+                <i class="fa-solid fa-receipt mr-1"></i> Xem Phiếu Lương
               </button>
             </td>
           </tr>
@@ -1033,115 +830,57 @@
       tbody.innerHTML = html;
     }
 
-    // TAB 6: DOCUMENTS
     function renderDocs() {
-      const workTbody = document.getElementById('work-docs-tbody');
-      let wHtml = '';
+      const tbody = document.getElementById('work-docs-tbody');
+      let html = '';
       appData.workDocs.forEach(d => {
-        const isDone = d.status === 'Hoàn thành';
-        wHtml += `
+        html += `
           <tr class="hover:bg-slate-50 transition">
             <td class="py-3 px-4 font-bold text-slate-700">${d.id}</td>
             <td class="py-3 px-4 font-bold text-slate-900">${d.title}</td>
             <td class="py-3 px-4 text-slate-600">${d.assigner}</td>
             <td class="py-3 px-4 font-semibold text-blue-700">${d.assignee}</td>
             <td class="py-3 px-4 text-rose-600 font-semibold">${d.deadline}</td>
-            <td class="py-3 px-4 text-center">
-              <span class="px-2.5 py-1 rounded-full text-[10px] font-bold ${isDone ? 'bg-emerald-100 text-emerald-800' : 'bg-blue-100 text-blue-800'}">${d.status}</span>
-            </td>
-            <td class="py-3 px-4 text-center">
-              <button onclick="toggleDocStatus('${d.id}')" class="text-blue-600 hover:text-blue-800 font-semibold underline text-[11px]">Đổi Trạng Thái</button>
-            </td>
+            <td class="py-3 px-4 text-center"><span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800">${d.status}</span></td>
           </tr>
         `;
       });
-      workTbody.innerHTML = wHtml;
-
-      const legalTbody = document.getElementById('legal-docs-tbody');
-      let lHtml = '';
-      appData.legalDocs.forEach(l => {
-        lHtml += `
-          <tr class="hover:bg-slate-50 transition">
-            <td class="py-3 px-4 font-bold text-slate-800">${l.id}</td>
-            <td class="py-3 px-4 font-bold text-slate-900">${l.title}</td>
-            <td class="py-3 px-4 text-slate-600">${l.issuer}</td>
-            <td class="py-3 px-4 text-slate-600 font-medium">${l.date}</td>
-            <td class="py-3 px-4"><span class="px-2 py-0.5 rounded bg-slate-100 text-slate-700 font-medium">${l.type}</span></td>
-            <td class="py-3 px-4 text-center">
-              <a href="${l.link}" target="_blank" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded text-[11px] inline-flex items-center space-x-1">
-                <i class="fa-solid fa-arrow-up-right-from-square"></i> <span>Mở File</span>
-              </a>
-            </td>
-          </tr>
-        `;
-      });
-      legalTbody.innerHTML = lHtml;
+      tbody.innerHTML = html;
     }
 
-    // --- 5. WORKFLOW ACTIONS (CORE BUSINESS LOGIC & SYNC) ---
-
-    // APPROVE LEAVE -> SYNC 'P' TO TIMESHEET MATRIX
+    // --- WORKFLOW EXECUTION ---
     function approveLeave(reqId) {
       const req = appData.leaveRequests.find(r => r.id === reqId);
       if(!req) return;
-
       req.status = 'APPROVED';
 
-      // AUTO SYNC TO TIMESHEET MATRIX!
       if(!appData.timesheet[req.empId]) appData.timesheet[req.empId] = Array(31).fill('X');
       req.daysIndexes.forEach(idx => {
-        if(idx < 31) appData.timesheet[req.empId][idx] = 'P'; // Fill 'P' for leave!
+        if(idx < 31) appData.timesheet[req.empId][idx] = 'P';
       });
 
-      saveState();
-      showToast(`Đã duyệt đơn ${req.id} và tự động cập nhật ký hiệu 'P' vào Bảng Chấm Công!`, 'success');
+      showToast(`Đã duyệt đơn ${req.id} và tự động điền ký hiệu [P] vào Bảng Chấm Công!`, 'success');
       renderDashboard();
       renderLeaveTable();
     }
 
-    function rejectLeave(reqId) {
-      const req = appData.leaveRequests.find(r => r.id === reqId);
-      if(!req) return;
-      req.status = 'REJECTED';
-      saveState();
-      showToast(`Đã từ chối đơn ${req.id}!`, 'info');
-      renderDashboard();
-      renderLeaveTable();
-    }
-
-    // APPROVE SICK -> SYNC 'O' TO TIMESHEET MATRIX
     function approveSick(sickId) {
       const sc = appData.sickCases.find(s => s.id === sickId);
       if(!sc) return;
-
       sc.status = 'APPROVED';
 
-      // AUTO SYNC TO TIMESHEET MATRIX!
       if(!appData.timesheet[sc.empId]) appData.timesheet[sc.empId] = Array(31).fill('X');
       sc.daysIndexes.forEach(idx => {
-        if(idx < 31) appData.timesheet[sc.empId][idx] = 'O'; // Fill 'O' for sick!
+        if(idx < 31) appData.timesheet[sc.empId][idx] = 'O';
       });
 
-      saveState();
-      showToast(`Đã duyệt hồ sơ ${sc.id} và tự động cập nhật ký hiệu 'O' vào Bảng Chấm Công!`, 'success');
+      showToast(`Đã xác nhận hồ sơ BHXH ${sc.id} và tự động điền [O] vào Bảng Chấm Công!`, 'success');
       renderDashboard();
       renderSickTable();
     }
 
-    function rejectSick(sickId) {
-      const sc = appData.sickCases.find(s => s.id === sickId);
-      if(!sc) return;
-      sc.status = 'REJECTED';
-      saveState();
-      showToast(`Đã từ chối hồ sơ ${sc.id}!`, 'info');
-      renderDashboard();
-      renderSickTable();
-    }
-
-    // CREATE LEAVE HANDLER
     function handleCreateLeave(e) {
       e.preventDefault();
-      const currentUser = appData.users.find(u => u.id === currentEmployeeId) || appData.users[0];
       const type = document.getElementById('leave-type').value;
       const days = parseInt(document.getElementById('leave-days').value) || 1;
       const from = document.getElementById('leave-from').value;
@@ -1149,7 +888,6 @@
       const reason = document.getElementById('leave-reason').value;
 
       const newId = 'LV-' + Math.floor(1000 + Math.random() * 9000);
-      // Demo days indexes: day 10, day 11
       const fromDayNum = parseInt(from.split('-')[2]) - 1;
       const daysIndexes = [];
       for(let i=0; i<days; i++) {
@@ -1169,23 +907,19 @@
         status: 'PENDING'
       });
 
-      saveState();
       closeModal('modal-leave');
-      showToast(`Gửi đơn ${newId} thành công! Đang chờ Quản lý phê duyệt.`, 'success');
+      showToast(`Nộp đơn ${newId} thành công! Đang chờ Quản lý phê duyệt.`, 'success');
       renderDashboard();
       renderLeaveTable();
       switchTab('leave');
     }
 
-    // CREATE SICK HANDLER
     function handleCreateSick(e) {
       e.preventDefault();
-      const currentUser = appData.users.find(u => u.id === currentEmployeeId) || appData.users[0];
       const hospital = document.getElementById('sick-hospital').value;
       const from = document.getElementById('sick-from').value;
       const to = document.getElementById('sick-to').value;
       const newId = 'SC-' + Math.floor(1000 + Math.random() * 9000);
-
       const fromDayNum = parseInt(from.split('-')[2]) - 1;
 
       appData.sickCases.unshift({
@@ -1197,31 +931,18 @@
         to: to,
         days: 2,
         daysIndexes: [fromDayNum, fromDayNum + 1],
-        docUrl: 'https://drive.google.com/sample_cert.pdf',
         status: 'PENDING'
       });
 
-      saveState();
       closeModal('modal-sick');
-      showToast(`Đã gửi hồ sơ ốm đau ${newId}! Đang chờ HR đối soát chứng từ.`, 'success');
+      showToast(`Nộp hồ sơ ốm đau ${newId} thành công! Chờ HR đối soát BHXH.`, 'success');
       renderDashboard();
       renderSickTable();
       switchTab('sick');
     }
 
-    function toggleDocStatus(docId) {
-      const d = appData.workDocs.find(x => x.id === docId);
-      if(d) {
-        d.status = d.status === 'Hoàn thành' ? 'Đang xử lý' : 'Hoàn thành';
-        saveState();
-        showToast(`Đã cập nhật trạng thái văn bản ${d.id}!`, 'info');
-        renderDocs();
-      }
-    }
-
-    // PAYSLIP POPUP RENDERER
     function printPayslip(empId) {
-      const u = appData.users.find(x => x.id === empId) || appData.users[0];
+      const u = USERS_DB.find(x => x.id === empId) || USERS_DB[0];
       const days = appData.timesheet[u.id] || [];
       const actualDays = days.filter(d => d === 'X').length;
       const leaveDays = days.filter(d => d === 'P').length;
@@ -1229,25 +950,24 @@
       const salaryPerDay = u.salary / workingDaysNorm;
       const allowance = 1500000;
       const gross = Math.round((salaryPerDay * actualDays) + allowance);
-      const bhxh = Math.round(u.salary * 0.105); // 10.5% BHXH
+      const bhxh = Math.round(u.salary * 0.105);
       const net = gross - bhxh;
 
       document.getElementById('payslip-content').innerHTML = `
-        <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 grid grid-cols-2 gap-2 text-slate-700">
+        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 grid grid-cols-2 gap-2 text-slate-700">
           <div><strong>Mã NV:</strong> ${u.id}</div>
           <div><strong>Họ và tên:</strong> ${u.name}</div>
           <div><strong>Phòng ban:</strong> ${u.dept}</div>
           <div><strong>Chức danh:</strong> ${u.title}</div>
         </div>
-
-        <div class="border border-slate-200 rounded-xl overflow-hidden">
+        <div class="border border-slate-200 rounded-xl overflow-hidden mt-3">
           <table class="w-full text-left">
             <tbody class="divide-y divide-slate-100">
               <tr class="bg-slate-50/50"><td class="p-2 font-semibold">1. Lương cơ bản theo hợp đồng:</td><td class="p-2 text-right font-bold">${u.salary.toLocaleString('vi-VN')} đ</td></tr>
               <tr><td class="p-2">2. Ngày công chuẩn trong tháng:</td><td class="p-2 text-right">${workingDaysNorm} ngày</td></tr>
               <tr><td class="p-2">3. Số ngày làm việc thực tế:</td><td class="p-2 text-right font-bold text-blue-600">${actualDays} ngày (Phép: ${leaveDays} ngày)</td></tr>
-              <tr><td class="p-2">4. Lương theo ngày công:</td><td class="p-2 text-right font-medium">${Math.round(salaryPerDay * actualDays).toLocaleString('vi-VN')} đ</td></tr>
-              <tr><td class="p-2">5. Phụ cấp trách nhiệm & ăn trưa:</td><td class="p-2 text-right font-medium">${allowance.toLocaleString('vi-VN')} đ</td></tr>
+              <tr><td class="p-2">4. Lương theo ngày công:</td><td class="p-2 text-right">${Math.round(salaryPerDay * actualDays).toLocaleString('vi-VN')} đ</td></tr>
+              <tr><td class="p-2">5. Phụ cấp trách nhiệm & ăn trưa:</td><td class="p-2 text-right">${allowance.toLocaleString('vi-VN')} đ</td></tr>
               <tr class="text-rose-600"><td class="p-2">6. Khấu trừ BHXH (10.5%):</td><td class="p-2 text-right font-medium">-${bhxh.toLocaleString('vi-VN')} đ</td></tr>
               <tr class="bg-blue-50 text-blue-900 font-bold text-sm"><td class="p-3">THỰC LĨNH CHUYỂN KHOẢN:</td><td class="p-3 text-right text-base font-extrabold text-blue-700">${net.toLocaleString('vi-VN')} đ</td></tr>
             </tbody>
@@ -1257,99 +977,47 @@
       document.getElementById('modal-payslip').classList.remove('hidden');
     }
 
-    function viewCertFile(id) {
-      alert(`Đang mở xem file chứng từ y tế của hồ sơ [${id}]:\n- Tên file: Giay_xac_nhan_nghi_BHXH_BV_BachMai.pdf\n- Đã tải thành công từ Google Drive!`);
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-pane').forEach(p => p.classList.add('hidden'));
+      document.querySelectorAll('.nav-tab').forEach(t => {
+        t.className = 'nav-tab px-3.5 py-2 rounded-lg text-sm font-semibold flex items-center space-x-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100';
+      });
+
+      const pane = document.getElementById(`pane-${tabId}`);
+      if(pane) pane.classList.remove('hidden');
+
+      const btn = document.getElementById(`tab-btn-${tabId}`);
+      if(btn) btn.className = 'nav-tab px-3.5 py-2 rounded-lg text-sm font-semibold flex items-center space-x-2 text-blue-600 bg-blue-50';
+
+      if(tabId === 'timesheet') renderTimesheet();
+      if(tabId === 'leave') renderLeaveTable();
+      if(tabId === 'sick') renderSickTable();
+      if(tabId === 'payroll') renderPayrollTable();
+      if(tabId === 'docs') renderDocs();
     }
 
-    function exportTimesheetExcel() {
-      showToast('Đang kết xuất Bảng Chấm Công 31 ngày ra Google Sheet / Excel...', 'info');
-      setTimeout(() => {
-        showToast('Xuất thành công! Dữ liệu đã đồng bộ hoàn tất với Google Sheet.', 'success');
-      }, 1000);
-    }
-
-    // MODAL UTILITIES
     function openLeaveModal() {
-      const u = appData.users.find(x => x.id === currentEmployeeId) || appData.users[0];
-      document.getElementById('leave-emp-name').value = `${u.id} - ${u.name} (${u.dept})`;
+      document.getElementById('leave-emp-name').value = `${currentUser.id} - ${currentUser.name} (${currentUser.dept})`;
       document.getElementById('modal-leave').classList.remove('hidden');
     }
     function openSickModal() {
       document.getElementById('modal-sick').classList.remove('hidden');
     }
-    function openDocModal() {
-      const title = prompt('Nhập tiêu đề văn bản / nhiệm vụ mới:');
-      if(title) {
-        appData.workDocs.unshift({
-          id: 'CV-' + Math.floor(100 + Math.random()*900),
-          title: title,
-          assigner: document.getElementById('user-name').innerText,
-          assignee: 'Lê Thị Phương',
-          deadline: '2026-10-25',
-          status: 'Đang xử lý'
-        });
-        saveState();
-        showToast('Đã thêm văn bản công việc mới!', 'success');
-        renderDocs();
-      }
-    }
     function closeModal(id) {
       document.getElementById(id).classList.add('hidden');
     }
 
-    // TOAST UTILITY
     let toastTimer;
     function showToast(msg, type='success') {
       clearTimeout(toastTimer);
       const toast = document.getElementById('toast');
-      const toastMsg = document.getElementById('toast-msg');
-      const toastIcon = document.getElementById('toast-icon');
-
-      toastMsg.innerText = msg;
-      if(type === 'success') {
-        toastIcon.innerHTML = '<i class="fa-solid fa-circle-check text-emerald-400"></i>';
-      } else if(type === 'info') {
-        toastIcon.innerHTML = '<i class="fa-solid fa-circle-info text-blue-400"></i>';
-      } else {
-        toastIcon.innerHTML = '<i class="fa-solid fa-triangle-exclamation text-amber-400"></i>';
-      }
-
+      document.getElementById('toast-msg').innerText = msg;
       toast.classList.remove('translate-y-20', 'opacity-0', 'pointer-events-none');
       toastTimer = setTimeout(() => {
         toast.classList.add('translate-y-20', 'opacity-0', 'pointer-events-none');
       }, 4000);
     }
 
-    // DONUT CHART INIT
-    let donutChart;
-    function initDonutChart() {
-      const ctx = document.getElementById('dashAttendanceChart');
-      if(!ctx) return;
-      if(donutChart) donutChart.destroy();
-
-      donutChart = new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-          labels: ['Đi làm (X)', 'Nghỉ phép (P)', 'Nghỉ ốm (O)', 'Nghỉ lễ (L)'],
-          datasets: [{
-            data: [450, 28, 16, 34],
-            backgroundColor: ['#64748b', '#3b82f6', '#f59e0b', '#a855f7'],
-            borderWidth: 2,
-            borderColor: '#ffffff'
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          cutout: '72%',
-          plugins: {
-            legend: { display: false }
-          }
-        }
-      });
-    }
-
-    // INITIALIZE APP
     function initApp() {
       renderDashboard();
       renderTimesheet();
@@ -1358,10 +1026,6 @@
       renderPayrollTable();
       renderDocs();
     }
-
-    window.onload = () => {
-      initApp();
-    };
   </script>
 </body>
 </html>
