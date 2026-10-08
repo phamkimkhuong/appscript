@@ -14,15 +14,27 @@ function apiGetLeaveRequests() {
     const sheet = ss.getSheetByName(CONFIG.SHEET_NAMES.LEAVE);
     const data = sheetToObjects(sheet);
     return { success: true, data: data };
-  } catch(err) {
+  } catch (err) {
     return { success: false, message: err.message };
   }
 }
 
 /**
- * Tạo đơn xin nghỉ phép mới
+ * Tạo đơn xin nghỉ phép mới (Xác thực danh tính người gửi)
+ * @param {Object} form - Thông tin đơn nghỉ phép
+ * @param {string} [callerEmail] - Email của người nộp đơn
  */
-function apiSubmitLeave(form) {
+function apiSubmitLeave(form, callerEmail) {
+  const auth = verifyUserAuthorization(callerEmail);
+  if (!auth.authorized) {
+    return { success: false, message: auth.message };
+  }
+
+  // Nhân viên thông thường chỉ được phép nộp cho chính mình
+  if (auth.role === CONFIG.ROLES.EMPLOYEE && form.empId && form.empId !== auth.empId) {
+    return { success: false, message: "Nhân viên chỉ có quyền tạo đơn xin nghỉ cho chính mình!" };
+  }
+
   const lock = LockService.getScriptLock();
   if (!lock.tryLock(30000)) return { success: false, message: "Hệ thống đang bận!" };
 
@@ -34,8 +46,8 @@ function apiSubmitLeave(form) {
     // Header: Mã Đơn | Mã NV | Họ và Tên | Loại Nghỉ | Từ Ngày | Đến Ngày | Số Ngày | Lý Do | Trạng Thái | Ngày Duyệt | Người Duyệt
     sheet.appendRow([
       newId,
-      form.empId,
-      form.empName,
+      form.empId || auth.empId,
+      form.empName || auth.name,
       form.type,
       form.from,
       form.to,
@@ -47,7 +59,7 @@ function apiSubmitLeave(form) {
     ]);
 
     return { success: true, message: `Nộp đơn nghỉ phép thành công! Mã đơn: ${newId}`, newId: newId };
-  } catch(err) {
+  } catch (err) {
     return { success: false, message: "Lỗi nộp đơn: " + err.message };
   } finally {
     lock.releaseLock();
@@ -55,10 +67,17 @@ function apiSubmitLeave(form) {
 }
 
 /**
- * Phê duyệt đơn xin nghỉ phép (CÓ KHÓA ĐỒNG THỜI LOCK SERVICE)
+ * Phê duyệt đơn xin nghỉ phép (CÓ KHÓA ĐỒNG THỜI LOCK SERVICE & KIỂM TRA QUYỀN)
  * Tự động cập nhật ký hiệu 'P' vào bảng chấm công
+ * @param {string} reqId - Mã đơn nghỉ phép
+ * @param {string} [callerEmail] - Email người phê duyệt (phải là Quản lý hoặc HR)
  */
-function apiApproveLeave(reqId, reviewerName) {
+function apiApproveLeave(reqId, callerEmail) {
+  const auth = verifyUserAuthorization(callerEmail, [CONFIG.ROLES.MANAGER, CONFIG.ROLES.HR]);
+  if (!auth.authorized) {
+    return { success: false, message: auth.message };
+  }
+
   const lock = LockService.getScriptLock();
   if (!lock.tryLock(30000)) {
     return { success: false, message: "Hệ thống đang bận xử lý giao dịch khác, vui lòng thử lại sau!" };
@@ -68,7 +87,7 @@ function apiApproveLeave(reqId, reviewerName) {
     const ss = getSpreadsheet();
     const leaveSheet = ss.getSheetByName(CONFIG.SHEET_NAMES.LEAVE);
     const leaveData = leaveSheet.getDataRange().getValues();
-    
+
     let targetEmpId = null;
     let fromDateStr = null;
     let numDays = 1;
@@ -96,9 +115,11 @@ function apiApproveLeave(reqId, reviewerName) {
       return { success: false, message: `Đơn nghỉ [${reqId}] đã bị từ chối, không thể phê duyệt trực tiếp!` };
     }
 
+    const reviewerName = auth.name || "Ban Giám Đốc";
+
     leaveSheet.getRange(foundIndex, 9).setValue("APPROVED"); // Cột Trạng thái
     leaveSheet.getRange(foundIndex, 10).setValue(Utilities.formatDate(new Date(), CONFIG.TIMEZONE, "dd/MM/yyyy HH:mm"));
-    leaveSheet.getRange(foundIndex, 11).setValue(reviewerName || "Ban Giám Đốc");
+    leaveSheet.getRange(foundIndex, 11).setValue(reviewerName);
 
     // Tự động bắn vào bảng Chấm Công (ChamCong) và tính lại tổng công
     const attSheet = ss.getSheetByName(CONFIG.SHEET_NAMES.ATTENDANCE);
@@ -116,7 +137,7 @@ function apiApproveLeave(reqId, reviewerName) {
             startDay = new Date(str).getDate() || 1;
           }
         }
-      } catch(e) {
+      } catch (e) {
         startDay = 1;
       }
 
@@ -147,7 +168,7 @@ function apiApproveLeave(reqId, reviewerName) {
     }
 
     return { success: true, message: `Đã phê duyệt đơn [${reqId}] và tự động đồng bộ ký hiệu [P] vào Bảng Chấm Công!` };
-  } catch(err) {
+  } catch (err) {
     return { success: false, message: "Lỗi phê duyệt đơn: " + err.message };
   } finally {
     lock.releaseLock();
@@ -155,9 +176,26 @@ function apiApproveLeave(reqId, reviewerName) {
 }
 
 /**
- * Từ chối đơn xin nghỉ phép
+ * Từ chối đơn xin nghỉ phép (Kiểm tra quyền RBAC)
+ * @param {string} reqId - Mã đơn nghỉ phép
+ * @param {string} [reason] - Lý do từ chối
+ * @param {string} [callerEmail] - Email người từ chối (phải là Quản lý hoặc HR)
  */
-function apiRejectLeave(reqId, reason, reviewerName) {
+function apiRejectLeave(reqId, reason, callerEmail) {
+  let actualCaller = callerEmail;
+  let actualReason = reason || "Không duyệt";
+
+  // Xử lý linh hoạt trường hợp đảo vị trí tham số
+  if (!actualCaller && typeof reason === "string" && reason.includes("@")) {
+    actualCaller = reason;
+    actualReason = "Kế hoạch công tác không phù hợp";
+  }
+
+  const auth = verifyUserAuthorization(actualCaller, [CONFIG.ROLES.MANAGER, CONFIG.ROLES.HR]);
+  if (!auth.authorized) {
+    return { success: false, message: auth.message };
+  }
+
   const lock = LockService.getScriptLock();
   if (!lock.tryLock(30000)) return { success: false, message: "Hệ thống đang bận!" };
 
@@ -176,16 +214,19 @@ function apiRejectLeave(reqId, reason, reviewerName) {
           return { success: false, message: `Đơn nghỉ [${reqId}] đã được phê duyệt và ghi nhận công. Không thể từ chối trực tiếp!` };
         }
 
+        const reviewerName = auth.name || "Ban Giám Đốc";
+
         sheet.getRange(i + 1, 9).setValue("REJECTED");
         sheet.getRange(i + 1, 10).setValue(Utilities.formatDate(new Date(), CONFIG.TIMEZONE, "dd/MM/yyyy HH:mm"));
-        sheet.getRange(i + 1, 11).setValue((reviewerName || "") + " (Từ chối: " + (reason || "Không duyệt") + ")");
+        sheet.getRange(i + 1, 11).setValue(reviewerName + " (Từ chối: " + actualReason + ")");
         return { success: true, message: `Đã từ chối đơn nghỉ phép [${reqId}]!` };
       }
     }
     return { success: false, message: "Không tìm thấy đơn: " + reqId };
-  } catch(err) {
+  } catch (err) {
     return { success: false, message: err.message };
   } finally {
     lock.releaseLock();
   }
 }
+

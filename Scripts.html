@@ -23,9 +23,9 @@
       { id: 'SC-2610-01', empId: 'VT-005', empName: 'Đinh Thị Huyền Trang', hospital: 'Bệnh viện Bạch Mai', from: '2026-10-12', to: '2026-10-13', days: 2, daysIndexes: [11, 12], status: 'PENDING' }
     ],
     tasks: [
-      { id: 'CV-101', title: 'Rà soát kế hoạch bảo mật dữ liệu quý IV', type: 'Dự án', assigner: 'Trần Minh Trí', assignee: 'Lê Thị Phương', deadline: '2026-10-15', status: 'Đang xử lý', note: 'Ưu tiên cao' },
-      { id: 'CV-102', title: 'Quyết toán thuế TNCN và tạm ứng lương', type: 'Hành chính', assigner: 'Ban Giám Đốc', assignee: 'Nguyễn Thu Hương', deadline: '2026-10-20', status: 'Đang xử lý', note: 'Đúng kỳ hạn' },
-      { id: 'CV-103', title: 'Triển khai hạ tầng máy chủ cho chi nhánh', type: 'Kỹ thuật', assigner: 'Trần Minh Trí', assignee: 'Hoàng Khương Duy', deadline: '2026-10-18', status: 'Đang xử lý', note: 'Cần mua license' }
+      { id: 'CV-101', title: 'Rà soát kế hoạch bảo mật dữ liệu quý IV', type: 'Dự án', assigner: 'Trần Minh Trí', assignee: 'Lê Thị Phương', deadline: '2026-10-15', status: 'Đang xử lý', note: 'Ưu tiên cao', docId: '01/2026/QĐ-VT' },
+      { id: 'CV-102', title: 'Quyết toán thuế TNCN và tạm ứng lương', type: 'Hành chính', assigner: 'Ban Giám Đốc', assignee: 'Nguyễn Thu Hương', deadline: '2026-10-20', status: 'Đang xử lý', note: 'Đúng kỳ hạn', docId: '15/2026/TB-VT' },
+      { id: 'CV-103', title: 'Triển khai hạ tầng máy chủ cho chi nhánh', type: 'Kỹ thuật', assigner: 'Trần Minh Trí', assignee: 'Hoàng Khương Duy', deadline: '2026-10-18', status: 'Đang xử lý', note: 'Cần mua license', docId: '' }
     ],
     documents: [
       { id: '01/2026/QĐ-VT', title: 'Quy chế làm việc từ xa (Work From Home) và bảo mật dữ liệu', type: 'Quy chế nội bộ', issuer: 'Tổng Giám Đốc', date: '02/01/2026', fileUrl: 'https://drive.google.com/sample_doc1.pdf', status: 'Hiệu lực' },
@@ -42,6 +42,17 @@
   };
 
   let currentUser = null;
+
+  // --- XSS SANITIZER HELPER ---
+  function escapeHtml(str) {
+    if (str === null || str === undefined) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
 
   // --- CALL BACKEND BRIDGE ---
   function callBackend(fnName, args, callback, errorCallback) {
@@ -87,6 +98,12 @@
               documents: appData.documents
             }
           });
+        } else if (fnName === 'apiSubmitSick') {
+          const sickObj = (args && args[0]) || {};
+          const mockUrl = (sickObj.fileData && sickObj.fileData.name)
+            ? 'https://drive.google.com/file/d/sample_drive_id/view'
+            : 'https://drive.google.com/sample_cert.pdf';
+          if (callback) callback({ success: true, message: "Nộp hồ sơ ốm đau thành công!", newId: sickObj.id, docUrl: mockUrl });
         } else {
           if (callback) callback({ success: true, message: "Thao tác mô phỏng thành công!" });
         }
@@ -238,8 +255,8 @@
       pendings.push({
         type: 'leave',
         id: r.id,
-        title: `Đơn xin nghỉ phép (${r.type} - ${r.days} ngày)`,
-        sub: `${r.empName} • Từ ${r.from} đến ${r.to} • Lý do: "${r.reason}"`,
+        title: `Đơn xin nghỉ phép (${escapeHtml(r.type)} - ${r.days} ngày)`,
+        sub: `${escapeHtml(r.empName)} • Từ ${escapeHtml(r.from)} đến ${escapeHtml(r.to)} • Lý do: "${escapeHtml(r.reason)}"`,
         canApprove: (currentUser.role === 'manager' || currentUser.role === 'hr'),
         roleReq: currentUser.role === 'employee' ? 'Đang chờ Quản lý duyệt' : 'Quản lý duyệt'
       });
@@ -254,7 +271,7 @@
         type: 'sick',
         id: s.id,
         title: `Hồ sơ nghỉ ốm hưởng BHXH (${s.days} ngày)`,
-        sub: `${s.empName} • ${s.hospital} • Từ ${s.from} đến ${s.to}`,
+        sub: `${escapeHtml(s.empName)} • ${escapeHtml(s.hospital)} • Từ ${escapeHtml(s.from)} đến ${escapeHtml(s.to)}`,
         canApprove: (currentUser.role === 'hr'),
         roleReq: currentUser.role === 'employee' ? 'Đang chờ HR duyệt BHXH' : 'HR & Kế toán duyệt'
       });
@@ -396,22 +413,22 @@
 
       html += `
         <tr class="hover:bg-slate-50 transition">
-          <td class="py-3 px-4 font-bold text-slate-800">${u.id}</td>
+          <td class="py-3 px-4 font-bold text-slate-800">${escapeHtml(u.id)}</td>
           <td class="py-3 px-4">
             <div class="flex items-center space-x-2.5">
-              <img src="${u.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=faces'}" class="w-7 h-7 rounded-full object-cover border border-slate-200">
+              <img src="${escapeHtml(u.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=faces')}" class="w-7 h-7 rounded-full object-cover border border-slate-200">
               <div>
-                <div class="font-bold text-slate-900">${u.name}</div>
-                <div class="text-[10px] text-slate-400">${u.email}</div>
+                <div class="font-bold text-slate-900">${escapeHtml(u.name)}</div>
+                <div class="text-[10px] text-slate-400">${escapeHtml(u.email)}</div>
               </div>
             </div>
           </td>
-          <td class="py-3 px-4"><span class="px-2 py-0.5 rounded bg-blue-50 text-blue-700 font-medium">${u.dept}</span></td>
-          <td class="py-3 px-4 text-slate-700 font-medium">${u.title}</td>
+          <td class="py-3 px-4"><span class="px-2 py-0.5 rounded bg-blue-50 text-blue-700 font-medium">${escapeHtml(u.dept)}</span></td>
+          <td class="py-3 px-4 text-slate-700 font-medium">${escapeHtml(u.title)}</td>
           <td class="py-3 px-4 text-center">${roleBadge}</td>
           <td class="py-3 px-4 text-right font-semibold text-slate-900">${salaryText}</td>
           <td class="py-3 px-4 text-center">${statusBadge}</td>
-          <td class="py-3 px-4 text-center text-slate-500">${u.startDate || '--'}</td>
+          <td class="py-3 px-4 text-center text-slate-500">${escapeHtml(u.startDate || '--')}</td>
           <td class="py-3 px-4 text-right">${actionHtml}</td>
         </tr>
       `;
@@ -479,7 +496,8 @@
     }
 
     // Lưu xuống Google Sheets và chờ xác nhận trước khi cập nhật UI
-    callBackend('apiSaveEmployee', [empData], (res) => {
+    const callerEmail = currentUser ? currentUser.email : '';
+    callBackend('apiSaveEmployee', [empData, callerEmail], (res) => {
       if (submitBtn) {
         submitBtn.disabled = false;
         submitBtn.innerHTML = originalText;
@@ -518,7 +536,8 @@
   function deleteEmployee(empId) {
     if (!confirm(`Bạn có chắc chắn muốn chuyển trạng thái nhân viên [${empId}] sang 'Đã nghỉ việc'?`)) return;
 
-    callBackend('apiDeleteEmployee', [empId], (res) => {
+    const callerEmail = currentUser ? currentUser.email : '';
+    callBackend('apiDeleteEmployee', [empId, callerEmail], (res) => {
       if (res && res.success) {
         const u = USERS_DB.find(x => x.id === empId);
         if (u) u.status = 'Đã nghỉ việc';
@@ -562,12 +581,12 @@
       const isMe = (currentUser && currentUser.id === u.id);
       rows += `
         <tr class="${isMe ? 'bg-blue-50/40 font-bold' : 'hover:bg-slate-50/80'} transition">
-          <td class="py-2.5 px-3 font-bold sticky left-0 bg-white z-10 text-center border-r border-slate-200 text-slate-700">${u.id}</td>
+          <td class="py-2.5 px-3 font-bold sticky left-0 bg-white z-10 text-center border-r border-slate-200 text-slate-700">${escapeHtml(u.id)}</td>
           <td class="py-2.5 px-3 sticky left-[70px] bg-white z-10 border-r border-slate-200">
-            <div class="font-bold text-slate-900">${u.name} ${isMe ? '<span class="text-[10px] text-blue-600">(Tôi)</span>' : ''}</div>
-            <div class="text-[10px] text-slate-400">${u.title}</div>
+            <div class="font-bold text-slate-900">${escapeHtml(u.name)} ${isMe ? '<span class="text-[10px] text-blue-600">(Tôi)</span>' : ''}</div>
+            <div class="text-[10px] text-slate-400">${escapeHtml(u.title)}</div>
           </td>
-          <td class="py-2.5 px-2 text-center border-r border-slate-200"><span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 font-semibold text-[10px]">${u.dept}</span></td>
+          <td class="py-2.5 px-2 text-center border-r border-slate-200"><span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 font-semibold text-[10px]">${escapeHtml(u.dept)}</span></td>
           ${cellsHtml}
           <td class="py-2.5 px-2 text-center font-extrabold text-blue-700 bg-blue-50/50">${totalX}</td>
           <td class="py-2.5 px-2 text-center font-bold text-indigo-700 bg-indigo-50/50">${totalP}</td>
@@ -589,7 +608,8 @@
       renderTimesheet();
     }
 
-    callBackend('apiUpdateAttendanceCell', [empId, day, nextSym], (res) => {
+    const callerEmail = currentUser ? currentUser.email : '';
+    callBackend('apiUpdateAttendanceCell', [empId, day, nextSym, callerEmail], (res) => {
       if (res && res.success) {
         showToast(res.message || `Đã cập nhật công ngày ${day} thành [${nextSym}]!`, 'success');
       } else {
@@ -636,12 +656,12 @@
 
       html += `
         <tr class="hover:bg-slate-50 transition">
-          <td class="py-3 px-4 font-bold text-slate-800">${r.id}</td>
-          <td class="py-3 px-4 font-semibold text-slate-900">${r.empName}</td>
-          <td class="py-3 px-4"><span class="px-2 py-0.5 rounded bg-blue-50 text-blue-700 font-medium">${r.type}</span></td>
-          <td class="py-3 px-4 text-slate-600 font-medium">${r.from} ➔ ${r.to}</td>
+          <td class="py-3 px-4 font-bold text-slate-800">${escapeHtml(r.id)}</td>
+          <td class="py-3 px-4 font-semibold text-slate-900">${escapeHtml(r.empName)}</td>
+          <td class="py-3 px-4"><span class="px-2 py-0.5 rounded bg-blue-50 text-blue-700 font-medium">${escapeHtml(r.type)}</span></td>
+          <td class="py-3 px-4 text-slate-600 font-medium">${escapeHtml(r.from)} ➔ ${escapeHtml(r.to)}</td>
           <td class="py-3 px-3 text-center font-bold text-blue-600">${r.days}</td>
-          <td class="py-3 px-4 text-slate-600 max-w-xs truncate">${r.reason}</td>
+          <td class="py-3 px-4 text-slate-600 max-w-xs truncate" title="${escapeHtml(r.reason)}">${escapeHtml(r.reason)}</td>
           <td class="py-3 px-4 text-center">${stBadge}</td>
           <td class="py-3 px-4 text-right">${actions}</td>
         </tr>
@@ -677,12 +697,20 @@
 
       html += `
         <tr class="hover:bg-slate-50 transition">
-          <td class="py-3 px-4 font-bold text-slate-800">${s.id}</td>
-          <td class="py-3 px-4 font-semibold text-slate-900">${s.empName}</td>
-          <td class="py-3 px-4 font-medium text-slate-700">${s.hospital}</td>
-          <td class="py-3 px-4 text-slate-600 font-medium">${s.from} ➔ ${s.to}</td>
+          <td class="py-3 px-4 font-bold text-slate-800">${escapeHtml(s.id)}</td>
+          <td class="py-3 px-4 font-semibold text-slate-900">${escapeHtml(s.empName)}</td>
+          <td class="py-3 px-4 font-medium text-slate-700">${escapeHtml(s.hospital)}</td>
+          <td class="py-3 px-4 text-slate-600 font-medium">${escapeHtml(s.from)} ➔ ${escapeHtml(s.to)}</td>
           <td class="py-3 px-3 text-center font-bold text-rose-600">${s.days}</td>
-          <td class="py-3 px-4 text-center"><span class="text-blue-600 font-semibold underline text-[11px] cursor-pointer"><i class="fa-solid fa-file-pdf mr-1"></i>Giay_BHXH.pdf</span></td>
+          <td class="py-3 px-4 text-center">
+            ${(s.docUrl || s.fileUrl) ? `
+              <a href="${escapeHtml(s.docUrl || s.fileUrl)}" target="_blank" rel="noopener noreferrer"
+                class="px-2.5 py-1 bg-blue-50 hover:bg-blue-100 text-blue-700 hover:text-blue-900 rounded font-semibold text-[11px] inline-flex items-center space-x-1 border border-blue-200 shadow-xs transition">
+                <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                <span>Xem Tệp Drive</span>
+              </a>
+            ` : `<span class="text-slate-400 text-[11px]">Không có</span>`}
+          </td>
           <td class="py-3 px-4 text-center">${stBadge}</td>
           <td class="py-3 px-4 text-right">${actions}</td>
         </tr>
@@ -713,16 +741,16 @@
         if (currentUser.role === 'employee' && p.empId !== currentUser.id) return;
         html += `
           <tr class="hover:bg-slate-50 transition">
-            <td class="py-3 px-4 font-bold text-slate-800">${p.empId}</td>
-            <td class="py-3 px-4 font-semibold text-slate-900">${p.empName}</td>
-            <td class="py-3 px-4 text-slate-600">${p.title || '---'}</td>
+            <td class="py-3 px-4 font-bold text-slate-800">${escapeHtml(p.empId)}</td>
+            <td class="py-3 px-4 font-semibold text-slate-900">${escapeHtml(p.empName)}</td>
+            <td class="py-3 px-4 text-slate-600">${escapeHtml(p.title || '---')}</td>
             <td class="py-3 px-4 text-right font-medium">${(p.baseSalary || 0).toLocaleString('vi-VN')} đ</td>
             <td class="py-3 px-3 text-center font-bold text-slate-500">${p.standardDays || 22}</td>
             <td class="py-3 px-3 text-center font-extrabold text-blue-600">${p.actualDays || 0}</td>
             <td class="py-3 px-4 text-right text-slate-600">${(p.allowance || 0).toLocaleString('vi-VN')} đ</td>
             <td class="py-3 px-4 text-right font-extrabold text-blue-700 text-sm">${(p.netSalary || 0).toLocaleString('vi-VN')} đ</td>
             <td class="py-3 px-4 text-center">
-              <button onclick="printPayslip('${p.empId}')" class="px-2.5 py-1 bg-slate-100 hover:bg-blue-50 text-blue-600 hover:text-blue-700 rounded font-semibold text-[11px] border border-slate-200 transition">
+              <button onclick="printPayslip('${escapeHtml(p.empId)}')" class="px-2.5 py-1 bg-slate-100 hover:bg-blue-50 text-blue-600 hover:text-blue-700 rounded font-semibold text-[11px] border border-slate-200 transition">
                 <i class="fa-solid fa-receipt mr-1"></i> Xem Phiếu Lương
               </button>
             </td>
@@ -778,6 +806,22 @@
         ? `<span class="text-emerald-600 text-xs font-semibold"><i class="fa-solid fa-check-double mr-1"></i>Đã xong</span>`
         : `<button onclick="markTaskDone('${t.id}')" class="px-2.5 py-1 bg-indigo-600 hover:bg-indigo-500 text-white rounded text-[11px] font-semibold transition">Đánh dấu Xong</button>`;
 
+      let docBadge = '<span class="text-slate-400 text-[11px]">---</span>';
+      if (t.docId) {
+        const foundDoc = (appData.documents || []).find(d => d.id === t.docId);
+        if (foundDoc && foundDoc.fileUrl) {
+          docBadge = `
+            <a href="${foundDoc.fileUrl}" target="_blank" rel="noopener noreferrer"
+              class="px-2 py-0.5 rounded bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 text-[10px] font-semibold inline-flex items-center space-x-1 transition shadow-xs"
+              title="${foundDoc.title}">
+              <i class="fa-solid fa-file-contract text-amber-600"></i>
+              <span>${t.docId}</span>
+            </a>`;
+        } else {
+          docBadge = `<span class="px-2 py-0.5 rounded bg-amber-50 text-amber-800 border border-amber-200 text-[10px] font-semibold inline-flex items-center space-x-1"><i class="fa-solid fa-file-contract text-amber-600"></i><span>${t.docId}</span></span>`;
+        }
+      }
+
       html += `
         <tr class="hover:bg-slate-50 transition">
           <td class="py-3 px-4 font-bold text-slate-700">${t.id}</td>
@@ -786,6 +830,7 @@
             <div class="text-[10px] text-slate-400">${t.note || ''}</div>
           </td>
           <td class="py-3 px-4"><span class="px-2 py-0.5 rounded bg-slate-100 text-slate-600 font-medium">${t.type}</span></td>
+          <td class="py-3 px-4">${docBadge}</td>
           <td class="py-3 px-4 text-slate-600">${t.assigner}</td>
           <td class="py-3 px-4 font-semibold text-blue-700">${t.assignee}</td>
           <td class="py-3 px-4 text-rose-600 font-semibold">${t.deadline}</td>
@@ -810,12 +855,19 @@
           <td class="py-3 px-4 text-slate-600">${d.issuer}</td>
           <td class="py-3 px-4 text-slate-500">${d.date}</td>
           <td class="py-3 px-4 text-center">
-            <a href="${d.fileUrl}" target="_blank" class="px-2.5 py-1 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded text-[11px] font-semibold transition inline-flex items-center space-x-1">
+            <a href="${d.fileUrl}" target="_blank" rel="noopener noreferrer" class="px-2.5 py-1 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded text-[11px] font-semibold transition inline-flex items-center space-x-1">
               <i class="fa-solid fa-arrow-up-right-from-square"></i>
               <span>Xem File</span>
             </a>
           </td>
           <td class="py-3 px-4 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">${d.status}</span></td>
+          <td class="py-3 px-4 text-right">
+            <button onclick="assignTaskFromDoc('${d.id}')"
+              class="px-2.5 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 hover:text-indigo-900 rounded font-semibold text-[11px] inline-flex items-center space-x-1 border border-indigo-200 shadow-xs transition">
+              <i class="fa-solid fa-list-check"></i>
+              <span>Giao Việc</span>
+            </button>
+          </td>
         </tr>
       `;
     });
@@ -827,7 +879,8 @@
     const req = appData.leaveRequests.find(r => r.id === reqId);
     if (!req) return;
 
-    callBackend('apiApproveLeave', [reqId, currentUser.name], (res) => {
+    const callerEmail = currentUser ? currentUser.email : '';
+    callBackend('apiApproveLeave', [reqId, callerEmail], (res) => {
       if (res && res.success) {
         req.status = 'APPROVED';
         if (!appData.timesheet[req.empId]) appData.timesheet[req.empId] = Array(31).fill('X');
@@ -851,7 +904,8 @@
     const sc = appData.sickCases.find(s => s.id === sickId);
     if (!sc) return;
 
-    callBackend('apiApproveSick', [sickId, currentUser.name], (res) => {
+    const callerEmail = currentUser ? currentUser.email : '';
+    callBackend('apiApproveSick', [sickId, callerEmail], (res) => {
       if (res && res.success) {
         sc.status = 'APPROVED';
         if (!appData.timesheet[sc.empId]) appData.timesheet[sc.empId] = Array(31).fill('X');
@@ -876,7 +930,8 @@
     const req = appData.leaveRequests.find(r => r.id === reqId);
     if (!req) return;
 
-    callBackend('apiRejectLeave', [reqId, currentUser.name, 'Kế hoạch công tác không phù hợp'], (res) => {
+    const callerEmail = currentUser ? currentUser.email : '';
+    callBackend('apiRejectLeave', [reqId, 'Kế hoạch công tác không phù hợp', callerEmail], (res) => {
       if (res && res.success) {
         req.status = 'REJECTED';
         showToast(res.message || `Đã từ chối đơn ${req.id}!`, 'info');
@@ -895,7 +950,8 @@
     const sc = appData.sickCases.find(s => s.id === sickId);
     if (!sc) return;
 
-    callBackend('apiRejectSick', [sickId, currentUser.name, 'Chứng từ y tế chưa hợp lệ'], (res) => {
+    const callerEmail = currentUser ? currentUser.email : '';
+    callBackend('apiRejectSick', [sickId, 'Chứng từ y tế chưa hợp lệ', callerEmail], (res) => {
       if (res && res.success) {
         sc.status = 'REJECTED';
         showToast(res.message || `Đã từ chối hồ sơ ${sc.id}!`, 'info');
@@ -913,7 +969,8 @@
     if (!confirm('Hệ thống sẽ tổng hợp số ngày công từ bảng Chấm Công và tính lại Lương thực lĩnh cho toàn bộ nhân sự rồi lưu vào Google Sheet. Tiếp tục?')) return;
     showToast('Đang tính lương và đồng bộ Google Sheets...', 'info');
 
-    callBackend('apiCalculateMonthlyPayroll', ['10/2026'], (res) => {
+    const callerEmail = currentUser ? currentUser.email : '';
+    callBackend('apiCalculateMonthlyPayroll', ['10/2026', callerEmail], (res) => {
       if (res && res.success) {
         showToast(res.message || 'Đã tính toán và lưu Bảng Lương vào Google Sheet thành công!', 'success');
         callBackend('apiGetPayrollData', [currentUser.email], (pRes) => {
@@ -958,7 +1015,8 @@
       submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>Đang gửi đơn...';
     }
 
-    callBackend('apiSubmitLeave', [leaveObj], (res) => {
+    const callerEmail = currentUser ? currentUser.email : '';
+    callBackend('apiSubmitLeave', [leaveObj, callerEmail], (res) => {
       if (submitBtn) {
         submitBtn.disabled = false;
         submitBtn.innerHTML = originalText;
@@ -981,6 +1039,46 @@
       }
       showToast('Lỗi kết nối máy chủ: ' + err.message, 'error');
     });
+  }
+
+  let selectedSickFile = null;
+
+  function handleSickFileSelected(event) {
+    const file = event.target.files && event.target.files[0];
+    if (!file) return;
+
+    if (file.size > 15 * 1024 * 1024) {
+      showToast("Tệp tin quá lớn! Vui lòng chọn tệp nhỏ hơn 15MB.", "error");
+      event.target.value = "";
+      return;
+    }
+
+    selectedSickFile = file;
+    const placeholder = document.getElementById('sick-file-placeholder');
+    const preview = document.getElementById('sick-file-preview');
+    const nameEl = document.getElementById('sick-file-name');
+    const sizeEl = document.getElementById('sick-file-size');
+
+    if (placeholder && preview && nameEl && sizeEl) {
+      placeholder.classList.add('hidden');
+      preview.classList.remove('hidden');
+      preview.classList.add('flex');
+      nameEl.innerText = file.name;
+      sizeEl.innerText = `(${(file.size / 1024).toFixed(1)} KB)`;
+    }
+  }
+
+  function clearSickFile() {
+    selectedSickFile = null;
+    const input = document.getElementById('sick-file-input');
+    if (input) input.value = '';
+    const placeholder = document.getElementById('sick-file-placeholder');
+    const preview = document.getElementById('sick-file-preview');
+    if (placeholder && preview) {
+      placeholder.classList.remove('hidden');
+      preview.classList.add('hidden');
+      preview.classList.remove('flex');
+    }
   }
 
   function handleCreateSick(e) {
@@ -1014,32 +1112,56 @@
     const originalText = submitBtn ? submitBtn.innerHTML : '';
     if (submitBtn) {
       submitBtn.disabled = true;
-      submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>Đang gửi hồ sơ...';
+      submitBtn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up fa-bounce mr-2"></i>Đang tải lên Drive...';
     }
 
-    callBackend('apiSubmitSick', [sickObj], (res) => {
-      if (submitBtn) {
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = originalText;
-      }
-      if (res && res.success) {
-        if (res.newId) sickObj.id = res.newId;
-        appData.sickCases.unshift(sickObj);
-        closeModal('modal-sick');
-        showToast(res.message || `Nộp hồ sơ ốm đau ${sickObj.id} (${calcDays} ngày) thành công!`, 'success');
-        renderDashboard();
-        renderSickTable();
-        switchTab('sick');
-      } else {
-        showToast((res && res.message) || 'Lỗi nộp hồ sơ ốm đau!', 'error');
-      }
-    }, (err) => {
-      if (submitBtn) {
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = originalText;
-      }
-      showToast('Lỗi kết nối máy chủ: ' + err.message, 'error');
-    });
+    const doSubmit = (fileData) => {
+      if (fileData) sickObj.fileData = fileData;
+      const callerEmail = currentUser ? currentUser.email : '';
+      callBackend('apiSubmitSick', [sickObj, callerEmail], (res) => {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = originalText;
+        }
+        if (res && res.success) {
+          if (res.newId) sickObj.id = res.newId;
+          if (res.docUrl) sickObj.docUrl = res.docUrl;
+          appData.sickCases.unshift(sickObj);
+          closeModal('modal-sick');
+          clearSickFile();
+          showToast(res.message || `Nộp hồ sơ ốm đau ${sickObj.id} (${calcDays} ngày) thành công!`, 'success');
+          renderDashboard();
+          renderSickTable();
+          switchTab('sick');
+        } else {
+          showToast((res && res.message) || 'Lỗi nộp hồ sơ ốm đau!', 'error');
+        }
+      }, (err) => {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = originalText;
+        }
+        showToast('Lỗi kết nối máy chủ: ' + err.message, 'error');
+      });
+    };
+
+    if (selectedSickFile) {
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        doSubmit({
+          name: selectedSickFile.name,
+          type: selectedSickFile.type,
+          base64: evt.target.result
+        });
+      };
+      reader.onerror = function() {
+        showToast("Không thể đọc tệp tin cục bộ!", "error");
+        doSubmit(null);
+      };
+      reader.readAsDataURL(selectedSickFile);
+    } else {
+      doSubmit(null);
+    }
   }
 
   function handleSaveTask(e) {
@@ -1049,6 +1171,7 @@
     const assignee = document.getElementById('task-form-assignee').value;
     const deadline = document.getElementById('task-form-deadline').value;
     const note = document.getElementById('task-form-note').value;
+    const docId = document.getElementById('task-form-doc') ? document.getElementById('task-form-doc').value : '';
     const newId = 'CV-' + Math.floor(100 + Math.random() * 900);
 
     const taskObj = {
@@ -1059,7 +1182,8 @@
       assignee: assignee,
       deadline: deadline,
       status: 'Đang xử lý',
-      note: note
+      note: note,
+      docId: docId
     };
 
     appData.tasks.unshift(taskObj);
@@ -1068,7 +1192,8 @@
     renderDashboard();
     switchTab('tasks');
 
-    callBackend('apiSaveTask', [taskObj], (res) => {
+    const callerEmail = currentUser ? currentUser.email : '';
+    callBackend('apiSaveTask', [taskObj, callerEmail], (res) => {
       if (res && res.success) {
         showToast(`Giao việc [${newId}] cho ${assignee} thành công (Đã lưu Sheet)!`, 'success');
       } else {
@@ -1093,7 +1218,8 @@
     renderTasksTable();
     renderDashboard();
 
-    callBackend('apiUpdateTaskStatus', [taskId, 'Hoàn thành'], (res) => {
+    const callerEmail = currentUser ? currentUser.email : '';
+    callBackend('apiUpdateTaskStatus', [taskId, 'Hoàn thành', '', callerEmail], (res) => {
       if (res && res.success) {
         showToast(`Đã xác nhận hoàn thành công việc [${taskId}] (Đã cập nhật Sheet)!`, 'success');
       } else {
@@ -1133,7 +1259,8 @@
     renderDocsTable();
     switchTab('docs');
 
-    callBackend('apiSaveDocument', [docObj], (res) => {
+    const callerEmail = currentUser ? currentUser.email : '';
+    callBackend('apiSaveDocument', [docObj, callerEmail], (res) => {
       if (res && res.success) {
         showToast(`Lưu trữ văn bản [${id}] thành công (Đã lưu Sheet)!`, 'success');
       } else {
@@ -1173,10 +1300,10 @@
 
     document.getElementById('payslip-content').innerHTML = `
       <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 grid grid-cols-2 gap-2 text-slate-700">
-        <div><strong>Mã NV:</strong> ${u.id}</div>
-        <div><strong>Họ và tên:</strong> ${u.name}</div>
-        <div><strong>Phòng ban:</strong> ${u.dept}</div>
-        <div><strong>Chức danh:</strong> ${u.title}</div>
+        <div><strong>Mã NV:</strong> ${escapeHtml(u.id)}</div>
+        <div><strong>Họ và tên:</strong> ${escapeHtml(u.name)}</div>
+        <div><strong>Phòng ban:</strong> ${escapeHtml(u.dept)}</div>
+        <div><strong>Chức danh:</strong> ${escapeHtml(u.title)}</div>
       </div>
       <div class="border border-slate-200 rounded-xl overflow-hidden mt-3">
         <table class="w-full text-left">
@@ -1198,7 +1325,7 @@
   function populateAssigneeSelect() {
     const select = document.getElementById('task-form-assignee');
     if (!select) return;
-    select.innerHTML = USERS_DB.map(u => `<option value="${u.name}">${u.name} (${u.dept})</option>`).join('');
+    select.innerHTML = USERS_DB.map(u => `<option value="${escapeHtml(u.name)}">${escapeHtml(u.name)} (${escapeHtml(u.dept)})</option>`).join('');
   }
 
   function openLeaveModal() {
@@ -1208,9 +1335,40 @@
   function openSickModal() {
     document.getElementById('modal-sick').classList.remove('hidden');
   }
-  function openTaskModal() {
+  function openTaskModal(preselectedDocId) {
+    // Nạp danh sách nhân sự phụ trách
+    const assigneeSel = document.getElementById('task-form-assignee');
+    if (assigneeSel) {
+      assigneeSel.innerHTML = USERS_DB
+        .filter(u => u.status !== 'Đã nghỉ việc')
+        .map(u => `<option value="${escapeHtml(u.name)}">${escapeHtml(u.name)} (${escapeHtml(u.title)} - ${escapeHtml(u.dept)})</option>`)
+        .join('');
+    }
+    // Nạp danh sách văn bản căn cứ
+    const docSel = document.getElementById('task-form-doc');
+    if (docSel) {
+      let docOpts = '<option value="">-- Không có (Nhiệm vụ thông thường) --</option>';
+      (appData.documents || []).forEach(d => {
+        const isSelected = (preselectedDocId && preselectedDocId === d.id) ? 'selected' : '';
+        docOpts += `<option value="${escapeHtml(d.id)}" ${isSelected}>[${escapeHtml(d.id)}] ${escapeHtml(d.title)}</option>`;
+      });
+      docSel.innerHTML = docOpts;
+      if (preselectedDocId) docSel.value = preselectedDocId;
+    }
     document.getElementById('modal-task').classList.remove('hidden');
   }
+
+  function assignTaskFromDoc(docId) {
+    const doc = (appData.documents || []).find(d => d.id === docId);
+    openTaskModal(docId);
+    if (doc) {
+      const titleInput = document.getElementById('task-form-title');
+      if (titleInput && !titleInput.value) {
+        titleInput.value = `Triển khai [${doc.id}]: ${doc.title}`;
+      }
+    }
+  }
+
   function openDocModal() {
     document.getElementById('modal-doc').classList.remove('hidden');
   }

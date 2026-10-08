@@ -168,7 +168,8 @@ function apiGetInitialAppData(userEmail) {
       doneDate: t["Ngày Hoàn Thành"],
       status: t["Trạng Thái"] || "Đang xử lý",
       evaluation: t["Đánh Giá"],
-      note: t["Ghi Chú"]
+      note: t["Ghi Chú"],
+      docId: t["Mã Văn Bản"] || t["Mã VB"] || ""
     }));
 
     // 7. Văn bản
@@ -201,3 +202,94 @@ function apiGetInitialAppData(userEmail) {
     return { success: false, message: "Lỗi tải dữ liệu: " + err.message };
   }
 }
+
+/**
+ * Xác thực danh tính và phân quyền phía Server (Backend RBAC)
+ * Đảm bảo mọi thao tác ghi/duyệt đều được xác minh danh tính và quyền hạn trước khi ghi vào Google Sheets.
+ * @param {string} callerEmail - Email hoặc danh tính người gọi
+ * @param {string[]} [allowedRoles] - Mảng các vai trò được phép (ví dụ: ['manager', 'hr'])
+ * @returns {{ authorized: boolean, user?: Object, role?: string, name?: string, empId?: string, message?: string }}
+ */
+function verifyUserAuthorization(callerEmail, allowedRoles) {
+  try {
+    let identifier = (callerEmail || "").toString().trim();
+
+    // Fallback qua Google Session nếu có
+    if (!identifier && typeof Session !== "undefined" && Session.getActiveUser) {
+      try {
+        identifier = (Session.getActiveUser().getEmail() || "").trim();
+      } catch (e) {
+        // Ignored
+      }
+    }
+
+    if (!identifier) {
+      return {
+        authorized: false,
+        message: "Từ chối truy cập: Thiếu thông tin email/danh tính người thực hiện (Caller Identity)!"
+      };
+    }
+
+    const ss = getSpreadsheet();
+    const userSheet = ss.getSheetByName(CONFIG.SHEET_NAMES.USERS);
+    if (!userSheet) {
+      return {
+        authorized: false,
+        message: "Lỗi hệ thống: Không tìm thấy bảng Users để xác thực quyền!"
+      };
+    }
+
+    const users = sheetToObjects(userSheet);
+    const idLower = identifier.toLowerCase();
+    const user = users.find(u => 
+      (u["Email"] || "").toString().trim().toLowerCase() === idLower ||
+      (u["Họ và Tên"] || "").toString().trim().toLowerCase() === idLower
+    );
+
+    if (!user) {
+      return {
+        authorized: false,
+        message: `Từ chối truy cập: Tài khoản [${identifier}] không tồn tại trong hệ thống doanh nghiệp!`
+      };
+    }
+
+    const status = (user["Trạng Thái"] || "").toString().trim();
+    if (status === "Đã nghỉ việc") {
+      return {
+        authorized: false,
+        message: `Từ chối truy cập: Tài khoản [${user["Họ và Tên"] || identifier}] đã nghỉ việc và bị vô hiệu hóa!`
+      };
+    }
+
+    const userRole = (user["Vai Trò"] || CONFIG.ROLES.EMPLOYEE).toString().trim().toLowerCase();
+
+    // Nếu yêu cầu vai trò cụ thể
+    if (allowedRoles && Array.isArray(allowedRoles) && allowedRoles.length > 0) {
+      const normalizedAllowed = allowedRoles.map(r => r.toString().trim().toLowerCase());
+      if (!normalizedAllowed.includes(userRole)) {
+        return {
+          authorized: false,
+          user: user,
+          role: userRole,
+          name: user["Họ và Tên"],
+          empId: user["Mã NV"],
+          message: `Từ chối truy cập: Bạn không có quyền thực hiện thao tác này! Yêu cầu vai trò: [${allowedRoles.join(", ")}], vai trò của bạn: [${userRole}].`
+        };
+      }
+    }
+
+    return {
+      authorized: true,
+      user: user,
+      role: userRole,
+      name: user["Họ và Tên"] || identifier,
+      empId: user["Mã NV"] || ""
+    };
+  } catch (err) {
+    return {
+      authorized: false,
+      message: "Lỗi kiểm tra quyền hạn hệ thống: " + err.message
+    };
+  }
+}
+

@@ -20,12 +20,18 @@ function apiGetAttendance() {
 }
 
 /**
- * Cập nhật ký hiệu chấm công cho 1 ngày cụ thể của nhân viên
+ * Cập nhật ký hiệu chấm công cho 1 ngày cụ thể của nhân viên (Kiểm tra quyền Quản lý / HR)
  * @param {string} empId - Mã nhân viên
  * @param {number} day - Ngày trong tháng (1 đến 31)
  * @param {string} symbol - Ký hiệu (X, P, O, L, CN...)
+ * @param {string} [callerEmail] - Email của người thực hiện thao tác
  */
-function apiUpdateAttendanceCell(empId, day, symbol) {
+function apiUpdateAttendanceCell(empId, day, symbol, callerEmail) {
+  const auth = verifyUserAuthorization(callerEmail, [CONFIG.ROLES.MANAGER, CONFIG.ROLES.HR]);
+  if (!auth.authorized) {
+    return { success: false, message: auth.message };
+  }
+
   const lock = LockService.getScriptLock();
   if (!lock.tryLock(30000)) return { success: false, message: "Hệ thống đang bận!" };
 
@@ -64,3 +70,4 @@ function apiUpdateAttendanceCell(empId, day, symbol) {
     lock.releaseLock();
   }
 }
+

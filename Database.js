@@ -122,13 +122,13 @@ function setupDatabaseSheets(customSS) {
     payrollSheet.appendRow(["10/2026", "VT-005", "Đinh Thị Huyền Trang", "Chuyên viên Kinh doanh", 15000000, 22, 20, 1500000, 1575000, 13561364, "Đã chốt lương"]);
   }
 
-  // 6. Sheet CongViec (Nhiệm vụ & Tasks)
+  // 6. Sheet CongViec (Nhiệm vụ & Tasks - E-Office)
   let taskSheet = ss.getSheetByName(CONFIG.SHEET_NAMES.TASKS) || ss.insertSheet(CONFIG.SHEET_NAMES.TASKS);
   if (taskSheet.getLastRow() < 1) {
-    taskSheet.appendRow(["Mã CV", "Tiêu Đề Công Việc", "Loại Công Việc", "Người Giao", "Người Phụ Trách", "Ngày Bắt Đầu", "Hạn Chót", "Ngày Hoàn Thành", "Trạng Thái", "Đánh Giá", "Ghi Chú"]);
-    taskSheet.appendRow(["CV-101", "Rà soát kế hoạch bảo mật dữ liệu quý IV", "Dự án", "Trần Minh Trí", "Lê Thị Phương", "01/10/2026", "15/10/2026", "", "Đang xử lý", "", "Ưu tiên cao"]);
-    taskSheet.appendRow(["CV-102", "Quyết toán thuế TNCN và tạm ứng lương", "Hành chính", "Ban Giám Đốc", "Nguyễn Thu Hương", "05/10/2026", "20/10/2026", "", "Đang xử lý", "", "Đúng kỳ hạn"]);
-    taskSheet.appendRow(["CV-103", "Triển khai hạ tầng máy chủ cho chi nhánh", "Kỹ thuật", "Trần Minh Trí", "Hoàng Khương Duy", "02/10/2026", "18/10/2026", "", "Đang xử lý", "", "Cần mua thêm license"]);
+    taskSheet.appendRow(["Mã CV", "Tiêu Đề Công Việc", "Loại Công Việc", "Người Giao", "Người Phụ Trách", "Ngày Bắt Đầu", "Hạn Chót", "Ngày Hoàn Thành", "Trạng Thái", "Đánh Giá", "Ghi Chú", "Mã Văn Bản"]);
+    taskSheet.appendRow(["CV-101", "Rà soát kế hoạch bảo mật dữ liệu quý IV", "Dự án", "Trần Minh Trí", "Lê Thị Phương", "01/10/2026", "15/10/2026", "", "Đang xử lý", "", "Ưu tiên cao", "01/2026/QĐ-VT"]);
+    taskSheet.appendRow(["CV-102", "Quyết toán thuế TNCN và tạm ứng lương", "Hành chính", "Ban Giám Đốc", "Nguyễn Thu Hương", "05/10/2026", "20/10/2026", "", "Đang xử lý", "", "Đúng kỳ hạn", "15/2026/TB-VT"]);
+    taskSheet.appendRow(["CV-103", "Triển khai hạ tầng máy chủ cho chi nhánh", "Kỹ thuật", "Trần Minh Trí", "Hoàng Khương Duy", "02/10/2026", "18/10/2026", "", "Đang xử lý", "", "Cần mua thêm license", ""]);
   }
 
   // 7. Sheet VanBan (Văn bản nội bộ & Pháp luật)

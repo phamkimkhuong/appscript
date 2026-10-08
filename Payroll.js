@@ -6,26 +6,21 @@
  */
 
 /**
- * Lấy dữ liệu Bảng lương có kiểm tra quyền bảo mật nghiêm ngặt
+ * Lấy dữ liệu Bảng lương có kiểm tra quyền bảo mật nghiêm ngặt (Backend RBAC)
  * - Nhân viên: CHỈ ĐƯỢC XEM BẢN GHI CỦA CHÍNH MÌNH
  * - HR / Quản lý: Được xem toàn bộ bảng lương công ty
  */
 function apiGetPayrollData(userEmail) {
   try {
-    const ss = getSpreadsheet();
-    const userSheet = ss.getSheetByName(CONFIG.SHEET_NAMES.USERS);
-    const users = sheetToObjects(userSheet);
-    
-    const emailNorm = (userEmail || "").trim().toLowerCase();
-    if (!emailNorm) {
-      return { success: false, message: "Yêu cầu cung cấp email để xác thực danh tính!" };
+    const auth = verifyUserAuthorization(userEmail);
+    if (!auth.authorized) {
+      return { success: false, message: auth.message };
     }
-    const currentUser = users.find(u => (u["Email"] || "").toLowerCase() === emailNorm);
-    if (!currentUser) {
-      return { success: false, message: "Tài khoản không tồn tại trong hệ thống. Quyền truy cập bị từ chối!" };
-    }
-    const role = currentUser["Vai Trò"] || CONFIG.ROLES.EMPLOYEE;
 
+    const currentUser = auth.user;
+    const role = auth.role;
+
+    const ss = getSpreadsheet();
     const payrollSheet = ss.getSheetByName(CONFIG.SHEET_NAMES.PAYROLL);
     const rawPayroll = sheetToObjects(payrollSheet);
 
@@ -56,9 +51,16 @@ function apiGetPayrollData(userEmail) {
 }
 
 /**
- * Tự động tính toán và kết xuất Bảng lương từ bảng Chấm công và Lương cơ bản
+ * Tự động tính toán và kết xuất Bảng lương từ bảng Chấm công và Lương cơ bản (Kiểm tra quyền Quản lý / HR)
+ * @param {string} [period] - Kỳ lương (ví dụ: '10/2026')
+ * @param {string} [callerEmail] - Email người thực hiện thao tác
  */
-function apiCalculateMonthlyPayroll(period) {
+function apiCalculateMonthlyPayroll(period, callerEmail) {
+  const auth = verifyUserAuthorization(callerEmail, [CONFIG.ROLES.MANAGER, CONFIG.ROLES.HR]);
+  if (!auth.authorized) {
+    return { success: false, message: auth.message };
+  }
+
   const lock = LockService.getScriptLock();
   if (!lock.tryLock(30000)) return { success: false, message: "Hệ thống đang bận!" };
 

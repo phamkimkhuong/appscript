@@ -29,15 +29,22 @@ function apiGetEmployees() {
     }));
 
     return { success: true, data: sanitized };
-  } catch(err) {
+  } catch (err) {
     return { success: false, message: err.message };
   }
 }
 
 /**
- * Thêm mới hoặc Cập nhật thông tin nhân viên (Sử dụng LockService)
+ * Thêm mới hoặc Cập nhật thông tin nhân viên 
+ * @param {Object} emp - Dữ liệu nhân viên
+ * @param {string} [callerEmail] - Email của người thực hiện thao tác
  */
-function apiSaveEmployee(emp) {
+function apiSaveEmployee(emp, callerEmail) {
+  const auth = verifyUserAuthorization(callerEmail, [CONFIG.ROLES.MANAGER, CONFIG.ROLES.HR]);
+  if (!auth.authorized) {
+    return { success: false, message: auth.message };
+  }
+
   const lock = LockService.getScriptLock();
   if (!lock.tryLock(30000)) {
     return { success: false, message: "Hệ thống đang bận ghi dữ liệu, vui lòng thử lại sau giây lát!" };
@@ -100,7 +107,7 @@ function apiSaveEmployee(emp) {
 
       return { success: true, message: `Thêm mới thành công nhân sự [${newId}] ${emp.name}!`, newId: newId };
     }
-  } catch(err) {
+  } catch (err) {
     return { success: false, message: "Lỗi lưu nhân sự: " + err.message };
   } finally {
     lock.releaseLock();
@@ -108,9 +115,16 @@ function apiSaveEmployee(emp) {
 }
 
 /**
- * Xóa hoặc Khóa nhân viên (Đổi trạng thái sang 'Đã nghỉ việc')
+ * Xóa hoặc Khóa nhân viên (Đổi trạng thái sang 'Đã nghỉ việc', kiểm tra RBAC)
+ * @param {string} empId - Mã nhân viên
+ * @param {string} [callerEmail] - Email của người thực hiện thao tác
  */
-function apiDeleteEmployee(empId) {
+function apiDeleteEmployee(empId, callerEmail) {
+  const auth = verifyUserAuthorization(callerEmail, [CONFIG.ROLES.MANAGER, CONFIG.ROLES.HR]);
+  if (!auth.authorized) {
+    return { success: false, message: auth.message };
+  }
+
   const lock = LockService.getScriptLock();
   if (!lock.tryLock(30000)) return { success: false, message: "Hệ thống đang bận!" };
 
@@ -127,7 +141,7 @@ function apiDeleteEmployee(empId) {
       }
     }
     return { success: false, message: "Không tìm thấy nhân viên: " + empId };
-  } catch(err) {
+  } catch (err) {
     return { success: false, message: err.message };
   } finally {
     lock.releaseLock();
