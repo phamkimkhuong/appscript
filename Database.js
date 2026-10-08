@@ -35,7 +35,12 @@ function sheetToObjects(sheet) {
     const item = { _rowIndex: i + 1 };
     for (let c = 0; c < headers.length; c++) {
       const key = headers[c].toString().trim();
-      item[key] = row[c];
+      let val = row[c];
+      // Chuẩn hóa Date object thành chuỗi yyyy-MM-dd tránh lỗi truyền tải Apps Script
+      if (val instanceof Date) {
+        val = Utilities.formatDate(val, CONFIG.TIMEZONE || "GMT+7", "yyyy-MM-dd");
+      }
+      item[key] = val;
     }
     results.push(item);
   }
@@ -55,8 +60,8 @@ function formatDateVN(date) {
  * Khởi tạo trọn vẹn cấu trúc 7 Bảng (Sheets) chuẩn Doanh Nghiệp
  * Chạy hàm này để tự động thiết lập toàn bộ Database
  */
-function setupDatabaseSheets() {
-  const ss = getSpreadsheet();
+function setupDatabaseSheets(customSS) {
+  const ss = customSS || getSpreadsheet();
 
   // 1. Sheet Users (Nhân sự)
   let userSheet = ss.getSheetByName(CONFIG.SHEET_NAMES.USERS) || ss.insertSheet(CONFIG.SHEET_NAMES.USERS);
@@ -76,17 +81,17 @@ function setupDatabaseSheets() {
     for (let d = 1; d <= 31; d++) daysHeader.push("Ngày " + d);
     attSheet.appendRow(["Mã NV", "Họ và Tên", "Phòng Ban", ...daysHeader, "Tổng Công", "Tổng Phép", "Tổng Ốm"]);
 
-    // Sample rows cho 5 nhân viên
+    // Sample rows cho 5 nhân viên (Tháng 10/2026: 31 ngày, 4 CN, 5 T7 nghỉ tuần => 22 ngày làm việc chuẩn "X")
     const defaultDays = Array(31).fill("X");
-    // CN là ngày 4, 11, 18, 25
     [3, 10, 17, 24].forEach(idx => { defaultDays[idx] = "CN"; });
+    [2, 9, 16, 23, 30].forEach(idx => { defaultDays[idx] = "T7"; });
 
     attSheet.appendRow(["VT-001", "Lê Thị Phương", "Kỹ thuật", ...defaultDays, 22, 0, 0]);
     attSheet.appendRow(["VT-002", "Trần Minh Trí", "Kỹ thuật", ...defaultDays, 22, 0, 0]);
     attSheet.appendRow(["VT-003", "Nguyễn Thu Hương", "Kế toán", ...defaultDays, 22, 0, 0]);
     attSheet.appendRow(["VT-004", "Hoàng Khương Duy", "Kỹ thuật", ...defaultDays, 22, 0, 0]);
 
-    // VT-005 có 2 ngày ốm
+    // VT-005 có 2 ngày ốm (ngày 12 & 13)
     const days5 = [...defaultDays];
     days5[11] = "O"; days5[12] = "O";
     attSheet.appendRow(["VT-005", "Đinh Thị Huyền Trang", "Kinh doanh", ...days5, 20, 0, 2]);
@@ -137,4 +142,29 @@ function setupDatabaseSheets() {
 
   Logger.log("Đã khởi tạo hoàn tất toàn bộ 7 Bảng dữ liệu chuẩn Doanh Nghiệp trên Google Sheets!");
   return { success: true, message: "Đã khởi tạo thành công 7 bảng dữ liệu!" };
+}
+
+/**
+ * TỰ ĐỘNG TẠO 1 FILE GOOGLE SHEET MỚI TINH TRÊN DRIVE CỦA BẠN
+ * và tự động sinh đủ 7 sheet chuẩn cho VinTech Solutions
+ */
+function createNewDatabaseSheet() {
+  const newSS = SpreadsheetApp.create("VinTech Solutions - Enterprise HRM & E-Office Database");
+  const newId = newSS.getId();
+  const newUrl = newSS.getUrl();
+
+  // Khởi tạo 7 bảng mẫu vào Sheet mới tạo
+  setupDatabaseSheets(newSS);
+
+  // Lưu ID này vào Script Properties để toàn bộ Web App tự động chuyển sang dùng Sheet mới
+  PropertiesService.getScriptProperties().setProperty("SPREADSHEET_ID", newId);
+
+  Logger.log("=================================================================");
+  Logger.log(" ĐÃ TẠO THÀNH CÔNG GOOGLE SHEET MỚI CHO VINTECH SOLUTIONS!");
+  Logger.log(" Tên file: VinTech Solutions - Enterprise HRM & E-Office Database");
+  Logger.log(" Spreadsheet ID: " + newId);
+  Logger.log(" Đường link xem trực tiếp: " + newUrl);
+  Logger.log("=================================================================");
+
+  return { success: true, id: newId, url: newUrl };
 }

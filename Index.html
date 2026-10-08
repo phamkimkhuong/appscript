@@ -478,6 +478,11 @@
             <p class="text-xs text-slate-500" id="payroll-desc">Tự động kết xuất từ dữ liệu chấm công thực tế</p>
           </div>
           <div class="flex items-center space-x-2">
+            <button id="btn-calc-payroll" onclick="calculatePayroll()"
+              class="hidden px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-blue-600 hover:bg-blue-500 text-white shadow-sm flex items-center space-x-1.5 transition">
+              <i class="fa-solid fa-calculator"></i>
+              <span>Tính Lương & Cập Nhật Sheet</span>
+            </button>
             <button onclick="printPayslip(currentUser.id)"
               class="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-900 hover:bg-slate-800 text-white shadow-sm flex items-center space-x-1.5 transition">
               <i class="fa-solid fa-receipt"></i>

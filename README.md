@@ -11,7 +11,9 @@ Tài liệu hướng dẫn vận hành, kiến trúc và tra cứu cú pháp l�
 * **Link Trực Tiếp Cho Khách Hàng (Production)**:
   👉 [https://script.google.com/macros/s/AKfycbwl4UliPG82gPztpgvmcv7OWsWk4yuPIvx8ysnmVxOdlC6ciQ7jb7LgumtQ1XHnM3CC/exec](https://script.google.com/macros/s/AKfycbwl4UliPG82gPztpgvmcv7OWsWk4yuPIvx8ysnmVxOdlC6ciQ7jb7LgumtQ1XHnM3CC/exec)
 * **Link Kiểm Thử Nhanh Khi Đang Code (Dev Test)**:
-  👉 [https://script.google.com/macros/s/AKfycbyXzdRdSBwjvb1LbqFFMBpfz6QgD39D1ibDGUtIG48/dev](https://script.google.com/macros/s/AKfycbyXzdRdSBwjvb1LbqFFMBpfz6QgD39D1ibDGUtIG48/dev)
+* **Google Sheet Database (Độc quyền VinTech)**:
+  👉 [https://docs.google.com/spreadsheets/d/1XPliJmBsxg2-tlxqZWricZv3VCntgUVv2etVZIvmoxA/edit](https://docs.google.com/spreadsheets/d/1XPliJmBsxg2-tlxqZWricZv3VCntgUVv2etVZIvmoxA/edit)
+* **Spreadsheet ID**: `1XPliJmBsxg2-tlxqZWricZv3VCntgUVv2etVZIvmoxA`
 
 ## 🔐 2. Danh Sách Tài Khoản Đăng Nhập & Phân Quyền Trải Nghiệm
 

@@ -21,9 +21,9 @@ function apiLogin(email, password) {
       return { success: false, message: "Tài khoản email không tồn tại trong hệ thống!" };
     }
 
-    // Kiểm tra mật khẩu (mặc định 123456 nếu chưa đặt)
+    // Kiểm tra mật khẩu (mặc định 123456 nếu tài khoản chưa đặt mật khẩu trong Sheet)
     const storedPass = user["Mật Khẩu"] ? user["Mật Khẩu"].toString() : "123456";
-    if (password !== storedPass && password !== "123456") {
+    if (password !== storedPass) {
       return { success: false, message: "Mật khẩu không chính xác!" };
     }
 
@@ -58,8 +58,14 @@ function apiGetInitialAppData(userEmail) {
     const rawUsers = sheetToObjects(userSheet);
     
     const emailNorm = (userEmail || "").trim().toLowerCase();
+    if (!emailNorm) {
+      return { success: false, message: "Yêu cầu xác định danh tính email người dùng!" };
+    }
     const currentUser = rawUsers.find(u => (u["Email"] || "").toLowerCase() === emailNorm);
-    const role = currentUser ? (currentUser["Vai Trò"] || CONFIG.ROLES.EMPLOYEE) : CONFIG.ROLES.EMPLOYEE;
+    if (!currentUser) {
+      return { success: false, message: "Tài khoản không tồn tại trong hệ thống. Quyền truy cập bị từ chối!" };
+    }
+    const role = currentUser["Vai Trò"] || CONFIG.ROLES.EMPLOYEE;
 
     // Danh sách nhân viên trả về: nếu không phải Manager/HR thì ẩn cột Lương
     const sanitizedUsers = rawUsers.map(u => ({
@@ -133,16 +139,19 @@ function apiGetInitialAppData(userEmail) {
       title: p["Chức Vụ"],
       baseSalary: Number(p["Lương Cơ Bản"]) || 0,
       standardDays: Number(p["Công Chuẩn"]) || 22,
-      actualDays: Number(p["Công Thực"]) || 22,
+      actualDays: (p["Công Thực"] !== undefined && p["Công Thực"] !== "" && !isNaN(Number(p["Công Thực"]))) ? Number(p["Công Thực"]) : 0,
       allowance: Number(p["Phụ Cấp"]) || 0,
       bhxh: Number(p["Khấu Trừ BHXH"]) || 0,
       netSalary: Number(p["Thực Lĩnh"]) || 0,
       status: p["Trạng Thái"] || "Đã chốt lương"
     }));
 
-    // Nếu là Employee: chỉ trả về phiếu lương của chính mình!
-    if (role === CONFIG.ROLES.EMPLOYEE && currentUser) {
+    // Nếu là Employee: CHỈ trả về phiếu lương của chính mình!
+    // Chỉ Manager và HR mới có quyền xem toàn bộ bảng lương công ty
+    if (role === CONFIG.ROLES.EMPLOYEE) {
       payroll = payroll.filter(p => p.empId === currentUser["Mã NV"]);
+    } else if (role !== CONFIG.ROLES.HR && role !== CONFIG.ROLES.MANAGER) {
+      payroll = [];
     }
 
     // 6. Công việc

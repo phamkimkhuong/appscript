@@ -70,12 +70,13 @@ function apiApproveSick(sickId, reviewerName) {
     let targetEmpId = null;
     let fromDateStr = null;
     let numDays = 1;
+    let foundIndex = -1;
+    let currentStatus = "";
 
     for (let i = 1; i < sickData.length; i++) {
       if (sickData[i][0] === sickId) {
-        sickSheet.getRange(i + 1, 9).setValue("APPROVED");
-        sickSheet.getRange(i + 1, 10).setValue(Utilities.formatDate(new Date(), CONFIG.TIMEZONE, "dd/MM/yyyy HH:mm"));
-        sickSheet.getRange(i + 1, 11).setValue(reviewerName || "HR / Kế toán");
+        foundIndex = i + 1;
+        currentStatus = (sickData[i][8] || "").toString().trim().toUpperCase();
         targetEmpId = sickData[i][1];
         fromDateStr = sickData[i][4];
         numDays = parseInt(sickData[i][6]) || 1;
@@ -83,17 +84,37 @@ function apiApproveSick(sickId, reviewerName) {
       }
     }
 
-    if (!targetEmpId) return { success: false, message: "Không tìm thấy hồ sơ: " + sickId };
+    if (foundIndex < 0) return { success: false, message: "Không tìm thấy hồ sơ: " + sickId };
 
-    // Tự động bắn vào bảng Chấm Công (ChamCong) với ký hiệu 'O'
+    if (currentStatus === "APPROVED") {
+      return { success: false, message: `Hồ sơ ốm đau [${sickId}] đã được phê duyệt trước đó!` };
+    }
+    if (currentStatus === "REJECTED") {
+      return { success: false, message: `Hồ sơ ốm đau [${sickId}] đã bị từ chối, không thể phê duyệt lại!` };
+    }
+
+    sickSheet.getRange(foundIndex, 9).setValue("APPROVED");
+    sickSheet.getRange(foundIndex, 10).setValue(Utilities.formatDate(new Date(), CONFIG.TIMEZONE, "dd/MM/yyyy HH:mm"));
+    sickSheet.getRange(foundIndex, 11).setValue(reviewerName || "HR / Kế toán");
+
+    // Tự động bắn vào bảng Chấm Công (ChamCong) với ký hiệu 'O' và tính lại công
     const attSheet = ss.getSheetByName(CONFIG.SHEET_NAMES.ATTENDANCE);
     if (attSheet) {
       const attData = attSheet.getDataRange().getValues();
       let startDay = 1;
       try {
-        startDay = new Date(fromDateStr).getDate();
+        if (fromDateStr instanceof Date) {
+          startDay = fromDateStr.getDate();
+        } else {
+          const str = String(fromDateStr);
+          if (str.includes("-")) {
+            startDay = parseInt(str.split("-")[2]) || 1;
+          } else {
+            startDay = new Date(str).getDate() || 1;
+          }
+        }
       } catch(e) {
-        startDay = parseInt(fromDateStr.split("-")[2]) || 1;
+        startDay = 1;
       }
 
       for (let j = 1; j < attData.length; j++) {
@@ -104,6 +125,19 @@ function apiApproveSick(sickId, reviewerName) {
               attSheet.getRange(j + 1, targetCol).setValue("O");
             }
           }
+
+          // Tính lại tổng công thực (X), phép (P), ốm (O)
+          const rowVals = attSheet.getRange(j + 1, 4, 1, 31).getValues()[0];
+          let totalX = 0, totalP = 0, totalO = 0;
+          rowVals.forEach(s => {
+            if (s === "X") totalX++;
+            else if (s === "P") totalP++;
+            else if (s === "O") totalO++;
+          });
+
+          attSheet.getRange(j + 1, 35).setValue(totalX); // Tổng công
+          attSheet.getRange(j + 1, 36).setValue(totalP); // Tổng phép
+          attSheet.getRange(j + 1, 37).setValue(totalO); // Tổng ốm
           break;
         }
       }

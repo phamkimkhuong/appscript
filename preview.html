@@ -17,66 +17,68 @@
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+  <!-- Custom Stylesheet Partial -->
   <style>
-    body {
-      font-family: 'Inter', sans-serif;
-    }
+  body {
+    font-family: 'Inter', sans-serif;
+  }
 
-    ::-webkit-scrollbar {
-      width: 6px;
-      height: 6px;
-    }
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
 
-    ::-webkit-scrollbar-track {
-      background: #f1f5f9;
-    }
+  ::-webkit-scrollbar-track {
+    background: #f1f5f9;
+  }
 
-    ::-webkit-scrollbar-thumb {
-      background: #cbd5e1;
-      border-radius: 3px;
-    }
+  ::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+  }
 
-    ::-webkit-scrollbar-thumb:hover {
-      background: #94a3b8;
-    }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+  }
 
-    .matrix-cell {
-      min-width: 32px;
-      max-width: 32px;
-      height: 32px;
-      font-size: 11px;
-    }
+  .matrix-cell {
+    min-width: 32px;
+    max-width: 32px;
+    height: 32px;
+    font-size: 11px;
+  }
 
-    .cell-x {
-      background-color: #f1f5f9;
-      color: #334155;
-      font-weight: 600;
-    }
+  .cell-x {
+    background-color: #f1f5f9;
+    color: #334155;
+    font-weight: 600;
+  }
 
-    .cell-p {
-      background-color: #dbeafe;
-      color: #1d4ed8;
-      font-weight: 700;
-    }
+  .cell-p {
+    background-color: #dbeafe;
+    color: #1d4ed8;
+    font-weight: 700;
+  }
 
-    .cell-o {
-      background-color: #ffedd5;
-      color: #c2410c;
-      font-weight: 700;
-    }
+  .cell-o {
+    background-color: #ffedd5;
+    color: #c2410c;
+    font-weight: 700;
+  }
 
-    .cell-l {
-      background-color: #f3e8ff;
-      color: #7e22ce;
-      font-weight: 700;
-    }
+  .cell-l {
+    background-color: #f3e8ff;
+    color: #7e22ce;
+    font-weight: 700;
+  }
 
-    .cell-cn {
-      background-color: #fee2e2;
-      color: #b91c1c;
-      font-weight: 600;
-    }
-  </style>
+  .cell-cn {
+    background-color: #fee2e2;
+    color: #b91c1c;
+    font-weight: 600;
+  }
+</style>
+
 </head>
 
 <body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col">
@@ -536,6 +538,11 @@
             <p class="text-xs text-slate-500" id="payroll-desc">Tự động kết xuất từ dữ liệu chấm công thực tế</p>
           </div>
           <div class="flex items-center space-x-2">
+            <button id="btn-calc-payroll" onclick="calculatePayroll()"
+              class="hidden px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-blue-600 hover:bg-blue-500 text-white shadow-sm flex items-center space-x-1.5 transition">
+              <i class="fa-solid fa-calculator"></i>
+              <span>Tính Lương & Cập Nhật Sheet</span>
+            </button>
             <button onclick="printPayslip(currentUser.id)"
               class="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-900 hover:bg-slate-800 text-white shadow-sm flex items-center space-x-1.5 transition">
               <i class="fa-solid fa-receipt"></i>
@@ -646,871 +653,1058 @@
   </div>
 
   <!-- ============================================================= -->
-  <!-- MODALS -->
+  <!-- MODALS & OVERLAYS PARTIAL -->
   <!-- ============================================================= -->
+  <!-- ============================================================= -->
+<!-- MODALS & OVERLAYS -->
+<!-- ============================================================= -->
 
-  <!-- MODAL 1: THÊM / SỬA NHÂN VIÊN (EMPLOYEE MODAL) -->
-  <div id="modal-employee"
-    class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
-    <div
-      class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto">
-      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
-        <h3 id="modal-employee-title" class="text-base font-bold text-slate-900">Thêm Nhân Sự Mới</h3>
-        <button onclick="closeModal('modal-employee')" class="text-slate-400 hover:text-slate-600"><i
-            class="fa-solid fa-xmark"></i></button>
-      </div>
-      <form onsubmit="handleSaveEmployee(event)" class="mt-4 space-y-3.5 text-xs">
-        <input type="hidden" id="emp-form-mode" value="add">
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="block font-semibold text-slate-700 mb-1">Mã nhân viên</label>
-            <input type="text" id="emp-form-id" placeholder="VT-006..." required
-              class="w-full border border-slate-300 rounded-lg px-3 py-2">
-          </div>
-          <div>
-            <label class="block font-semibold text-slate-700 mb-1">Họ và Tên</label>
-            <input type="text" id="emp-form-name" placeholder="Nguyễn Văn A..." required
-              class="w-full border border-slate-300 rounded-lg px-3 py-2">
-          </div>
-        </div>
-
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="block font-semibold text-slate-700 mb-1">Email nội bộ</label>
-            <input type="email" id="emp-form-email" placeholder="a.nguyen@vintech.vn..." required
-              class="w-full border border-slate-300 rounded-lg px-3 py-2">
-          </div>
-          <div>
-            <label class="block font-semibold text-slate-700 mb-1">Số điện thoại</label>
-            <input type="text" id="emp-form-phone" placeholder="0901234567..."
-              class="w-full border border-slate-300 rounded-lg px-3 py-2">
-          </div>
-        </div>
-
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="block font-semibold text-slate-700 mb-1">Phòng ban</label>
-            <select id="emp-form-dept" class="w-full border border-slate-300 rounded-lg px-3 py-2 bg-white">
-              <option value="Kỹ thuật">Kỹ thuật</option>
-              <option value="Kế toán">Kế toán</option>
-              <option value="Kinh doanh">Kinh doanh</option>
-              <option value="Nhân sự">Nhân sự</option>
-            </select>
-          </div>
-          <div>
-            <label class="block font-semibold text-slate-700 mb-1">Chức vụ / Vị trí</label>
-            <input type="text" id="emp-form-title" placeholder="Kỹ sư phần mềm..." required
-              class="w-full border border-slate-300 rounded-lg px-3 py-2">
-          </div>
-        </div>
-
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="block font-semibold text-slate-700 mb-1">Vai trò hệ thống</label>
-            <select id="emp-form-role" class="w-full border border-slate-300 rounded-lg px-3 py-2 bg-white">
-              <option value="employee">Nhân viên (Quyền cơ bản)</option>
-              <option value="manager">Quản lý (Duyệt đơn nghỉ)</option>
-              <option value="hr">HR / Kế toán (Duyệt BHXH & Lương)</option>
-            </select>
-          </div>
-          <div>
-            <label class="block font-semibold text-slate-700 mb-1">Lương cơ bản (VND)</label>
-            <input type="number" id="emp-form-salary" value="15000000" step="500000" required
-              class="w-full border border-slate-300 rounded-lg px-3 py-2">
-          </div>
-        </div>
-
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="block font-semibold text-slate-700 mb-1">Trạng thái</label>
-            <select id="emp-form-status" class="w-full border border-slate-300 rounded-lg px-3 py-2 bg-white">
-              <option value="Đang làm việc">Đang làm việc</option>
-              <option value="Đã nghỉ việc">Đã nghỉ việc</option>
-            </select>
-          </div>
-          <div>
-            <label class="block font-semibold text-slate-700 mb-1">Ngày vào làm</label>
-            <input type="text" id="emp-form-date" value="08/10/2026"
-              class="w-full border border-slate-300 rounded-lg px-3 py-2">
-          </div>
-        </div>
-
-        <div class="pt-3 border-t border-slate-100 flex justify-end space-x-2">
-          <button type="button" onclick="closeModal('modal-employee')"
-            class="px-4 py-2 border border-slate-300 rounded-xl text-slate-600 font-semibold">Hủy</button>
-          <button type="submit"
-            class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-semibold shadow-md">Lưu Nhân
-            Viên</button>
-        </div>
-      </form>
+<!-- MODAL 1: THÊM / SỬA NHÂN VIÊN (EMPLOYEE MODAL) -->
+<div id="modal-employee"
+  class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+  <div
+    class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto">
+    <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+      <h3 id="modal-employee-title" class="text-base font-bold text-slate-900">Thêm Nhân Sự Mới</h3>
+      <button onclick="closeModal('modal-employee')" class="text-slate-400 hover:text-slate-600"><i
+          class="fa-solid fa-xmark"></i></button>
     </div>
-  </div>
-
-  <!-- MODAL 2: GIAO VIỆC MỚI (TASK MODAL) -->
-  <div id="modal-task"
-    class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
-    <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200">
-      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
-        <h3 class="text-base font-bold text-slate-900">Giao Việc & Phân Công Nhiệm Vụ</h3>
-        <button onclick="closeModal('modal-task')" class="text-slate-400 hover:text-slate-600"><i
-            class="fa-solid fa-xmark"></i></button>
-      </div>
-      <form onsubmit="handleSaveTask(event)" class="mt-4 space-y-3.5 text-xs">
+    <form onsubmit="handleSaveEmployee(event)" class="mt-4 space-y-3.5 text-xs">
+      <input type="hidden" id="emp-form-mode" value="add">
+      <div class="grid grid-cols-2 gap-3">
         <div>
-          <label class="block font-semibold text-slate-700 mb-1">Tiêu đề công việc</label>
-          <input type="text" id="task-form-title" placeholder="Rà soát báo cáo tài chính..." required
+          <label class="block font-semibold text-slate-700 mb-1">Mã nhân viên</label>
+          <input type="text" id="emp-form-id" placeholder="VT-006..." required
             class="w-full border border-slate-300 rounded-lg px-3 py-2">
         </div>
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="block font-semibold text-slate-700 mb-1">Loại công việc</label>
-            <select id="task-form-type" class="w-full border border-slate-300 rounded-lg px-3 py-2 bg-white">
-              <option value="Dự án">Dự án</option>
-              <option value="Hành chính">Hành chính</option>
-              <option value="Kỹ thuật">Kỹ thuật</option>
-            </select>
-          </div>
-          <div>
-            <label class="block font-semibold text-slate-700 mb-1">Người phụ trách</label>
-            <select id="task-form-assignee" class="w-full border border-slate-300 rounded-lg px-3 py-2 bg-white">
-              <!-- Dynamically populated -->
-            </select>
-          </div>
-        </div>
-        <div class="grid grid-cols-2 gap-3">
-          <div><label class="block font-semibold text-slate-700 mb-1">Ngày bắt đầu</label><input type="date"
-              id="task-form-start" value="2026-10-08" required
-              class="w-full border border-slate-300 rounded-lg px-3 py-2"></div>
-          <div><label class="block font-semibold text-slate-700 mb-1">Hạn chót (Deadline)</label><input type="date"
-              id="task-form-deadline" value="2026-10-25" required
-              class="w-full border border-slate-300 rounded-lg px-3 py-2"></div>
-        </div>
         <div>
-          <label class="block font-semibold text-slate-700 mb-1">Ghi chú & Yêu cầu cụ thể</label>
-          <textarea id="task-form-note" rows="2" placeholder="Chi tiết yêu cầu..."
-            class="w-full border border-slate-300 rounded-lg p-2.5"></textarea>
-        </div>
-        <div class="pt-3 flex justify-end space-x-2">
-          <button type="button" onclick="closeModal('modal-task')"
-            class="px-4 py-2 border border-slate-300 rounded-xl text-slate-600 font-semibold">Hủy</button>
-          <button type="submit"
-            class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-semibold">Giao Việc</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- MODAL 3: THÊM VĂN BẢN (DOCUMENT MODAL) -->
-  <div id="modal-doc"
-    class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
-    <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200">
-      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
-        <h3 class="text-base font-bold text-slate-900">Lưu Trữ Văn Bản & Quy Chế Mới</h3>
-        <button onclick="closeModal('modal-doc')" class="text-slate-400 hover:text-slate-600"><i
-            class="fa-solid fa-xmark"></i></button>
-      </div>
-      <form onsubmit="handleSaveDoc(event)" class="mt-4 space-y-3.5 text-xs">
-        <div class="grid grid-cols-2 gap-3">
-          <div><label class="block font-semibold text-slate-700 mb-1">Số hiệu</label><input type="text" id="doc-form-id"
-              placeholder="05/2026/QĐ-VT" required class="w-full border border-slate-300 rounded-lg px-3 py-2"></div>
-          <div>
-            <label class="block font-semibold text-slate-700 mb-1">Loại văn bản</label>
-            <select id="doc-form-type" class="w-full border border-slate-300 rounded-lg px-3 py-2 bg-white">
-              <option value="Quy chế nội bộ">Quy chế nội bộ</option>
-              <option value="Văn bản pháp luật">Văn bản pháp luật</option>
-              <option value="Thông báo">Thông báo</option>
-              <option value="Quyết định">Quyết định</option>
-            </select>
-          </div>
-        </div>
-        <div>
-          <label class="block font-semibold text-slate-700 mb-1">Trích yếu / Tiêu đề văn bản</label>
-          <input type="text" id="doc-form-title" placeholder="Quy định sử dụng tài sản doanh nghiệp..." required
+          <label class="block font-semibold text-slate-700 mb-1">Họ và Tên</label>
+          <input type="text" id="emp-form-name" placeholder="Nguyễn Văn A..." required
             class="w-full border border-slate-300 rounded-lg px-3 py-2">
         </div>
-        <div class="grid grid-cols-2 gap-3">
-          <div><label class="block font-semibold text-slate-700 mb-1">Cơ quan / Người ký</label><input type="text"
-              id="doc-form-issuer" placeholder="Tổng Giám Đốc" required
-              class="w-full border border-slate-300 rounded-lg px-3 py-2"></div>
-          <div><label class="block font-semibold text-slate-700 mb-1">Link tài liệu (Drive/Web)</label><input
-              type="text" id="doc-form-url" value="https://drive.google.com/sample.pdf"
-              class="w-full border border-slate-300 rounded-lg px-3 py-2"></div>
-        </div>
-        <div class="pt-3 flex justify-end space-x-2">
-          <button type="button" onclick="closeModal('modal-doc')"
-            class="px-4 py-2 border border-slate-300 rounded-xl text-slate-600 font-semibold">Hủy</button>
-          <button type="submit"
-            class="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-xl font-semibold">Lưu Văn Bản</button>
-        </div>
-      </form>
-    </div>
-  </div>
+      </div>
 
-  <!-- MODAL 4: ĐƠN NGHỈ PHÉP -->
-  <div id="modal-leave"
-    class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
-    <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200">
-      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
-        <h3 class="text-base font-bold text-slate-900">Tạo Đơn Xin Nghỉ Phép</h3>
-        <button onclick="closeModal('modal-leave')" class="text-slate-400 hover:text-slate-600"><i
-            class="fa-solid fa-xmark"></i></button>
-      </div>
-      <form id="form-leave" onsubmit="handleCreateLeave(event)" class="mt-4 space-y-3.5 text-xs">
+      <div class="grid grid-cols-2 gap-3">
         <div>
-          <label class="block font-semibold text-slate-700 mb-1">Nhân viên làm đơn</label>
-          <input type="text" id="leave-emp-name" readonly
-            class="w-full bg-slate-100 border border-slate-200 rounded-lg px-3 py-2 text-slate-600 font-medium">
-        </div>
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="block font-semibold text-slate-700 mb-1">Loại nghỉ</label>
-            <select id="leave-type" class="w-full border border-slate-300 rounded-lg px-3 py-2 bg-white">
-              <option value="Nghỉ phép năm">Nghỉ phép năm (hưởng lương)</option>
-              <option value="Việc riêng">Việc riêng (không lương)</option>
-            </select>
-          </div>
-          <div>
-            <label class="block font-semibold text-slate-700 mb-1">Số ngày</label>
-            <input type="number" id="leave-days" value="2" min="1" max="10" required
-              class="w-full border border-slate-300 rounded-lg px-3 py-2">
-          </div>
-        </div>
-        <div class="grid grid-cols-2 gap-3">
-          <div><label class="block font-semibold text-slate-700 mb-1">Từ ngày</label><input type="date" id="leave-from"
-              value="2026-10-10" required class="w-full border border-slate-300 rounded-lg px-3 py-2"></div>
-          <div><label class="block font-semibold text-slate-700 mb-1">Đến ngày</label><input type="date" id="leave-to"
-              value="2026-10-11" required class="w-full border border-slate-300 rounded-lg px-3 py-2"></div>
-        </div>
-        <div>
-          <label class="block font-semibold text-slate-700 mb-1">Lý do nghỉ cụ thể</label>
-          <textarea id="leave-reason" rows="2" placeholder="Ghi rõ lý do..." required
-            class="w-full border border-slate-300 rounded-lg p-2.5"></textarea>
-        </div>
-        <div class="pt-3 flex justify-end space-x-2">
-          <button type="button" onclick="closeModal('modal-leave')"
-            class="px-4 py-2 border border-slate-300 rounded-xl text-slate-600 font-semibold">Hủy</button>
-          <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-semibold">Gửi
-            Đơn Duyệt</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- MODAL 5: PHIẾU LƯƠNG CÁ NHÂN -->
-  <div id="modal-payslip"
-    class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
-    <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200">
-      <div class="flex items-center justify-between pb-3 border-b border-slate-200">
-        <div>
-          <h3 class="text-base font-bold text-slate-900">PHIẾU LƯƠNG THÁNG 10/2026</h3>
-          <p class="text-xs text-slate-500">VinTech Solutions JSC</p>
-        </div>
-        <button onclick="closeModal('modal-payslip')" class="text-slate-400 hover:text-slate-600"><i
-            class="fa-solid fa-xmark"></i></button>
-      </div>
-      <div id="payslip-content" class="py-4 text-xs space-y-3"></div>
-      <div class="pt-3 border-t border-slate-200 flex justify-end">
-        <button onclick="closeModal('modal-payslip')"
-          class="px-4 py-2 border border-slate-300 rounded-xl text-slate-600 font-semibold text-xs">Đóng</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL 6: HỒ SƠ ỐM ĐAU -->
-  <div id="modal-sick"
-    class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
-    <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200">
-      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
-        <h3 class="text-base font-bold text-slate-900">Nộp Hồ Sơ Nghỉ Ốm (BHXH)</h3>
-        <button onclick="closeModal('modal-sick')" class="text-slate-400 hover:text-slate-600"><i
-            class="fa-solid fa-xmark"></i></button>
-      </div>
-      <form onsubmit="handleCreateSick(event)" class="mt-4 space-y-3.5 text-xs">
-        <div>
-          <label class="block font-semibold text-slate-700 mb-1">Cơ sở khám bệnh / Bệnh viện</label>
-          <input type="text" id="sick-hospital" placeholder="Bệnh viện Bạch Mai..." required
+          <label class="block font-semibold text-slate-700 mb-1">Email nội bộ</label>
+          <input type="email" id="emp-form-email" placeholder="a.nguyen@vintech.vn..." required
             class="w-full border border-slate-300 rounded-lg px-3 py-2">
         </div>
-        <div class="grid grid-cols-2 gap-3">
-          <div><label class="block font-semibold text-slate-700 mb-1">Từ ngày</label><input type="date" id="sick-from"
-              value="2026-10-12" required class="w-full border border-slate-300 rounded-lg px-3 py-2"></div>
-          <div><label class="block font-semibold text-slate-700 mb-1">Đến ngày</label><input type="date" id="sick-to"
-              value="2026-10-13" required class="w-full border border-slate-300 rounded-lg px-3 py-2"></div>
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Số điện thoại</label>
+          <input type="text" id="emp-form-phone" placeholder="0901234567..."
+            class="w-full border border-slate-300 rounded-lg px-3 py-2">
         </div>
-        <div class="p-3 border border-dashed border-slate-300 rounded-xl bg-slate-50 text-center">
-          <i class="fa-solid fa-file-pdf text-rose-500 text-lg mb-1"></i>
-          <p class="text-[11px] text-slate-500">Giấy_chứng_nhận_nghi_BHXH_BV_BachMai.pdf (Chứng từ hợp lệ)</p>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Phòng ban</label>
+          <select id="emp-form-dept" class="w-full border border-slate-300 rounded-lg px-3 py-2 bg-white">
+            <option value="Kỹ thuật">Kỹ thuật</option>
+            <option value="Kế toán">Kế toán</option>
+            <option value="Kinh doanh">Kinh doanh</option>
+            <option value="Nhân sự">Nhân sự</option>
+          </select>
         </div>
-        <div class="pt-3 flex justify-end space-x-2">
-          <button type="button" onclick="closeModal('modal-sick')"
-            class="px-4 py-2 border border-slate-300 rounded-xl text-slate-600 font-semibold">Hủy</button>
-          <button type="submit" class="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white rounded-xl font-semibold">Nộp
-            Hồ Sơ</button>
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Chức vụ / Vị trí</label>
+          <input type="text" id="emp-form-title" placeholder="Kỹ sư phần mềm..." required
+            class="w-full border border-slate-300 rounded-lg px-3 py-2">
         </div>
-      </form>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Vai trò hệ thống</label>
+          <select id="emp-form-role" class="w-full border border-slate-300 rounded-lg px-3 py-2 bg-white">
+            <option value="employee">Nhân viên (Quyền cơ bản)</option>
+            <option value="manager">Quản lý (Duyệt đơn nghỉ)</option>
+            <option value="hr">HR / Kế toán (Duyệt BHXH & Lương)</option>
+          </select>
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Lương cơ bản (VND)</label>
+          <input type="number" id="emp-form-salary" value="15000000" step="500000" required
+            class="w-full border border-slate-300 rounded-lg px-3 py-2">
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Trạng thái</label>
+          <select id="emp-form-status" class="w-full border border-slate-300 rounded-lg px-3 py-2 bg-white">
+            <option value="Đang làm việc">Đang làm việc</option>
+            <option value="Đã nghỉ việc">Đã nghỉ việc</option>
+          </select>
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Ngày vào làm</label>
+          <input type="text" id="emp-form-date" value="08/10/2026"
+            class="w-full border border-slate-300 rounded-lg px-3 py-2">
+        </div>
+      </div>
+
+      <div class="pt-3 border-t border-slate-100 flex justify-end space-x-2">
+        <button type="button" onclick="closeModal('modal-employee')"
+          class="px-4 py-2 border border-slate-300 rounded-xl text-slate-600 font-semibold">Hủy</button>
+        <button type="submit"
+          class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-semibold shadow-md">Lưu Nhân
+          Viên</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- MODAL 2: GIAO VIỆC MỚI (TASK MODAL) -->
+<div id="modal-task"
+  class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+  <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200">
+    <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+      <h3 class="text-base font-bold text-slate-900">Giao Việc & Phân Công Nhiệm Vụ</h3>
+      <button onclick="closeModal('modal-task')" class="text-slate-400 hover:text-slate-600"><i
+          class="fa-solid fa-xmark"></i></button>
+    </div>
+    <form onsubmit="handleSaveTask(event)" class="mt-4 space-y-3.5 text-xs">
+      <div>
+        <label class="block font-semibold text-slate-700 mb-1">Tiêu đề công việc</label>
+        <input type="text" id="task-form-title" placeholder="Rà soát báo cáo tài chính..." required
+          class="w-full border border-slate-300 rounded-lg px-3 py-2">
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Loại công việc</label>
+          <select id="task-form-type" class="w-full border border-slate-300 rounded-lg px-3 py-2 bg-white">
+            <option value="Dự án">Dự án</option>
+            <option value="Hành chính">Hành chính</option>
+            <option value="Kỹ thuật">Kỹ thuật</option>
+          </select>
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Người phụ trách</label>
+          <select id="task-form-assignee" class="w-full border border-slate-300 rounded-lg px-3 py-2 bg-white">
+            <!-- Dynamically populated -->
+          </select>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div><label class="block font-semibold text-slate-700 mb-1">Ngày bắt đầu</label><input type="date"
+            id="task-form-start" value="2026-10-08" required
+            class="w-full border border-slate-300 rounded-lg px-3 py-2"></div>
+        <div><label class="block font-semibold text-slate-700 mb-1">Hạn chót (Deadline)</label><input type="date"
+            id="task-form-deadline" value="2026-10-25" required
+            class="w-full border border-slate-300 rounded-lg px-3 py-2"></div>
+      </div>
+      <div>
+        <label class="block font-semibold text-slate-700 mb-1">Ghi chú & Yêu cầu cụ thể</label>
+        <textarea id="task-form-note" rows="2" placeholder="Chi tiết yêu cầu..."
+          class="w-full border border-slate-300 rounded-lg p-2.5"></textarea>
+      </div>
+      <div class="pt-3 flex justify-end space-x-2">
+        <button type="button" onclick="closeModal('modal-task')"
+          class="px-4 py-2 border border-slate-300 rounded-xl text-slate-600 font-semibold">Hủy</button>
+        <button type="submit"
+          class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-semibold">Giao Việc</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- MODAL 3: THÊM VĂN BẢN (DOCUMENT MODAL) -->
+<div id="modal-doc"
+  class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+  <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200">
+    <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+      <h3 class="text-base font-bold text-slate-900">Lưu Trữ Văn Bản & Quy Chế Mới</h3>
+      <button onclick="closeModal('modal-doc')" class="text-slate-400 hover:text-slate-600"><i
+          class="fa-solid fa-xmark"></i></button>
+    </div>
+    <form onsubmit="handleSaveDoc(event)" class="mt-4 space-y-3.5 text-xs">
+      <div class="grid grid-cols-2 gap-3">
+        <div><label class="block font-semibold text-slate-700 mb-1">Số hiệu</label><input type="text" id="doc-form-id"
+            placeholder="05/2026/QĐ-VT" required class="w-full border border-slate-300 rounded-lg px-3 py-2"></div>
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Loại văn bản</label>
+          <select id="doc-form-type" class="w-full border border-slate-300 rounded-lg px-3 py-2 bg-white">
+            <option value="Quy chế nội bộ">Quy chế nội bộ</option>
+            <option value="Văn bản pháp luật">Văn bản pháp luật</option>
+            <option value="Thông báo">Thông báo</option>
+            <option value="Quyết định">Quyết định</option>
+          </select>
+        </div>
+      </div>
+      <div>
+        <label class="block font-semibold text-slate-700 mb-1">Trích yếu / Tiêu đề văn bản</label>
+        <input type="text" id="doc-form-title" placeholder="Quy định sử dụng tài sản doanh nghiệp..." required
+          class="w-full border border-slate-300 rounded-lg px-3 py-2">
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div><label class="block font-semibold text-slate-700 mb-1">Cơ quan / Người ký</label><input type="text"
+            id="doc-form-issuer" placeholder="Tổng Giám Đốc" required
+            class="w-full border border-slate-300 rounded-lg px-3 py-2"></div>
+        <div><label class="block font-semibold text-slate-700 mb-1">Link tài liệu (Drive/Web)</label><input
+            type="text" id="doc-form-url" value="https://drive.google.com/sample.pdf"
+            class="w-full border border-slate-300 rounded-lg px-3 py-2"></div>
+      </div>
+      <div class="pt-3 flex justify-end space-x-2">
+        <button type="button" onclick="closeModal('modal-doc')"
+          class="px-4 py-2 border border-slate-300 rounded-xl text-slate-600 font-semibold">Hủy</button>
+        <button type="submit"
+          class="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-xl font-semibold">Lưu Văn Bản</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- MODAL 4: ĐƠN NGHỈ PHÉP -->
+<div id="modal-leave"
+  class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+  <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200">
+    <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+      <h3 class="text-base font-bold text-slate-900">Tạo Đơn Xin Nghỉ Phép</h3>
+      <button onclick="closeModal('modal-leave')" class="text-slate-400 hover:text-slate-600"><i
+          class="fa-solid fa-xmark"></i></button>
+    </div>
+    <form id="form-leave" onsubmit="handleCreateLeave(event)" class="mt-4 space-y-3.5 text-xs">
+      <div>
+        <label class="block font-semibold text-slate-700 mb-1">Nhân viên làm đơn</label>
+        <input type="text" id="leave-emp-name" readonly
+          class="w-full bg-slate-100 border border-slate-200 rounded-lg px-3 py-2 text-slate-600 font-medium">
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Loại nghỉ</label>
+          <select id="leave-type" class="w-full border border-slate-300 rounded-lg px-3 py-2 bg-white">
+            <option value="Nghỉ phép năm">Nghỉ phép năm (hưởng lương)</option>
+            <option value="Việc riêng">Việc riêng (không lương)</option>
+          </select>
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Số ngày</label>
+          <input type="number" id="leave-days" value="2" min="1" max="10" required
+            class="w-full border border-slate-300 rounded-lg px-3 py-2">
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div><label class="block font-semibold text-slate-700 mb-1">Từ ngày</label><input type="date" id="leave-from"
+            value="2026-10-10" required class="w-full border border-slate-300 rounded-lg px-3 py-2"></div>
+        <div><label class="block font-semibold text-slate-700 mb-1">Đến ngày</label><input type="date" id="leave-to"
+            value="2026-10-11" required class="w-full border border-slate-300 rounded-lg px-3 py-2"></div>
+      </div>
+      <div>
+        <label class="block font-semibold text-slate-700 mb-1">Lý do nghỉ cụ thể</label>
+        <textarea id="leave-reason" rows="2" placeholder="Ghi rõ lý do..." required
+          class="w-full border border-slate-300 rounded-lg p-2.5"></textarea>
+      </div>
+      <div class="pt-3 flex justify-end space-x-2">
+        <button type="button" onclick="closeModal('modal-leave')"
+          class="px-4 py-2 border border-slate-300 rounded-xl text-slate-600 font-semibold">Hủy</button>
+        <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-semibold">Gửi
+          Đơn Duyệt</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- MODAL 5: PHIẾU LƯƠNG CÁ NHÂN -->
+<div id="modal-payslip"
+  class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+  <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200">
+    <div class="flex items-center justify-between pb-3 border-b border-slate-200">
+      <div>
+        <h3 class="text-base font-bold text-slate-900">PHIẾU LƯƠNG THÁNG 10/2026</h3>
+        <p class="text-xs text-slate-500">VinTech Solutions JSC</p>
+      </div>
+      <button onclick="closeModal('modal-payslip')" class="text-slate-400 hover:text-slate-600"><i
+          class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div id="payslip-content" class="py-4 text-xs space-y-3"></div>
+    <div class="pt-3 border-t border-slate-200 flex justify-end">
+      <button onclick="closeModal('modal-payslip')"
+        class="px-4 py-2 border border-slate-300 rounded-xl text-slate-600 font-semibold text-xs">Đóng</button>
     </div>
   </div>
+</div>
 
-  <!-- TOAST NOTIFICATION -->
-  <div id="toast"
-    class="fixed bottom-5 right-5 z-50 transform transition-all duration-300 translate-y-20 opacity-0 pointer-events-none flex items-center space-x-3 bg-slate-900 text-white px-4 py-3 rounded-xl shadow-2xl border border-slate-700">
-    <div id="toast-icon" class="text-emerald-400 text-base"><i class="fa-solid fa-circle-check"></i></div>
-    <div id="toast-msg" class="text-sm font-medium">Thao tác thành công!</div>
+<!-- MODAL 6: HỒ SƠ ỐM ĐAU -->
+<div id="modal-sick"
+  class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+  <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200">
+    <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+      <h3 class="text-base font-bold text-slate-900">Nộp Hồ Sơ Nghỉ Ốm (BHXH)</h3>
+      <button onclick="closeModal('modal-sick')" class="text-slate-400 hover:text-slate-600"><i
+          class="fa-solid fa-xmark"></i></button>
+    </div>
+    <form onsubmit="handleCreateSick(event)" class="mt-4 space-y-3.5 text-xs">
+      <div>
+        <label class="block font-semibold text-slate-700 mb-1">Cơ sở khám bệnh / Bệnh viện</label>
+        <input type="text" id="sick-hospital" placeholder="Bệnh viện Bạch Mai..." required
+          class="w-full border border-slate-300 rounded-lg px-3 py-2">
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div><label class="block font-semibold text-slate-700 mb-1">Từ ngày</label><input type="date" id="sick-from"
+            value="2026-10-12" required class="w-full border border-slate-300 rounded-lg px-3 py-2"></div>
+        <div><label class="block font-semibold text-slate-700 mb-1">Đến ngày</label><input type="date" id="sick-to"
+            value="2026-10-13" required class="w-full border border-slate-300 rounded-lg px-3 py-2"></div>
+      </div>
+      <div class="p-3 border border-dashed border-slate-300 rounded-xl bg-slate-50 text-center">
+        <i class="fa-solid fa-file-pdf text-rose-500 text-lg mb-1"></i>
+        <p class="text-[11px] text-slate-500">Giấy_chứng_nhận_nghi_BHXH_BV_BachMai.pdf (Chứng từ hợp lệ)</p>
+      </div>
+      <div class="pt-3 flex justify-end space-x-2">
+        <button type="button" onclick="closeModal('modal-sick')"
+          class="px-4 py-2 border border-slate-300 rounded-xl text-slate-600 font-semibold">Hủy</button>
+        <button type="submit" class="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white rounded-xl font-semibold">Nộp
+          Hồ Sơ</button>
+      </div>
+    </form>
   </div>
+</div>
+
+<!-- TOAST NOTIFICATION -->
+<div id="toast"
+  class="fixed bottom-5 right-5 z-50 transform transition-all duration-300 translate-y-20 opacity-0 pointer-events-none flex items-center space-x-3 bg-slate-900 text-white px-4 py-3 rounded-xl shadow-2xl border border-slate-700">
+  <div id="toast-icon" class="text-emerald-400 text-base"><i class="fa-solid fa-circle-check"></i></div>
+  <div id="toast-msg" class="text-sm font-medium">Thao tác thành công!</div>
+</div>
+
 
   <!-- ============================================================= -->
-  <!-- JAVASCRIPT STATE & LOGIC ENGINE -->
+  <!-- JAVASCRIPT STATE & LOGIC ENGINE PARTIAL -->
   <!-- ============================================================= -->
   <script>
-    // Initial in-memory data store (hoạt động song song với Google Sheets)
-    let USERS_DB = [
-      { id: 'VT-001', email: 'phuong.le@vintech.vn', name: 'Lê Thị Phương', role: 'employee', dept: 'Kỹ thuật', title: 'Chuyên viên Lập trình', salary: 18000000, status: 'Đang làm việc', startDate: '15/01/2024', phone: '0901234567', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=faces' },
-      { id: 'VT-002', email: 'tri.tran@vintech.vn', name: 'Trần Minh Trí', role: 'manager', dept: 'Kỹ thuật', title: 'Trưởng phòng Kỹ thuật', salary: 28000000, status: 'Đang làm việc', startDate: '01/03/2023', phone: '0912345678', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=faces' },
-      { id: 'VT-003', email: 'huong.nguyen@vintech.vn', name: 'Nguyễn Thu Hương', role: 'hr', dept: 'Kế toán', title: 'Kế toán trưởng / HR Lead', salary: 24000000, status: 'Đang làm việc', startDate: '10/05/2023', phone: '0923456789', avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=100&h=100&fit=crop&crop=faces' },
-      { id: 'VT-004', email: 'duy.hoang@vintech.vn', name: 'Hoàng Khương Duy', role: 'employee', dept: 'Kỹ thuật', title: 'Kỹ sư Hệ thống', salary: 16500000, status: 'Đang làm việc', startDate: '20/08/2024', phone: '0934567890', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop&crop=faces' },
-      { id: 'VT-005', email: 'trang.dinh@vintech.vn', name: 'Đinh Thị Huyền Trang', role: 'employee', dept: 'Kinh doanh', title: 'Chuyên viên Kinh doanh', salary: 15000000, status: 'Đang làm việc', startDate: '05/11/2024', phone: '0945678901', avatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=100&h=100&fit=crop&crop=faces' },
-    ];
+  // Initial in-memory data store (hoạt động song song với Google Sheets)
+  let USERS_DB = [
+    { id: 'VT-001', email: 'phuong.le@vintech.vn', name: 'Lê Thị Phương', role: 'employee', dept: 'Kỹ thuật', title: 'Chuyên viên Lập trình', salary: 18000000, status: 'Đang làm việc', startDate: '15/01/2024', phone: '0901234567', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=faces' },
+    { id: 'VT-002', email: 'tri.tran@vintech.vn', name: 'Trần Minh Trí', role: 'manager', dept: 'Kỹ thuật', title: 'Trưởng phòng Kỹ thuật', salary: 28000000, status: 'Đang làm việc', startDate: '01/03/2023', phone: '0912345678', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=faces' },
+    { id: 'VT-003', email: 'huong.nguyen@vintech.vn', name: 'Nguyễn Thu Hương', role: 'hr', dept: 'Kế toán', title: 'Kế toán trưởng / HR Lead', salary: 24000000, status: 'Đang làm việc', startDate: '10/05/2023', phone: '0923456789', avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=100&h=100&fit=crop&crop=faces' },
+    { id: 'VT-004', email: 'duy.hoang@vintech.vn', name: 'Hoàng Khương Duy', role: 'employee', dept: 'Kỹ thuật', title: 'Kỹ sư Hệ thống', salary: 16500000, status: 'Đang làm việc', startDate: '20/08/2024', phone: '0934567890', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop&crop=faces' },
+    { id: 'VT-005', email: 'trang.dinh@vintech.vn', name: 'Đinh Thị Huyền Trang', role: 'employee', dept: 'Kinh doanh', title: 'Chuyên viên Kinh doanh', salary: 15000000, status: 'Đang làm việc', startDate: '05/11/2024', phone: '0945678901', avatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=100&h=100&fit=crop&crop=faces' },
+  ];
 
-    let appData = {
-      timesheet: {
-        'VT-001': ['X', 'X', 'X', 'X', 'CN', 'X', 'X', 'X', 'X', 'X', 'CN', 'X', 'X', 'X', 'X', 'X', 'CN', 'X', 'X', 'X', 'X', 'X', 'CN', 'X', 'X', 'X', 'X', 'X', 'CN', 'X', 'X'],
-        'VT-002': ['X', 'X', 'X', 'X', 'CN', 'X', 'X', 'X', 'X', 'X', 'CN', 'X', 'X', 'X', 'X', 'X', 'CN', 'X', 'X', 'X', 'X', 'X', 'CN', 'X', 'X', 'X', 'X', 'X', 'CN', 'X', 'X'],
-        'VT-003': ['X', 'X', 'X', 'X', 'CN', 'X', 'X', 'X', 'X', 'X', 'CN', 'X', 'X', 'X', 'X', 'X', 'CN', 'X', 'X', 'X', 'X', 'X', 'CN', 'X', 'X', 'X', 'X', 'X', 'CN', 'X', 'X'],
-        'VT-004': ['X', 'X', 'X', 'X', 'CN', 'X', 'X', 'X', 'X', 'X', 'CN', 'X', 'X', 'X', 'X', 'X', 'CN', 'X', 'X', 'X', 'X', 'X', 'CN', 'X', 'X', 'X', 'X', 'X', 'CN', 'X', 'X'],
-        'VT-005': ['X', 'X', 'X', 'X', 'CN', 'X', 'X', 'X', 'X', 'X', 'CN', 'O', 'O', 'X', 'X', 'X', 'CN', 'X', 'X', 'X', 'X', 'X', 'CN', 'X', 'X', 'X', 'X', 'X', 'CN', 'X', 'X'],
-      },
-      leaveRequests: [
-        { id: 'LV-2610-01', empId: 'VT-001', empName: 'Lê Thị Phương', type: 'Nghỉ phép năm', from: '2026-10-10', to: '2026-10-11', days: 2, daysIndexes: [9, 10], reason: 'Gia đình có việc hiếu hỉ ở quê', status: 'PENDING' },
-      ],
-      sickCases: [
-        { id: 'SC-2610-01', empId: 'VT-005', empName: 'Đinh Thị Huyền Trang', hospital: 'Bệnh viện Bạch Mai', from: '2026-10-12', to: '2026-10-13', days: 2, daysIndexes: [11, 12], status: 'PENDING' }
-      ],
-      tasks: [
-        { id: 'CV-101', title: 'Rà soát kế hoạch bảo mật dữ liệu quý IV', type: 'Dự án', assigner: 'Trần Minh Trí', assignee: 'Lê Thị Phương', deadline: '2026-10-15', status: 'Đang xử lý', note: 'Ưu tiên cao' },
-        { id: 'CV-102', title: 'Quyết toán thuế TNCN và tạm ứng lương', type: 'Hành chính', assigner: 'Ban Giám Đốc', assignee: 'Nguyễn Thu Hương', deadline: '2026-10-20', status: 'Đang xử lý', note: 'Đúng kỳ hạn' },
-        { id: 'CV-103', title: 'Triển khai hạ tầng máy chủ cho chi nhánh', type: 'Kỹ thuật', assigner: 'Trần Minh Trí', assignee: 'Hoàng Khương Duy', deadline: '2026-10-18', status: 'Đang xử lý', note: 'Cần mua license' }
-      ],
-      documents: [
-        { id: '01/2026/QĐ-VT', title: 'Quy chế làm việc từ xa (Work From Home) và bảo mật dữ liệu', type: 'Quy chế nội bộ', issuer: 'Tổng Giám Đốc', date: '02/01/2026', fileUrl: 'https://drive.google.com/sample_doc1.pdf', status: 'Hiệu lực' },
-        { id: '45/2019/QH14', title: 'Bộ luật Lao động năm 2019 số 45/2019/QH14', type: 'Văn bản pháp luật', issuer: 'Quốc Hội', date: '20/11/2019', fileUrl: 'https://thuvienphapluat.vn/sample', status: 'Hiệu lực' },
-        { id: '15/2026/TB-VT', title: 'Thông báo lịch khám sức khỏe định kỳ doanh nghiệp 2026', type: 'Thông báo', issuer: 'Phòng Nhân Sự', date: '15/09/2026', fileUrl: 'https://drive.google.com/sample_doc2.pdf', status: 'Hiệu lực' }
-      ]
+  let appData = {
+    timesheet: {
+      'VT-001': ['X', 'X', 'X', 'X', 'CN', 'X', 'X', 'X', 'X', 'X', 'CN', 'X', 'X', 'X', 'X', 'X', 'CN', 'X', 'X', 'X', 'X', 'X', 'CN', 'X', 'X', 'X', 'X', 'X', 'CN', 'X', 'X'],
+      'VT-002': ['X', 'X', 'X', 'X', 'CN', 'X', 'X', 'X', 'X', 'X', 'CN', 'X', 'X', 'X', 'X', 'X', 'CN', 'X', 'X', 'X', 'X', 'X', 'CN', 'X', 'X', 'X', 'X', 'X', 'CN', 'X', 'X'],
+      'VT-003': ['X', 'X', 'X', 'X', 'CN', 'X', 'X', 'X', 'X', 'X', 'CN', 'X', 'X', 'X', 'X', 'X', 'CN', 'X', 'X', 'X', 'X', 'X', 'CN', 'X', 'X', 'X', 'X', 'X', 'CN', 'X', 'X'],
+      'VT-004': ['X', 'X', 'X', 'X', 'CN', 'X', 'X', 'X', 'X', 'X', 'CN', 'X', 'X', 'X', 'X', 'X', 'CN', 'X', 'X', 'X', 'X', 'X', 'CN', 'X', 'X', 'X', 'X', 'X', 'CN', 'X', 'X'],
+      'VT-005': ['X', 'X', 'X', 'X', 'CN', 'X', 'X', 'X', 'X', 'X', 'CN', 'O', 'O', 'X', 'X', 'X', 'CN', 'X', 'X', 'X', 'X', 'X', 'CN', 'X', 'X', 'X', 'X', 'X', 'CN', 'X', 'X'],
+    },
+    leaveRequests: [
+      { id: 'LV-2610-01', empId: 'VT-001', empName: 'Lê Thị Phương', type: 'Nghỉ phép năm', from: '2026-10-10', to: '2026-10-11', days: 2, daysIndexes: [9, 10], reason: 'Gia đình có việc hiếu hỉ ở quê', status: 'PENDING' },
+    ],
+    sickCases: [
+      { id: 'SC-2610-01', empId: 'VT-005', empName: 'Đinh Thị Huyền Trang', hospital: 'Bệnh viện Bạch Mai', from: '2026-10-12', to: '2026-10-13', days: 2, daysIndexes: [11, 12], status: 'PENDING' }
+    ],
+    tasks: [
+      { id: 'CV-101', title: 'Rà soát kế hoạch bảo mật dữ liệu quý IV', type: 'Dự án', assigner: 'Trần Minh Trí', assignee: 'Lê Thị Phương', deadline: '2026-10-15', status: 'Đang xử lý', note: 'Ưu tiên cao' },
+      { id: 'CV-102', title: 'Quyết toán thuế TNCN và tạm ứng lương', type: 'Hành chính', assigner: 'Ban Giám Đốc', assignee: 'Nguyễn Thu Hương', deadline: '2026-10-20', status: 'Đang xử lý', note: 'Đúng kỳ hạn' },
+      { id: 'CV-103', title: 'Triển khai hạ tầng máy chủ cho chi nhánh', type: 'Kỹ thuật', assigner: 'Trần Minh Trí', assignee: 'Hoàng Khương Duy', deadline: '2026-10-18', status: 'Đang xử lý', note: 'Cần mua license' }
+    ],
+    documents: [
+      { id: '01/2026/QĐ-VT', title: 'Quy chế làm việc từ xa (Work From Home) và bảo mật dữ liệu', type: 'Quy chế nội bộ', issuer: 'Tổng Giám Đốc', date: '02/01/2026', fileUrl: 'https://drive.google.com/sample_doc1.pdf', status: 'Hiệu lực' },
+      { id: '45/2019/QH14', title: 'Bộ luật Lao động năm 2019 số 45/2019/QH14', type: 'Văn bản pháp luật', issuer: 'Quốc Hội', date: '20/11/2019', fileUrl: 'https://thuvienphapluat.vn/sample', status: 'Hiệu lực' },
+      { id: '15/2026/TB-VT', title: 'Thông báo lịch khám sức khỏe định kỳ doanh nghiệp 2026', type: 'Thông báo', issuer: 'Phòng Nhân Sự', date: '15/09/2026', fileUrl: 'https://drive.google.com/sample_doc2.pdf', status: 'Hiệu lực' }
+    ],
+    payroll: [
+      { period: '10/2026', empId: 'VT-001', empName: 'Lê Thị Phương', title: 'Chuyên viên Lập trình', baseSalary: 18000000, standardDays: 22, actualDays: 22, allowance: 1500000, bhxh: 1890000, netSalary: 17610000, status: 'Đã chốt lương' },
+      { period: '10/2026', empId: 'VT-002', empName: 'Trần Minh Trí', title: 'Trưởng phòng Kỹ thuật', baseSalary: 28000000, standardDays: 22, actualDays: 22, allowance: 1500000, bhxh: 2940000, netSalary: 26560000, status: 'Đã chốt lương' },
+      { period: '10/2026', empId: 'VT-003', empName: 'Nguyễn Thu Hương', title: 'Kế toán trưởng / HR Lead', baseSalary: 24000000, standardDays: 22, actualDays: 22, allowance: 1500000, bhxh: 2520000, netSalary: 22980000, status: 'Đã chốt lương' },
+      { period: '10/2026', empId: 'VT-004', empName: 'Hoàng Khương Duy', title: 'Kỹ sư Hệ thống', baseSalary: 16500000, standardDays: 22, actualDays: 22, allowance: 1500000, bhxh: 1732500, netSalary: 16267500, status: 'Đã chốt lương' },
+      { period: '10/2026', empId: 'VT-005', empName: 'Đinh Thị Huyền Trang', title: 'Chuyên viên Kinh doanh', baseSalary: 15000000, standardDays: 22, actualDays: 20, allowance: 1500000, bhxh: 1575000, netSalary: 13561364, status: 'Đã chốt lương' }
+    ]
+  };
+
+  let currentUser = null;
+
+  // --- CALL BACKEND BRIDGE ---
+  function callBackend(fnName, args, callback, errorCallback) {
+    if (typeof google !== 'undefined' && google.script && google.script.run) {
+      let runner = google.script.run
+        .withSuccessHandler(res => { if (callback) callback(res); })
+        .withFailureHandler(err => {
+          console.error("Lỗi gọi Apps Script Backend:", err);
+          if (errorCallback) errorCallback(err);
+          else showToast("Lỗi máy chủ: " + err.message, "error");
+        });
+      if (args && args.length > 0) {
+        runner[fnName].apply(runner, args);
+      } else {
+        runner[fnName]();
+      }
+    } else {
+      // Fallback môi trường Local Browser Preview
+      setTimeout(() => {
+        if (fnName === 'apiLogin') {
+          const email = (args && args[0]) ? args[0].trim().toLowerCase() : '';
+          const pass = (args && args[1]) ? args[1] : '';
+          const user = USERS_DB.find(u => u.email.toLowerCase() === email);
+          if (!user) {
+            if (callback) callback({ success: false, message: "Tài khoản email không tồn tại trong hệ thống!" });
+            return;
+          }
+          if (pass !== '123456') {
+            if (callback) callback({ success: false, message: "Mật khẩu không chính xác!" });
+            return;
+          }
+          if (callback) callback({ success: true, profile: user });
+        } else if (fnName === 'apiGetInitialAppData') {
+          if (callback) callback({
+            success: true,
+            data: {
+              users: USERS_DB,
+              timesheet: appData.timesheet,
+              leaves: appData.leaveRequests,
+              sickCases: appData.sickCases,
+              payroll: appData.payroll,
+              tasks: appData.tasks,
+              documents: appData.documents
+            }
+          });
+        } else {
+          if (callback) callback({ success: true, message: "Thao tác mô phỏng thành công!" });
+        }
+      }, 150);
+    }
+  }
+
+  // --- AUTH LOGIC ---
+  function handleLoginSubmit(e) {
+    if (e) e.preventDefault();
+    const email = document.getElementById('login-username').value.trim();
+    const password = document.getElementById('login-password').value;
+
+    if (!email) {
+      showToast('Vui lòng nhập địa chỉ email!', 'error');
+      return;
+    }
+
+    const submitBtn = document.querySelector('#screen-login form button[type="submit"]');
+    const originalText = submitBtn ? submitBtn.innerHTML : '';
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>Đang xác thực...';
+    }
+
+    callBackend('apiLogin', [email, password], (res) => {
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
+      }
+      if (res && res.success && res.profile) {
+        loginAsUser(res.profile);
+        showToast(`Đăng nhập thành công! Xin chào ${res.profile.name}.`, 'success');
+      } else {
+        const msg = (res && res.message) ? res.message : 'Đăng nhập thất bại! Kiểm tra email hoặc mật khẩu.';
+        showToast(msg, 'error');
+      }
+    }, (err) => {
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
+      }
+      showToast('Lỗi kết nối máy chủ xác thực: ' + err.message, 'error');
+    });
+  }
+
+  function fillAndLogin(email) {
+    document.getElementById('login-username').value = email;
+    document.getElementById('login-password').value = '123456';
+    handleLoginSubmit(null);
+  }
+
+  function loginAsUser(user) {
+    currentUser = user;
+    document.getElementById('screen-login').classList.add('hidden');
+    document.getElementById('screen-app').classList.remove('hidden');
+
+    // Update Header
+    document.getElementById('user-name').innerText = user.name;
+    document.getElementById('user-role-label').innerText = `${user.title} (${user.dept})`;
+    document.getElementById('user-avatar').src = user.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=faces';
+    document.getElementById('greet-name').innerText = user.name;
+    document.getElementById('greet-badge').innerText = user.role === 'employee' ? 'Nhân Viên' : user.role === 'manager' ? 'Quản Lý / Trưởng Phòng' : 'HR & Kế Toán';
+
+    // Phân quyền hiển thị nút Thêm Nhân Viên
+    const addEmpBtn = document.getElementById('btn-add-employee');
+    if (addEmpBtn) {
+      if (user.role === 'employee') {
+        addEmpBtn.classList.add('hidden');
+      } else {
+        addEmpBtn.classList.remove('hidden');
+      }
+    }
+
+    // Populate Assignee Select in Task Modal
+    populateAssigneeSelect();
+
+    // Kết nối fetch dữ liệu thật từ Google Sheets theo quyền người dùng
+    callBackend('apiGetInitialAppData', [user.email], (res) => {
+      if (res && res.success && res.data) {
+        if (res.data.users && res.data.users.length) USERS_DB = res.data.users;
+        if (res.data.timesheet) appData.timesheet = res.data.timesheet;
+        if (res.data.leaves) appData.leaveRequests = res.data.leaves;
+        if (res.data.sickCases) appData.sickCases = res.data.sickCases;
+        if (res.data.payroll) appData.payroll = res.data.payroll;
+        if (res.data.tasks) appData.tasks = res.data.tasks;
+        if (res.data.documents) appData.documents = res.data.documents;
+        document.getElementById('sync-status').classList.remove('hidden');
+      }
+      initApp();
+    });
+
+    initApp();
+  }
+
+  function handleLogout() {
+    currentUser = null;
+    document.getElementById('screen-app').classList.add('hidden');
+    document.getElementById('screen-login').classList.remove('hidden');
+    document.getElementById('login-username').value = '';
+    showToast('Đã đăng xuất an toàn khỏi hệ thống!', 'success');
+  }
+
+  // --- TAB NAVIGATION ---
+  function switchTab(tabId) {
+    document.querySelectorAll('.tab-pane').forEach(p => p.classList.add('hidden'));
+    document.querySelectorAll('.nav-tab').forEach(t => {
+      t.className = 'nav-tab px-3.5 py-2 rounded-lg text-sm font-semibold flex items-center space-x-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 whitespace-nowrap shrink-0 transition';
+    });
+
+    const pane = document.getElementById(`pane-${tabId}`);
+    if (pane) pane.classList.remove('hidden');
+
+    const btn = document.getElementById(`tab-btn-${tabId}`);
+    if (btn) btn.className = 'nav-tab active px-3.5 py-2 rounded-lg text-sm font-semibold flex items-center space-x-2 text-blue-600 bg-blue-50 whitespace-nowrap shrink-0 transition';
+
+    if (tabId === 'dashboard') renderDashboard();
+    if (tabId === 'employees') renderEmployees();
+    if (tabId === 'timesheet') renderTimesheet();
+    if (tabId === 'leave') renderLeaveTable();
+    if (tabId === 'sick') renderSickTable();
+    if (tabId === 'payroll') renderPayrollTable();
+    if (tabId === 'tasks') renderTasksTable();
+    if (tabId === 'docs') renderDocsTable();
+  }
+
+  // --- RENDER 1: DASHBOARD ---
+  function renderDashboard() {
+    const pList = document.getElementById('dash-pending-list');
+    const badgeLeave = document.getElementById('leave-pending-badge');
+    const badgeSick = document.getElementById('sick-pending-badge');
+    const kpiPending = document.getElementById('kpi-pending-total');
+    const roleNotice = document.getElementById('role-notice');
+    const kpiTotal = document.getElementById('kpi-total-emp');
+    const kpiTotalSub = document.getElementById('kpi-total-emp-sub');
+    const kpiActiveTasks = document.getElementById('kpi-active-tasks');
+
+    kpiTotal.innerText = USERS_DB.length;
+    kpiTotalSub.innerText = USERS_DB.length;
+    kpiActiveTasks.innerText = appData.tasks.filter(t => t.status !== 'Hoàn thành').length;
+
+    let pendings = [];
+
+    // Lọc đơn nghỉ phép theo quyền hạn bảo mật
+    appData.leaveRequests.filter(r => r.status === 'PENDING').forEach(r => {
+      // Nhân viên chỉ thấy đơn của chính mình
+      if (currentUser.role === 'employee' && r.empId !== currentUser.id) return;
+
+      pendings.push({
+        type: 'leave',
+        id: r.id,
+        title: `Đơn xin nghỉ phép (${r.type} - ${r.days} ngày)`,
+        sub: `${r.empName} • Từ ${r.from} đến ${r.to} • Lý do: "${r.reason}"`,
+        canApprove: (currentUser.role === 'manager' || currentUser.role === 'hr'),
+        roleReq: currentUser.role === 'employee' ? 'Đang chờ Quản lý duyệt' : 'Quản lý duyệt'
+      });
+    });
+
+    // Lọc hồ sơ ốm đau theo quyền hạn bảo mật
+    appData.sickCases.filter(s => s.status === 'PENDING').forEach(s => {
+      // Nhân viên chỉ thấy hồ sơ ốm đau của chính mình (bảo mật thông tin y tế)
+      if (currentUser.role === 'employee' && s.empId !== currentUser.id) return;
+
+      pendings.push({
+        type: 'sick',
+        id: s.id,
+        title: `Hồ sơ nghỉ ốm hưởng BHXH (${s.days} ngày)`,
+        sub: `${s.empName} • ${s.hospital} • Từ ${s.from} đến ${s.to}`,
+        canApprove: (currentUser.role === 'hr'),
+        roleReq: currentUser.role === 'employee' ? 'Đang chờ HR duyệt BHXH' : 'HR & Kế toán duyệt'
+      });
+    });
+
+    kpiPending.innerText = pendings.length;
+
+    // Cập nhật Badge trên thanh Menu Tab theo quyền
+    const leavesPendingCount = appData.leaveRequests.filter(r => r.status === 'PENDING' && (currentUser.role !== 'employee' || r.empId === currentUser.id)).length;
+    const sickPendingCount = appData.sickCases.filter(s => s.status === 'PENDING' && (currentUser.role !== 'employee' || s.empId === currentUser.id)).length;
+
+    if (leavesPendingCount > 0) {
+      badgeLeave.innerText = leavesPendingCount;
+      badgeLeave.classList.remove('hidden');
+    } else {
+      badgeLeave.classList.add('hidden');
+    }
+
+    if (sickPendingCount > 0) {
+      badgeSick.innerText = sickPendingCount;
+      badgeSick.classList.remove('hidden');
+    } else {
+      badgeSick.classList.add('hidden');
+    }
+
+    if (currentUser.role === 'employee') {
+      roleNotice.innerText = 'Chế độ cá nhân: Theo dõi tiến độ phê duyệt hồ sơ của bạn';
+    } else if (currentUser.role === 'manager') {
+      roleNotice.innerText = 'Quyền Trưởng phòng: Thẩm quyền phê duyệt Đơn xin nghỉ phép';
+    } else {
+      roleNotice.innerText = 'Quyền HR/Kế toán: Thẩm quyền duyệt hồ sơ BHXH & Bảng lương';
+    }
+
+    if (pendings.length === 0) {
+      pList.innerHTML = `
+        <div class="text-center py-10 text-slate-400">
+          <i class="fa-solid fa-circle-check text-emerald-500 text-3xl mb-2.5"></i>
+          <p class="text-xs sm:text-sm font-medium text-slate-600">
+            ${currentUser.role === 'employee'
+              ? 'Bạn hiện không có đơn nào đang chờ xử lý. Tất cả quy trình đã hoàn tất!'
+              : 'Hiện tại không có đơn nào đang chờ xử lý. Tất cả quy trình đã hoàn tất!'}
+          </p>
+        </div>
+      `;
+      return;
+    }
+
+    let html = '';
+    pendings.forEach(p => {
+      let actionBtn = '';
+      if (p.canApprove) {
+        if (p.type === 'leave') {
+          actionBtn = `
+            <div class="flex items-center space-x-1.5">
+              <button onclick="approveLeave('${p.id}')" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold shadow-sm transition flex items-center space-x-1"><i class="fa-solid fa-check mr-1"></i><span>Duyệt</span></button>
+              <button onclick="rejectLeave('${p.id}')" class="px-2.5 py-1.5 bg-rose-100 hover:bg-rose-200 text-rose-700 rounded-lg text-xs font-bold transition flex items-center space-x-1"><i class="fa-solid fa-xmark"></i></button>
+            </div>`;
+        } else {
+          actionBtn = `
+            <div class="flex items-center space-x-1.5">
+              <button onclick="approveSick('${p.id}')" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold shadow-sm transition flex items-center space-x-1"><i class="fa-solid fa-check mr-1"></i><span>Duyệt BHXH</span></button>
+              <button onclick="rejectSick('${p.id}')" class="px-2.5 py-1.5 bg-rose-100 hover:bg-rose-200 text-rose-700 rounded-lg text-xs font-bold transition flex items-center space-x-1"><i class="fa-solid fa-xmark"></i></button>
+            </div>`;
+        }
+      } else {
+        actionBtn = `<span class="text-xs px-3 py-1.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200/80 font-semibold flex items-center space-x-1"><i class="fa-solid fa-clock"></i><span>${p.roleReq}</span></span>`;
+      }
+
+      html += `
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-slate-50/70 hover:bg-slate-100/80 rounded-2xl border border-slate-200/80 transition duration-150 gap-3">
+          <div class="flex items-center space-x-3.5">
+            <div class="w-10 h-10 rounded-xl ${p.type === 'leave' ? 'bg-amber-100 text-amber-700' : 'bg-rose-100 text-rose-700'} flex items-center justify-center text-base font-bold shrink-0 shadow-sm">
+              <i class="${p.type === 'leave' ? 'fa-solid fa-file-pen' : 'fa-solid fa-heart-pulse'}"></i>
+            </div>
+            <div>
+              <div class="text-sm font-bold text-slate-900">${p.title}</div>
+              <div class="text-xs text-slate-500 mt-0.5">${p.sub}</div>
+            </div>
+          </div>
+          <div class="self-end sm:self-center shrink-0">${actionBtn}</div>
+        </div>
+      `;
+    });
+    pList.innerHTML = html;
+  }
+
+  // --- RENDER 2: QUẢN LÝ NHÂN SỰ (EMPLOYEES) ---
+  function renderEmployees() {
+    const tbody = document.getElementById('employees-tbody');
+    const deptFilter = document.getElementById('emp-filter-dept').value;
+    const statusFilter = document.getElementById('emp-filter-status').value;
+    const query = (document.getElementById('emp-search-input').value || '').trim().toLowerCase();
+
+    let filtered = USERS_DB.filter(u => {
+      if (deptFilter !== 'all' && u.dept !== deptFilter) return false;
+      if (statusFilter !== 'all' && u.status !== statusFilter) return false;
+      if (query) {
+        const matchName = u.name.toLowerCase().includes(query);
+        const matchId = u.id.toLowerCase().includes(query);
+        const matchEmail = (u.email || '').toLowerCase().includes(query);
+        if (!matchName && !matchId && !matchEmail) return false;
+      }
+      return true;
+    });
+
+    if (filtered.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="9" class="text-center py-6 text-slate-400">Không tìm thấy nhân sự phù hợp</td></tr>`;
+      return;
+    }
+
+    let html = '';
+    filtered.forEach(u => {
+      const canEdit = (currentUser.role === 'manager' || currentUser.role === 'hr');
+      const roleBadge = u.role === 'manager'
+        ? `<span class="px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 font-bold text-[10px]">Quản lý</span>`
+        : u.role === 'hr'
+          ? `<span class="px-2 py-0.5 rounded-full bg-purple-100 text-purple-800 font-bold text-[10px]">HR/Kế toán</span>`
+          : `<span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 font-medium text-[10px]">Nhân viên</span>`;
+
+      const statusBadge = u.status === 'Đang làm việc'
+        ? `<span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-semibold text-[10px]">Đang làm việc</span>`
+        : `<span class="px-2 py-0.5 rounded-full bg-rose-100 text-rose-800 font-semibold text-[10px]">Đã nghỉ việc</span>`;
+
+      // Bảo mật mức lương
+      let salaryText = '•••••••• đ';
+      if (currentUser.role === 'manager' || currentUser.role === 'hr' || currentUser.id === u.id) {
+        salaryText = (u.salary || 0).toLocaleString('vi-VN') + ' đ';
+      }
+
+      let actionHtml = '---';
+      if (canEdit) {
+        actionHtml = `
+          <div class="flex items-center justify-end space-x-1.5">
+            <button onclick="editEmployee('${u.id}')" title="Sửa thông tin" class="p-1.5 bg-slate-100 hover:bg-blue-100 text-slate-600 hover:text-blue-700 rounded-lg transition"><i class="fa-solid fa-pen-to-square"></i></button>
+            <button onclick="deleteEmployee('${u.id}')" title="Khóa/Nghỉ việc" class="p-1.5 bg-slate-100 hover:bg-rose-100 text-slate-600 hover:text-rose-700 rounded-lg transition"><i class="fa-solid fa-user-slash"></i></button>
+          </div>
+        `;
+      }
+
+      html += `
+        <tr class="hover:bg-slate-50 transition">
+          <td class="py-3 px-4 font-bold text-slate-800">${u.id}</td>
+          <td class="py-3 px-4">
+            <div class="flex items-center space-x-2.5">
+              <img src="${u.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=faces'}" class="w-7 h-7 rounded-full object-cover border border-slate-200">
+              <div>
+                <div class="font-bold text-slate-900">${u.name}</div>
+                <div class="text-[10px] text-slate-400">${u.email}</div>
+              </div>
+            </div>
+          </td>
+          <td class="py-3 px-4"><span class="px-2 py-0.5 rounded bg-blue-50 text-blue-700 font-medium">${u.dept}</span></td>
+          <td class="py-3 px-4 text-slate-700 font-medium">${u.title}</td>
+          <td class="py-3 px-4 text-center">${roleBadge}</td>
+          <td class="py-3 px-4 text-right font-semibold text-slate-900">${salaryText}</td>
+          <td class="py-3 px-4 text-center">${statusBadge}</td>
+          <td class="py-3 px-4 text-center text-slate-500">${u.startDate || '--'}</td>
+          <td class="py-3 px-4 text-right">${actionHtml}</td>
+        </tr>
+      `;
+    });
+    tbody.innerHTML = html;
+  }
+
+  function filterEmployees() {
+    renderEmployees();
+  }
+
+  function openEmployeeModal() {
+    document.getElementById('emp-form-mode').value = 'add';
+    document.getElementById('modal-employee-title').innerText = 'Thêm Nhân Sự Mới';
+    document.getElementById('emp-form-id').value = 'VT-' + String(USERS_DB.length + 1).padStart(3, '0');
+    document.getElementById('emp-form-name').value = '';
+    document.getElementById('emp-form-email').value = '';
+    document.getElementById('emp-form-phone').value = '';
+    document.getElementById('emp-form-title').value = '';
+    document.getElementById('emp-form-salary').value = 16000000;
+    document.getElementById('emp-form-date').value = '08/10/2026';
+    document.getElementById('modal-employee').classList.remove('hidden');
+  }
+
+  function editEmployee(empId) {
+    const u = USERS_DB.find(x => x.id === empId);
+    if (!u) return;
+    document.getElementById('emp-form-mode').value = 'edit';
+    document.getElementById('modal-employee-title').innerText = 'Chỉnh Sửa Nhân Sự: ' + u.name;
+    document.getElementById('emp-form-id').value = u.id;
+    document.getElementById('emp-form-name').value = u.name;
+    document.getElementById('emp-form-email').value = u.email;
+    document.getElementById('emp-form-phone').value = u.phone || '';
+    document.getElementById('emp-form-dept').value = u.dept;
+    document.getElementById('emp-form-title').value = u.title;
+    document.getElementById('emp-form-role').value = u.role;
+    document.getElementById('emp-form-salary').value = u.salary;
+    document.getElementById('emp-form-status').value = u.status;
+    document.getElementById('emp-form-date').value = u.startDate || '08/10/2026';
+    document.getElementById('modal-employee').classList.remove('hidden');
+  }
+
+  function handleSaveEmployee(e) {
+    e.preventDefault();
+    const mode = document.getElementById('emp-form-mode').value;
+    const empData = {
+      id: document.getElementById('emp-form-id').value.trim(),
+      name: document.getElementById('emp-form-name').value.trim(),
+      email: document.getElementById('emp-form-email').value.trim(),
+      phone: document.getElementById('emp-form-phone').value.trim(),
+      dept: document.getElementById('emp-form-dept').value,
+      title: document.getElementById('emp-form-title').value.trim(),
+      role: document.getElementById('emp-form-role').value,
+      salary: Number(document.getElementById('emp-form-salary').value) || 0,
+      status: document.getElementById('emp-form-status').value,
+      startDate: document.getElementById('emp-form-date').value.trim(),
+      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=faces'
     };
 
-    let currentUser = null;
-
-    // --- CALL BACKEND BRIDGE ---
-    function callBackend(fnName, args, callback, errorCallback) {
-      if (typeof google !== 'undefined' && google.script && google.script.run) {
-        let runner = google.script.run
-          .withSuccessHandler(res => { if (callback) callback(res); })
-          .withFailureHandler(err => {
-            console.error("Lỗi gọi Apps Script Backend:", err);
-            if (errorCallback) errorCallback(err);
-            else showToast("Lỗi máy chủ: " + err.message, "error");
-          });
-        if (args && args.length > 0) {
-          runner[fnName].apply(runner, args);
-        } else {
-          runner[fnName]();
-        }
-      } else {
-        // Fallback môi trường Local Browser Preview
-        setTimeout(() => { if (callback) callback({ success: true, localMock: true }); }, 150);
-      }
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+    const originalText = submitBtn ? submitBtn.innerHTML : '';
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>Đang lưu vào Sheet...';
     }
 
-    // --- AUTH LOGIC ---
-    function handleLoginSubmit(e) {
-      if (e) e.preventDefault();
-      const email = document.getElementById('login-username').value.trim();
-      const user = USERS_DB.find(u => u.email.toLowerCase() === email.toLowerCase());
-
-      if (user) {
-        loginAsUser(user);
-      } else {
-        alert('Tài khoản không chính xác! Vui lòng chọn một trong các tài khoản mẫu bên dưới.');
+    // Lưu xuống Google Sheets và chờ xác nhận trước khi cập nhật UI
+    callBackend('apiSaveEmployee', [empData], (res) => {
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
       }
-    }
-
-    function fillAndLogin(email) {
-      document.getElementById('login-username').value = email;
-      document.getElementById('login-password').value = '123456';
-      const user = USERS_DB.find(u => u.email === email);
-      if (user) loginAsUser(user);
-    }
-
-    function loginAsUser(user) {
-      currentUser = user;
-      document.getElementById('screen-login').classList.add('hidden');
-      document.getElementById('screen-app').classList.remove('hidden');
-
-      // Update Header
-      document.getElementById('user-name').innerText = user.name;
-      document.getElementById('user-role-label').innerText = `${user.title} (${user.dept})`;
-      document.getElementById('user-avatar').src = user.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=faces';
-      document.getElementById('greet-name').innerText = user.name;
-      document.getElementById('greet-badge').innerText = user.role === 'employee' ? 'Nhân Viên' : user.role === 'manager' ? 'Quản Lý / Trưởng Phòng' : 'HR & Kế Toán';
-
-      // Phân quyền hiển thị nút Thêm Nhân Viên
-      const addEmpBtn = document.getElementById('btn-add-employee');
-      if (addEmpBtn) {
-        if (user.role === 'employee') {
-          addEmpBtn.classList.add('hidden');
-        } else {
-          addEmpBtn.classList.remove('hidden');
-        }
-      }
-
-      // Populate Assignee Select in Task Modal
-      populateAssigneeSelect();
-
-      // Kết nối fetch dữ liệu thật từ Google Sheets nếu có
-      callBackend('apiGetInitialAppData', [user.email], (res) => {
-        if (res && res.success && res.data) {
-          if (res.data.users && res.data.users.length) USERS_DB = res.data.users;
-          if (res.data.timesheet) appData.timesheet = res.data.timesheet;
-          if (res.data.leaves) appData.leaveRequests = res.data.leaves;
-          if (res.data.sickCases) appData.sickCases = res.data.sickCases;
-          if (res.data.tasks) appData.tasks = res.data.tasks;
-          if (res.data.documents) appData.documents = res.data.documents;
-          document.getElementById('sync-status').classList.remove('hidden');
-        }
-        initApp();
-      });
-
-      initApp();
-    }
-
-    function handleLogout() {
-      currentUser = null;
-      document.getElementById('screen-app').classList.add('hidden');
-      document.getElementById('screen-login').classList.remove('hidden');
-      document.getElementById('login-username').value = '';
-      showToast('Đã đăng xuất an toàn khỏi hệ thống!', 'success');
-    }
-
-    // --- TAB NAVIGATION ---
-    function switchTab(tabId) {
-      document.querySelectorAll('.tab-pane').forEach(p => p.classList.add('hidden'));
-      document.querySelectorAll('.nav-tab').forEach(t => {
-        t.className = 'nav-tab px-3.5 py-2 rounded-lg text-sm font-semibold flex items-center space-x-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 whitespace-nowrap shrink-0 transition';
-      });
-
-      const pane = document.getElementById(`pane-${tabId}`);
-      if (pane) pane.classList.remove('hidden');
-
-      const btn = document.getElementById(`tab-btn-${tabId}`);
-      if (btn) btn.className = 'nav-tab active px-3.5 py-2 rounded-lg text-sm font-semibold flex items-center space-x-2 text-blue-600 bg-blue-50 whitespace-nowrap shrink-0 transition';
-
-      if (tabId === 'dashboard') renderDashboard();
-      if (tabId === 'employees') renderEmployees();
-      if (tabId === 'timesheet') renderTimesheet();
-      if (tabId === 'leave') renderLeaveTable();
-      if (tabId === 'sick') renderSickTable();
-      if (tabId === 'payroll') renderPayrollTable();
-      if (tabId === 'tasks') renderTasksTable();
-      if (tabId === 'docs') renderDocsTable();
-    }
-
-    // --- RENDER 1: DASHBOARD ---
-    function renderDashboard() {
-      const pList = document.getElementById('dash-pending-list');
-      const badgeLeave = document.getElementById('leave-pending-badge');
-      const badgeSick = document.getElementById('sick-pending-badge');
-      const kpiPending = document.getElementById('kpi-pending-total');
-      const roleNotice = document.getElementById('role-notice');
-      const kpiTotal = document.getElementById('kpi-total-emp');
-      const kpiTotalSub = document.getElementById('kpi-total-emp-sub');
-      const kpiActiveTasks = document.getElementById('kpi-active-tasks');
-
-      kpiTotal.innerText = USERS_DB.length;
-      kpiTotalSub.innerText = USERS_DB.length;
-      kpiActiveTasks.innerText = appData.tasks.filter(t => t.status !== 'Hoàn thành').length;
-
-      let pendings = [];
-
-      // Lọc đơn nghỉ phép theo quyền hạn bảo mật
-      appData.leaveRequests.filter(r => r.status === 'PENDING').forEach(r => {
-        // Nhân viên chỉ thấy đơn của chính mình
-        if (currentUser.role === 'employee' && r.empId !== currentUser.id) return;
-
-        pendings.push({
-          type: 'leave',
-          id: r.id,
-          title: `Đơn xin nghỉ phép (${r.type} - ${r.days} ngày)`,
-          sub: `${r.empName} • Từ ${r.from} đến ${r.to} • Lý do: "${r.reason}"`,
-          canApprove: (currentUser.role === 'manager' || currentUser.role === 'hr'),
-          roleReq: currentUser.role === 'employee' ? 'Đang chờ Quản lý duyệt' : 'Quản lý duyệt'
-        });
-      });
-
-      // Lọc hồ sơ ốm đau theo quyền hạn bảo mật
-      appData.sickCases.filter(s => s.status === 'PENDING').forEach(s => {
-        // Nhân viên chỉ thấy hồ sơ ốm đau của chính mình (bảo mật thông tin y tế)
-        if (currentUser.role === 'employee' && s.empId !== currentUser.id) return;
-
-        pendings.push({
-          type: 'sick',
-          id: s.id,
-          title: `Hồ sơ nghỉ ốm hưởng BHXH (${s.days} ngày)`,
-          sub: `${s.empName} • ${s.hospital} • Từ ${s.from} đến ${s.to}`,
-          canApprove: (currentUser.role === 'hr'),
-          roleReq: currentUser.role === 'employee' ? 'Đang chờ HR duyệt BHXH' : 'HR & Kế toán duyệt'
-        });
-      });
-
-      kpiPending.innerText = pendings.length;
-
-      // Cập nhật Badge trên thanh Menu Tab theo quyền
-      const leavesPendingCount = appData.leaveRequests.filter(r => r.status === 'PENDING' && (currentUser.role !== 'employee' || r.empId === currentUser.id)).length;
-      const sickPendingCount = appData.sickCases.filter(s => s.status === 'PENDING' && (currentUser.role !== 'employee' || s.empId === currentUser.id)).length;
-
-      if (leavesPendingCount > 0) {
-        badgeLeave.innerText = leavesPendingCount;
-        badgeLeave.classList.remove('hidden');
-      } else {
-        badgeLeave.classList.add('hidden');
-      }
-
-      if (sickPendingCount > 0) {
-        badgeSick.innerText = sickPendingCount;
-        badgeSick.classList.remove('hidden');
-      } else {
-        badgeSick.classList.add('hidden');
-      }
-
-      if (currentUser.role === 'employee') {
-        roleNotice.innerText = 'Chế độ cá nhân: Theo dõi tiến độ phê duyệt hồ sơ của bạn';
-      } else if (currentUser.role === 'manager') {
-        roleNotice.innerText = 'Quyền Trưởng phòng: Thẩm quyền phê duyệt Đơn xin nghỉ phép';
-      } else {
-        roleNotice.innerText = 'Quyền HR/Kế toán: Thẩm quyền duyệt hồ sơ BHXH & Bảng lương';
-      }
-
-      if (pendings.length === 0) {
-        pList.innerHTML = `
-          <div class="text-center py-10 text-slate-400">
-            <i class="fa-solid fa-circle-check text-emerald-500 text-3xl mb-2.5"></i>
-            <p class="text-xs sm:text-sm font-medium text-slate-600">
-              ${currentUser.role === 'employee'
-                ? 'Bạn hiện không có đơn nào đang chờ xử lý. Tất cả quy trình đã hoàn tất!'
-                : 'Hiện tại không có đơn nào đang chờ xử lý. Tất cả quy trình đã hoàn tất!'}
-            </p>
-          </div>
-        `;
-        return;
-      }
-
-      let html = '';
-      pendings.forEach(p => {
-        let actionBtn = '';
-        if (p.canApprove) {
-          if (p.type === 'leave') {
-            actionBtn = `<button onclick="approveLeave('${p.id}')" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold shadow-sm transition flex items-center space-x-1.5"><i class="fa-solid fa-check"></i><span>Duyệt Ngay</span></button>`;
-          } else {
-            actionBtn = `<button onclick="approveSick('${p.id}')" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold shadow-sm transition flex items-center space-x-1.5"><i class="fa-solid fa-check"></i><span>Duyệt BHXH</span></button>`;
+      if (res && res.success) {
+        if (mode === 'add') {
+          USERS_DB.push(empData);
+          if (!appData.timesheet[empData.id]) {
+            const defaultDays = Array(31).fill('X');
+            [3, 10, 17, 24].forEach(idx => { defaultDays[idx] = 'CN'; });
+            [2, 9, 16, 23, 30].forEach(idx => { defaultDays[idx] = 'T7'; });
+            appData.timesheet[empData.id] = defaultDays;
           }
         } else {
-          actionBtn = `<span class="text-xs px-3 py-1.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200/80 font-semibold flex items-center space-x-1"><i class="fa-solid fa-clock"></i><span>${p.roleReq}</span></span>`;
+          const idx = USERS_DB.findIndex(x => x.id === empData.id);
+          if (idx >= 0) USERS_DB[idx] = empData;
         }
 
-        html += `
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-slate-50/70 hover:bg-slate-100/80 rounded-2xl border border-slate-200/80 transition duration-150 gap-3">
-            <div class="flex items-center space-x-3.5">
-              <div class="w-10 h-10 rounded-xl ${p.type === 'leave' ? 'bg-amber-100 text-amber-700' : 'bg-rose-100 text-rose-700'} flex items-center justify-center text-base font-bold shrink-0 shadow-sm">
-                <i class="${p.type === 'leave' ? 'fa-solid fa-file-pen' : 'fa-solid fa-heart-pulse'}"></i>
-              </div>
-              <div>
-                <div class="text-sm font-bold text-slate-900">${p.title}</div>
-                <div class="text-xs text-slate-500 mt-0.5">${p.sub}</div>
-              </div>
-            </div>
-            <div class="self-end sm:self-center shrink-0">${actionBtn}</div>
+        closeModal('modal-employee');
+        populateAssigneeSelect();
+        renderEmployees();
+        renderDashboard();
+        showToast(res.message || 'Lưu thông tin nhân sự thành công!', 'success');
+      } else {
+        showToast((res && res.message) || 'Lưu nhân sự thất bại!', 'error');
+      }
+    }, (err) => {
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
+      }
+      showToast('Lỗi máy chủ khi lưu nhân sự: ' + err.message, 'error');
+    });
+  }
+
+  function deleteEmployee(empId) {
+    if (!confirm(`Bạn có chắc chắn muốn chuyển trạng thái nhân viên [${empId}] sang 'Đã nghỉ việc'?`)) return;
+
+    callBackend('apiDeleteEmployee', [empId], (res) => {
+      if (res && res.success) {
+        const u = USERS_DB.find(x => x.id === empId);
+        if (u) u.status = 'Đã nghỉ việc';
+        showToast(res.message || `Đã chuyển trạng thái nhân viên ${empId} sang Đã nghỉ việc!`, 'success');
+        renderEmployees();
+        renderDashboard();
+      } else {
+        showToast((res && res.message) || 'Thao tác xóa nhân viên thất bại!', 'error');
+      }
+    }, (err) => {
+      showToast('Lỗi kết nối máy chủ: ' + err.message, 'error');
+    });
+  }
+
+  // --- RENDER 3: BẢNG CHẤM CÔNG (TIMESHEET) ---
+  function renderTimesheet() {
+    const tbody = document.getElementById('timesheet-tbody');
+    let rows = '';
+
+    USERS_DB.filter(u => u.status !== 'Đã nghỉ việc').forEach(u => {
+      const days = appData.timesheet[u.id] || Array(31).fill('X');
+      let cellsHtml = '';
+      let totalX = 0, totalP = 0, totalO = 0;
+
+      days.forEach((sym, dIdx) => {
+        let cClass = 'cell-x';
+        if (sym === 'P') { cClass = 'cell-p'; totalP++; }
+        else if (sym === 'O') { cClass = 'cell-o'; totalO++; }
+        else if (sym === 'CN') { cClass = 'cell-cn'; }
+        else if (sym === 'T7') { cClass = 'cell-t7'; }
+        else { totalX++; }
+
+        const canEditAtt = (currentUser && (currentUser.role === 'hr' || currentUser.role === 'manager'));
+        const clickAttr = canEditAtt
+          ? `onclick="cycleAttendanceCell('${u.id}', ${dIdx + 1}, '${sym}')" title="Bấm để đổi ký hiệu công (X ➔ P ➔ O ➔ CN ➔ X)" style="cursor: pointer;"`
+          : '';
+
+        cellsHtml += `<td class="p-0 text-center border-r border-slate-100 matrix-cell ${cClass}" ${clickAttr}>${sym}</td>`;
+      });
+
+      const isMe = (currentUser && currentUser.id === u.id);
+      rows += `
+        <tr class="${isMe ? 'bg-blue-50/40 font-bold' : 'hover:bg-slate-50/80'} transition">
+          <td class="py-2.5 px-3 font-bold sticky left-0 bg-white z-10 text-center border-r border-slate-200 text-slate-700">${u.id}</td>
+          <td class="py-2.5 px-3 sticky left-[70px] bg-white z-10 border-r border-slate-200">
+            <div class="font-bold text-slate-900">${u.name} ${isMe ? '<span class="text-[10px] text-blue-600">(Tôi)</span>' : ''}</div>
+            <div class="text-[10px] text-slate-400">${u.title}</div>
+          </td>
+          <td class="py-2.5 px-2 text-center border-r border-slate-200"><span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 font-semibold text-[10px]">${u.dept}</span></td>
+          ${cellsHtml}
+          <td class="py-2.5 px-2 text-center font-extrabold text-blue-700 bg-blue-50/50">${totalX}</td>
+          <td class="py-2.5 px-2 text-center font-bold text-indigo-700 bg-indigo-50/50">${totalP}</td>
+          <td class="py-2.5 px-2 text-center font-bold text-amber-700 bg-amber-50/50">${totalO}</td>
+        </tr>
+      `;
+    });
+    tbody.innerHTML = rows;
+  }
+
+  function cycleAttendanceCell(empId, day, currentSym) {
+    if (currentUser.role !== 'hr' && currentUser.role !== 'manager') return;
+    const nextMap = { 'X': 'P', 'P': 'O', 'O': 'CN', 'CN': 'X', 'T7': 'X' };
+    const nextSym = nextMap[currentSym] || 'X';
+
+    // Cập nhật tạm thời trên UI
+    if (appData.timesheet[empId]) {
+      appData.timesheet[empId][day - 1] = nextSym;
+      renderTimesheet();
+    }
+
+    callBackend('apiUpdateAttendanceCell', [empId, day, nextSym], (res) => {
+      if (res && res.success) {
+        showToast(res.message || `Đã cập nhật công ngày ${day} thành [${nextSym}]!`, 'success');
+      } else {
+        showToast((res && res.message) || 'Lỗi cập nhật bảng chấm công!', 'error');
+        // Rollback nếu thất bại
+        if (appData.timesheet[empId]) {
+          appData.timesheet[empId][day - 1] = currentSym;
+          renderTimesheet();
+        }
+      }
+    }, (err) => {
+      showToast('Lỗi máy chủ: ' + err.message, 'error');
+      if (appData.timesheet[empId]) {
+        appData.timesheet[empId][day - 1] = currentSym;
+        renderTimesheet();
+      }
+    });
+  }
+
+  // --- RENDER 4: LEAVE TABLE ---
+  function renderLeaveTable() {
+    const tbody = document.getElementById('leave-table-tbody');
+    let html = '';
+    appData.leaveRequests.forEach(r => {
+      const canApprove = (currentUser.role === 'manager' || currentUser.role === 'hr');
+      let stBadge = '';
+      if (r.status === 'APPROVED') {
+        stBadge = `<span class="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 font-bold text-[10px]"><i class="fa-solid fa-check mr-1"></i>Đã duyệt</span>`;
+      } else if (r.status === 'REJECTED') {
+        stBadge = `<span class="px-2.5 py-1 rounded-full bg-rose-100 text-rose-800 font-bold text-[10px]"><i class="fa-solid fa-xmark mr-1"></i>Từ chối</span>`;
+      } else {
+        stBadge = `<span class="px-2.5 py-1 rounded-full bg-amber-100 text-amber-800 font-bold text-[10px]"><i class="fa-solid fa-clock mr-1"></i>Chờ duyệt</span>`;
+      }
+
+      let actions = '---';
+      if (r.status === 'PENDING' && canApprove) {
+        actions = `
+          <div class="flex items-center justify-end space-x-1.5">
+            <button onclick="approveLeave('${r.id}')" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded font-bold text-[11px] shadow-sm transition">Duyệt</button>
+            <button onclick="rejectLeave('${r.id}')" class="px-2.5 py-1 bg-rose-600 hover:bg-rose-500 text-white rounded font-bold text-[11px] shadow-sm transition">Từ chối</button>
           </div>
         `;
-      });
-      pList.innerHTML = html;
-    }
-
-    // --- RENDER 2: QUẢN LÝ NHÂN SỰ (EMPLOYEES) ---
-    function renderEmployees() {
-      const tbody = document.getElementById('employees-tbody');
-      const deptFilter = document.getElementById('emp-filter-dept').value;
-      const statusFilter = document.getElementById('emp-filter-status').value;
-      const query = (document.getElementById('emp-search-input').value || '').trim().toLowerCase();
-
-      let filtered = USERS_DB.filter(u => {
-        if (deptFilter !== 'all' && u.dept !== deptFilter) return false;
-        if (statusFilter !== 'all' && u.status !== statusFilter) return false;
-        if (query) {
-          const matchName = u.name.toLowerCase().includes(query);
-          const matchId = u.id.toLowerCase().includes(query);
-          const matchEmail = (u.email || '').toLowerCase().includes(query);
-          if (!matchName && !matchId && !matchEmail) return false;
-        }
-        return true;
-      });
-
-      if (filtered.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="9" class="text-center py-6 text-slate-400">Không tìm thấy nhân sự phù hợp</td></tr>`;
-        return;
       }
 
-      let html = '';
-      filtered.forEach(u => {
-        const canEdit = (currentUser.role === 'manager' || currentUser.role === 'hr');
-        const roleBadge = u.role === 'manager'
-          ? `<span class="px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 font-bold text-[10px]">Quản lý</span>`
-          : u.role === 'hr'
-            ? `<span class="px-2 py-0.5 rounded-full bg-purple-100 text-purple-800 font-bold text-[10px]">HR/Kế toán</span>`
-            : `<span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 font-medium text-[10px]">Nhân viên</span>`;
+      html += `
+        <tr class="hover:bg-slate-50 transition">
+          <td class="py-3 px-4 font-bold text-slate-800">${r.id}</td>
+          <td class="py-3 px-4 font-semibold text-slate-900">${r.empName}</td>
+          <td class="py-3 px-4"><span class="px-2 py-0.5 rounded bg-blue-50 text-blue-700 font-medium">${r.type}</span></td>
+          <td class="py-3 px-4 text-slate-600 font-medium">${r.from} ➔ ${r.to}</td>
+          <td class="py-3 px-3 text-center font-bold text-blue-600">${r.days}</td>
+          <td class="py-3 px-4 text-slate-600 max-w-xs truncate">${r.reason}</td>
+          <td class="py-3 px-4 text-center">${stBadge}</td>
+          <td class="py-3 px-4 text-right">${actions}</td>
+        </tr>
+      `;
+    });
+    tbody.innerHTML = html;
+  }
 
-        const statusBadge = u.status === 'Đang làm việc'
-          ? `<span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-semibold text-[10px]">Đang làm việc</span>`
-          : `<span class="px-2 py-0.5 rounded-full bg-rose-100 text-rose-800 font-semibold text-[10px]">Đã nghỉ việc</span>`;
-
-        // Bảo mật mức lương
-        let salaryText = '•••••••• đ';
-        if (currentUser.role === 'manager' || currentUser.role === 'hr' || currentUser.id === u.id) {
-          salaryText = (u.salary || 0).toLocaleString('vi-VN') + ' đ';
-        }
-
-        let actionHtml = '---';
-        if (canEdit) {
-          actionHtml = `
-            <div class="flex items-center justify-end space-x-1.5">
-              <button onclick="editEmployee('${u.id}')" title="Sửa thông tin" class="p-1.5 bg-slate-100 hover:bg-blue-100 text-slate-600 hover:text-blue-700 rounded-lg transition"><i class="fa-solid fa-pen-to-square"></i></button>
-              <button onclick="deleteEmployee('${u.id}')" title="Khóa/Nghỉ việc" class="p-1.5 bg-slate-100 hover:bg-rose-100 text-slate-600 hover:text-rose-700 rounded-lg transition"><i class="fa-solid fa-user-slash"></i></button>
-            </div>
-          `;
-        }
-
-        html += `
-          <tr class="hover:bg-slate-50 transition">
-            <td class="py-3 px-4 font-bold text-slate-800">${u.id}</td>
-            <td class="py-3 px-4">
-              <div class="flex items-center space-x-2.5">
-                <img src="${u.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=faces'}" class="w-7 h-7 rounded-full object-cover border border-slate-200">
-                <div>
-                  <div class="font-bold text-slate-900">${u.name}</div>
-                  <div class="text-[10px] text-slate-400">${u.email}</div>
-                </div>
-              </div>
-            </td>
-            <td class="py-3 px-4"><span class="px-2 py-0.5 rounded bg-blue-50 text-blue-700 font-medium">${u.dept}</span></td>
-            <td class="py-3 px-4 text-slate-700 font-medium">${u.title}</td>
-            <td class="py-3 px-4 text-center">${roleBadge}</td>
-            <td class="py-3 px-4 text-right font-semibold text-slate-900">${salaryText}</td>
-            <td class="py-3 px-4 text-center">${statusBadge}</td>
-            <td class="py-3 px-4 text-center text-slate-500">${u.startDate || '--'}</td>
-            <td class="py-3 px-4 text-right">${actionHtml}</td>
-          </tr>
-        `;
-      });
-      tbody.innerHTML = html;
-    }
-
-    function filterEmployees() {
-      renderEmployees();
-    }
-
-    function openEmployeeModal() {
-      document.getElementById('emp-form-mode').value = 'add';
-      document.getElementById('modal-employee-title').innerText = 'Thêm Nhân Sự Mới';
-      document.getElementById('emp-form-id').value = 'VT-' + String(USERS_DB.length + 1).padStart(3, '0');
-      document.getElementById('emp-form-name').value = '';
-      document.getElementById('emp-form-email').value = '';
-      document.getElementById('emp-form-phone').value = '';
-      document.getElementById('emp-form-title').value = '';
-      document.getElementById('emp-form-salary').value = 16000000;
-      document.getElementById('emp-form-date').value = '08/10/2026';
-      document.getElementById('modal-employee').classList.remove('hidden');
-    }
-
-    function editEmployee(empId) {
-      const u = USERS_DB.find(x => x.id === empId);
-      if (!u) return;
-      document.getElementById('emp-form-mode').value = 'edit';
-      document.getElementById('modal-employee-title').innerText = 'Chỉnh Sửa Nhân Sự: ' + u.name;
-      document.getElementById('emp-form-id').value = u.id;
-      document.getElementById('emp-form-name').value = u.name;
-      document.getElementById('emp-form-email').value = u.email;
-      document.getElementById('emp-form-phone').value = u.phone || '';
-      document.getElementById('emp-form-dept').value = u.dept;
-      document.getElementById('emp-form-title').value = u.title;
-      document.getElementById('emp-form-role').value = u.role;
-      document.getElementById('emp-form-salary').value = u.salary;
-      document.getElementById('emp-form-status').value = u.status;
-      document.getElementById('emp-form-date').value = u.startDate || '08/10/2026';
-      document.getElementById('modal-employee').classList.remove('hidden');
-    }
-
-    function handleSaveEmployee(e) {
-      e.preventDefault();
-      const mode = document.getElementById('emp-form-mode').value;
-      const empData = {
-        id: document.getElementById('emp-form-id').value.trim(),
-        name: document.getElementById('emp-form-name').value.trim(),
-        email: document.getElementById('emp-form-email').value.trim(),
-        phone: document.getElementById('emp-form-phone').value.trim(),
-        dept: document.getElementById('emp-form-dept').value,
-        title: document.getElementById('emp-form-title').value.trim(),
-        role: document.getElementById('emp-form-role').value,
-        salary: Number(document.getElementById('emp-form-salary').value) || 0,
-        status: document.getElementById('emp-form-status').value,
-        startDate: document.getElementById('emp-form-date').value.trim(),
-        avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=faces'
-      };
-
-      if (mode === 'add') {
-        USERS_DB.push(empData);
-        if (!appData.timesheet[empData.id]) {
-          const defaultDays = Array(31).fill('X');
-          [3, 10, 17, 24].forEach(idx => { defaultDays[idx] = 'CN'; });
-          appData.timesheet[empData.id] = defaultDays;
-        }
-        showToast(`Thêm nhân sự mới [${empData.id}] ${empData.name} thành công!`, 'success');
+  // --- RENDER 5: SICK TABLE ---
+  function renderSickTable() {
+    const tbody = document.getElementById('sick-table-tbody');
+    let html = '';
+    appData.sickCases.forEach(s => {
+      const canApproveSick = (currentUser.role === 'hr');
+      let stBadge = '';
+      if (s.status === 'APPROVED') {
+        stBadge = `<span class="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 font-bold text-[10px]"><i class="fa-solid fa-check mr-1"></i>Đã duyệt BHXH</span>`;
+      } else if (s.status === 'REJECTED') {
+        stBadge = `<span class="px-2.5 py-1 rounded-full bg-rose-100 text-rose-800 font-bold text-[10px]"><i class="fa-solid fa-xmark mr-1"></i>Từ chối</span>`;
       } else {
-        const idx = USERS_DB.findIndex(x => x.id === empData.id);
-        if (idx >= 0) USERS_DB[idx] = empData;
-        showToast(`Cập nhật thông tin nhân sự [${empData.id}] thành công!`, 'success');
+        stBadge = `<span class="px-2.5 py-1 rounded-full bg-amber-100 text-amber-800 font-bold text-[10px]"><i class="fa-solid fa-clock mr-1"></i>Chờ HR duyệt</span>`;
       }
 
-      // Lưu xuống Google Sheets
-      callBackend('apiSaveEmployee', [empData], (res) => {
-        if (res && res.message) showToast(res.message, 'success');
-      });
+      let actions = '---';
+      if (s.status === 'PENDING' && canApproveSick) {
+        actions = `
+          <div class="flex items-center justify-end space-x-1.5">
+            <button onclick="approveSick('${s.id}')" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded font-bold text-[11px] shadow-sm transition">Duyệt BHXH</button>
+            <button onclick="rejectSick('${s.id}')" class="px-2.5 py-1 bg-rose-600 hover:bg-rose-500 text-white rounded font-bold text-[11px] shadow-sm transition">Từ chối</button>
+          </div>
+        `;
+      }
 
-      closeModal('modal-employee');
-      populateAssigneeSelect();
-      renderEmployees();
-      renderDashboard();
+      html += `
+        <tr class="hover:bg-slate-50 transition">
+          <td class="py-3 px-4 font-bold text-slate-800">${s.id}</td>
+          <td class="py-3 px-4 font-semibold text-slate-900">${s.empName}</td>
+          <td class="py-3 px-4 font-medium text-slate-700">${s.hospital}</td>
+          <td class="py-3 px-4 text-slate-600 font-medium">${s.from} ➔ ${s.to}</td>
+          <td class="py-3 px-3 text-center font-bold text-rose-600">${s.days}</td>
+          <td class="py-3 px-4 text-center"><span class="text-blue-600 font-semibold underline text-[11px] cursor-pointer"><i class="fa-solid fa-file-pdf mr-1"></i>Giay_BHXH.pdf</span></td>
+          <td class="py-3 px-4 text-center">${stBadge}</td>
+          <td class="py-3 px-4 text-right">${actions}</td>
+        </tr>
+      `;
+    });
+    tbody.innerHTML = html;
+  }
+
+  // --- RENDER 6: PAYROLL TABLE ---
+  function renderPayrollTable() {
+    const tbody = document.getElementById('payroll-tbody');
+    const desc = document.getElementById('payroll-desc');
+    const btnCalc = document.getElementById('btn-calc-payroll');
+
+    if (currentUser.role === 'employee') {
+      desc.innerText = 'Chế độ xem cá nhân: Chỉ hiển thị dữ liệu phiếu lương của bạn';
+      if (btnCalc) btnCalc.classList.add('hidden');
+    } else {
+      desc.innerText = 'Chế độ quản trị: Bảng lương tổng hợp toàn bộ nhân sự công ty';
+      if (btnCalc) btnCalc.classList.remove('hidden');
     }
 
-    function deleteEmployee(empId) {
-      if (!confirm(`Bạn có chắc chắn muốn chuyển trạng thái nhân viên [${empId}] sang 'Đã nghỉ việc'?`)) return;
-      const u = USERS_DB.find(x => x.id === empId);
-      if (u) u.status = 'Đã nghỉ việc';
-      callBackend('apiDeleteEmployee', [empId]);
-      showToast(`Đã chuyển trạng thái nhân viên ${empId} sang Đã nghỉ việc!`, 'success');
-      renderEmployees();
-    }
+    let html = '';
+    const payrollList = (appData.payroll && appData.payroll.length > 0) ? appData.payroll : [];
 
-    // --- RENDER 3: BẢNG CHẤM CÔNG (TIMESHEET) ---
-    function renderTimesheet() {
-      const tbody = document.getElementById('timesheet-tbody');
-      let rows = '';
-
-      USERS_DB.filter(u => u.status !== 'Đã nghỉ việc').forEach(u => {
-        const days = appData.timesheet[u.id] || Array(31).fill('X');
-        let cellsHtml = '';
-        let totalX = 0, totalP = 0, totalO = 0;
-
-        days.forEach(sym => {
-          let cClass = 'cell-x';
-          if (sym === 'P') { cClass = 'cell-p'; totalP++; }
-          else if (sym === 'O') { cClass = 'cell-o'; totalO++; }
-          else if (sym === 'CN') { cClass = 'cell-cn'; }
-          else { totalX++; }
-          cellsHtml += `<td class="p-0 text-center border-r border-slate-100 matrix-cell ${cClass}">${sym}</td>`;
-        });
-
-        const isMe = (currentUser && currentUser.id === u.id);
-        rows += `
-          <tr class="${isMe ? 'bg-blue-50/40 font-bold' : 'hover:bg-slate-50/80'} transition">
-            <td class="py-2.5 px-3 font-bold sticky left-0 bg-white z-10 text-center border-r border-slate-200 text-slate-700">${u.id}</td>
-            <td class="py-2.5 px-3 sticky left-[70px] bg-white z-10 border-r border-slate-200">
-              <div class="font-bold text-slate-900">${u.name} ${isMe ? '<span class="text-[10px] text-blue-600">(Tôi)</span>' : ''}</div>
-              <div class="text-[10px] text-slate-400">${u.title}</div>
+    if (payrollList.length > 0) {
+      payrollList.forEach(p => {
+        if (currentUser.role === 'employee' && p.empId !== currentUser.id) return;
+        html += `
+          <tr class="hover:bg-slate-50 transition">
+            <td class="py-3 px-4 font-bold text-slate-800">${p.empId}</td>
+            <td class="py-3 px-4 font-semibold text-slate-900">${p.empName}</td>
+            <td class="py-3 px-4 text-slate-600">${p.title || '---'}</td>
+            <td class="py-3 px-4 text-right font-medium">${(p.baseSalary || 0).toLocaleString('vi-VN')} đ</td>
+            <td class="py-3 px-3 text-center font-bold text-slate-500">${p.standardDays || 22}</td>
+            <td class="py-3 px-3 text-center font-extrabold text-blue-600">${p.actualDays || 0}</td>
+            <td class="py-3 px-4 text-right text-slate-600">${(p.allowance || 0).toLocaleString('vi-VN')} đ</td>
+            <td class="py-3 px-4 text-right font-extrabold text-blue-700 text-sm">${(p.netSalary || 0).toLocaleString('vi-VN')} đ</td>
+            <td class="py-3 px-4 text-center">
+              <button onclick="printPayslip('${p.empId}')" class="px-2.5 py-1 bg-slate-100 hover:bg-blue-50 text-blue-600 hover:text-blue-700 rounded font-semibold text-[11px] border border-slate-200 transition">
+                <i class="fa-solid fa-receipt mr-1"></i> Xem Phiếu Lương
+              </button>
             </td>
-            <td class="py-2.5 px-2 text-center border-r border-slate-200"><span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 font-semibold text-[10px]">${u.dept}</span></td>
-            ${cellsHtml}
-            <td class="py-2.5 px-2 text-center font-extrabold text-blue-700 bg-blue-50/50">${totalX}</td>
-            <td class="py-2.5 px-2 text-center font-bold text-indigo-700 bg-indigo-50/50">${totalP}</td>
-            <td class="py-2.5 px-2 text-center font-bold text-amber-700 bg-amber-50/50">${totalO}</td>
           </tr>
         `;
       });
-      tbody.innerHTML = rows;
-    }
-
-    // --- RENDER 4: LEAVE TABLE ---
-    function renderLeaveTable() {
-      const tbody = document.getElementById('leave-table-tbody');
-      let html = '';
-      appData.leaveRequests.forEach(r => {
-        const canApprove = (currentUser.role === 'manager' || currentUser.role === 'hr');
-        let stBadge = r.status === 'APPROVED'
-          ? `<span class="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 font-bold text-[10px]"><i class="fa-solid fa-check mr-1"></i>Đã duyệt (Sync Sheet)</span>`
-          : `<span class="px-2.5 py-1 rounded-full bg-amber-100 text-amber-800 font-bold text-[10px]"><i class="fa-solid fa-clock mr-1"></i>Chờ duyệt</span>`;
-
-        let actions = '---';
-        if (r.status === 'PENDING' && canApprove) {
-          actions = `<button onclick="approveLeave('${r.id}')" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded font-bold text-[11px] shadow-sm">Duyệt Đơn</button>`;
-        }
-
-        html += `
-          <tr class="hover:bg-slate-50 transition">
-            <td class="py-3 px-4 font-bold text-slate-800">${r.id}</td>
-            <td class="py-3 px-4 font-semibold text-slate-900">${r.empName}</td>
-            <td class="py-3 px-4"><span class="px-2 py-0.5 rounded bg-blue-50 text-blue-700 font-medium">${r.type}</span></td>
-            <td class="py-3 px-4 text-slate-600 font-medium">${r.from} ➔ ${r.to}</td>
-            <td class="py-3 px-3 text-center font-bold text-blue-600">${r.days}</td>
-            <td class="py-3 px-4 text-slate-600 max-w-xs truncate">${r.reason}</td>
-            <td class="py-3 px-4 text-center">${stBadge}</td>
-            <td class="py-3 px-4 text-right">${actions}</td>
-          </tr>
-        `;
-      });
-      tbody.innerHTML = html;
-    }
-
-    // --- RENDER 5: SICK TABLE ---
-    function renderSickTable() {
-      const tbody = document.getElementById('sick-table-tbody');
-      let html = '';
-      appData.sickCases.forEach(s => {
-        const canApproveSick = (currentUser.role === 'hr');
-        let stBadge = s.status === 'APPROVED'
-          ? `<span class="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 font-bold text-[10px]"><i class="fa-solid fa-check mr-1"></i>Đã duyệt BHXH</span>`
-          : `<span class="px-2.5 py-1 rounded-full bg-amber-100 text-amber-800 font-bold text-[10px]"><i class="fa-solid fa-clock mr-1"></i>Chờ HR duyệt</span>`;
-
-        let actions = '---';
-        if (s.status === 'PENDING' && canApproveSick) {
-          actions = `<button onclick="approveSick('${s.id}')" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded font-bold text-[11px] shadow-sm">Duyệt BHXH</button>`;
-        }
-
-        html += `
-          <tr class="hover:bg-slate-50 transition">
-            <td class="py-3 px-4 font-bold text-slate-800">${s.id}</td>
-            <td class="py-3 px-4 font-semibold text-slate-900">${s.empName}</td>
-            <td class="py-3 px-4 font-medium text-slate-700">${s.hospital}</td>
-            <td class="py-3 px-4 text-slate-600 font-medium">${s.from} ➔ ${s.to}</td>
-            <td class="py-3 px-3 text-center font-bold text-rose-600">${s.days}</td>
-            <td class="py-3 px-4 text-center"><span class="text-blue-600 font-semibold underline text-[11px] cursor-pointer"><i class="fa-solid fa-file-pdf mr-1"></i>Giay_BHXH.pdf</span></td>
-            <td class="py-3 px-4 text-center">${stBadge}</td>
-            <td class="py-3 px-4 text-right">${actions}</td>
-          </tr>
-        `;
-      });
-      tbody.innerHTML = html;
-    }
-
-    // --- RENDER 6: PAYROLL TABLE ---
-    function renderPayrollTable() {
-      const tbody = document.getElementById('payroll-tbody');
-      const desc = document.getElementById('payroll-desc');
-
-      if (currentUser.role === 'employee') {
-        desc.innerText = 'Chế độ xem cá nhân: Chỉ hiển thị dữ liệu phiếu lương của bạn';
-      } else {
-        desc.innerText = 'Chế độ quản trị: Bảng lương tổng hợp toàn bộ nhân sự công ty';
-      }
-
-      let html = '';
+    } else {
       const workingDaysNorm = 22;
-
       USERS_DB.filter(u => u.status !== 'Đã nghỉ việc').forEach(u => {
         if (currentUser.role === 'employee' && u.id !== currentUser.id) return;
 
@@ -1518,7 +1712,9 @@
         const actualDays = days.filter(d => d === 'X').length;
         const allowance = 1500000;
         const salaryPerDay = (u.salary || 0) / workingDaysNorm;
-        const netSalary = Math.round((salaryPerDay * actualDays) + allowance);
+        const gross = Math.round((salaryPerDay * actualDays) + allowance);
+        const bhxh = Math.round((u.salary || 0) * 0.105);
+        const netSalary = Math.max(0, gross - bhxh);
 
         html += `
           <tr class="hover:bg-slate-50 transition">
@@ -1538,320 +1734,487 @@
           </tr>
         `;
       });
-      tbody.innerHTML = html;
     }
+    tbody.innerHTML = html;
+  }
 
-    // --- RENDER 7: TASKS TABLE ---
-    function renderTasksTable() {
-      const tbody = document.getElementById('tasks-tbody');
-      let html = '';
-      appData.tasks.forEach(t => {
-        const isDone = (t.status === 'Hoàn thành');
-        const stBadge = isDone
-          ? `<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">Hoàn thành</span>`
-          : `<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800">${t.status}</span>`;
+  // --- RENDER 7: TASKS TABLE ---
+  function renderTasksTable() {
+    const tbody = document.getElementById('tasks-tbody');
+    let html = '';
+    appData.tasks.forEach(t => {
+      const isDone = (t.status === 'Hoàn thành');
+      const stBadge = isDone
+        ? `<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">Hoàn thành</span>`
+        : `<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800">${t.status}</span>`;
 
-        let actionBtn = isDone
-          ? `<span class="text-emerald-600 text-xs font-semibold"><i class="fa-solid fa-check-double mr-1"></i>Đã xong</span>`
-          : `<button onclick="markTaskDone('${t.id}')" class="px-2.5 py-1 bg-indigo-600 hover:bg-indigo-500 text-white rounded text-[11px] font-semibold transition">Đánh dấu Xong</button>`;
+      let actionBtn = isDone
+        ? `<span class="text-emerald-600 text-xs font-semibold"><i class="fa-solid fa-check-double mr-1"></i>Đã xong</span>`
+        : `<button onclick="markTaskDone('${t.id}')" class="px-2.5 py-1 bg-indigo-600 hover:bg-indigo-500 text-white rounded text-[11px] font-semibold transition">Đánh dấu Xong</button>`;
 
-        html += `
-          <tr class="hover:bg-slate-50 transition">
-            <td class="py-3 px-4 font-bold text-slate-700">${t.id}</td>
-            <td class="py-3 px-4">
-              <div class="font-bold text-slate-900">${t.title}</div>
-              <div class="text-[10px] text-slate-400">${t.note || ''}</div>
-            </td>
-            <td class="py-3 px-4"><span class="px-2 py-0.5 rounded bg-slate-100 text-slate-600 font-medium">${t.type}</span></td>
-            <td class="py-3 px-4 text-slate-600">${t.assigner}</td>
-            <td class="py-3 px-4 font-semibold text-blue-700">${t.assignee}</td>
-            <td class="py-3 px-4 text-rose-600 font-semibold">${t.deadline}</td>
-            <td class="py-3 px-4 text-center">${stBadge}</td>
-            <td class="py-3 px-4 text-right">${actionBtn}</td>
-          </tr>
-        `;
-      });
-      tbody.innerHTML = html;
-    }
-
-    // --- RENDER 8: DOCUMENTS TABLE ---
-    function renderDocsTable() {
-      const tbody = document.getElementById('docs-tbody');
-      let html = '';
-      appData.documents.forEach(d => {
-        html += `
-          <tr class="hover:bg-slate-50 transition">
-            <td class="py-3 px-4 font-bold text-slate-800">${d.id}</td>
-            <td class="py-3 px-4 font-bold text-slate-900">${d.title}</td>
-            <td class="py-3 px-4"><span class="px-2 py-0.5 rounded bg-amber-50 text-amber-800 font-medium">${d.type}</span></td>
-            <td class="py-3 px-4 text-slate-600">${d.issuer}</td>
-            <td class="py-3 px-4 text-slate-500">${d.date}</td>
-            <td class="py-3 px-4 text-center">
-              <a href="${d.fileUrl}" target="_blank" class="px-2.5 py-1 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded text-[11px] font-semibold transition inline-flex items-center space-x-1">
-                <i class="fa-solid fa-arrow-up-right-from-square"></i>
-                <span>Xem File</span>
-              </a>
-            </td>
-            <td class="py-3 px-4 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">${d.status}</span></td>
-          </tr>
-        `;
-      });
-      tbody.innerHTML = html;
-    }
-
-    // --- WORKFLOW ACTIONS ---
-    function approveLeave(reqId) {
-      const req = appData.leaveRequests.find(r => r.id === reqId);
-      if (!req) return;
-      req.status = 'APPROVED';
-
-      if (!appData.timesheet[req.empId]) appData.timesheet[req.empId] = Array(31).fill('X');
-      const fromDayNum = parseInt(req.from.split('-')[2]) - 1;
-      for (let i = 0; i < req.days; i++) {
-        if (fromDayNum + i < 31) appData.timesheet[req.empId][fromDayNum + i] = 'P';
-      }
-
-      callBackend('apiApproveLeave', [reqId, currentUser.name], (res) => {
-        if (res && res.message) showToast(res.message, 'success');
-      });
-
-      showToast(`Đã duyệt đơn ${req.id} và tự động điền ký hiệu [P] vào Bảng Chấm Công!`, 'success');
-      renderDashboard();
-      renderLeaveTable();
-    }
-
-    function approveSick(sickId) {
-      const sc = appData.sickCases.find(s => s.id === sickId);
-      if (!sc) return;
-      sc.status = 'APPROVED';
-
-      if (!appData.timesheet[sc.empId]) appData.timesheet[sc.empId] = Array(31).fill('X');
-      const fromDayNum = parseInt(sc.from.split('-')[2]) - 1;
-      for (let i = 0; i < sc.days; i++) {
-        if (fromDayNum + i < 31) appData.timesheet[sc.empId][fromDayNum + i] = 'O';
-      }
-
-      callBackend('apiApproveSick', [sickId, currentUser.name], (res) => {
-        if (res && res.message) showToast(res.message, 'success');
-      });
-
-      showToast(`Đã xác nhận hồ sơ BHXH ${sc.id} và tự động điền [O] vào Bảng Chấm Công!`, 'success');
-      renderDashboard();
-      renderSickTable();
-    }
-
-    function handleCreateLeave(e) {
-      e.preventDefault();
-      const type = document.getElementById('leave-type').value;
-      const days = parseInt(document.getElementById('leave-days').value) || 1;
-      const from = document.getElementById('leave-from').value;
-      const to = document.getElementById('leave-to').value;
-      const reason = document.getElementById('leave-reason').value;
-
-      const newId = 'LV-' + Math.floor(1000 + Math.random() * 9000);
-      const leaveObj = {
-        id: newId,
-        empId: currentUser.id,
-        empName: currentUser.name,
-        type: type,
-        from: from,
-        to: to,
-        days: days,
-        reason: reason,
-        status: 'PENDING'
-      };
-
-      appData.leaveRequests.unshift(leaveObj);
-      callBackend('apiSubmitLeave', [leaveObj]);
-
-      closeModal('modal-leave');
-      showToast(`Nộp đơn ${newId} thành công! Đang chờ Quản lý phê duyệt.`, 'success');
-      renderDashboard();
-      renderLeaveTable();
-      switchTab('leave');
-    }
-
-    function handleCreateSick(e) {
-      e.preventDefault();
-      const hospital = document.getElementById('sick-hospital').value;
-      const from = document.getElementById('sick-from').value;
-      const to = document.getElementById('sick-to').value;
-      const newId = 'SC-' + Math.floor(1000 + Math.random() * 9000);
-
-      const sickObj = {
-        id: newId,
-        empId: currentUser.id,
-        empName: currentUser.name,
-        hospital: hospital,
-        from: from,
-        to: to,
-        days: 2,
-        status: 'PENDING'
-      };
-
-      appData.sickCases.unshift(sickObj);
-      callBackend('apiSubmitSick', [sickObj]);
-
-      closeModal('modal-sick');
-      showToast(`Nộp hồ sơ ốm đau ${newId} thành công! Chờ HR đối soát BHXH.`, 'success');
-      renderDashboard();
-      renderSickTable();
-      switchTab('sick');
-    }
-
-    function handleSaveTask(e) {
-      e.preventDefault();
-      const title = document.getElementById('task-form-title').value.trim();
-      const type = document.getElementById('task-form-type').value;
-      const assignee = document.getElementById('task-form-assignee').value;
-      const deadline = document.getElementById('task-form-deadline').value;
-      const note = document.getElementById('task-form-note').value;
-      const newId = 'CV-' + Math.floor(100 + Math.random() * 900);
-
-      const taskObj = {
-        id: newId,
-        title: title,
-        type: type,
-        assigner: currentUser.name,
-        assignee: assignee,
-        deadline: deadline,
-        status: 'Đang xử lý',
-        note: note
-      };
-
-      appData.tasks.unshift(taskObj);
-      callBackend('apiSaveTask', [taskObj]);
-
-      closeModal('modal-task');
-      showToast(`Giao việc [${newId}] cho ${assignee} thành công!`, 'success');
-      renderTasksTable();
-      renderDashboard();
-      switchTab('tasks');
-    }
-
-    function markTaskDone(taskId) {
-      const t = appData.tasks.find(x => x.id === taskId);
-      if (!t) return;
-      t.status = 'Hoàn thành';
-      callBackend('apiUpdateTaskStatus', [taskId, 'Hoàn thành']);
-      showToast(`Đã xác nhận hoàn thành công việc [${taskId}]!`, 'success');
-      renderTasksTable();
-      renderDashboard();
-    }
-
-    function handleSaveDoc(e) {
-      e.preventDefault();
-      const id = document.getElementById('doc-form-id').value.trim();
-      const type = document.getElementById('doc-form-type').value;
-      const title = document.getElementById('doc-form-title').value.trim();
-      const issuer = document.getElementById('doc-form-issuer').value.trim();
-      const url = document.getElementById('doc-form-url').value.trim();
-
-      const docObj = {
-        id: id,
-        title: title,
-        type: type,
-        issuer: issuer,
-        date: UtilitiesFormatToday(),
-        fileUrl: url,
-        status: 'Hiệu lực'
-      };
-
-      appData.documents.unshift(docObj);
-      callBackend('apiSaveDocument', [docObj]);
-
-      closeModal('modal-doc');
-      showToast(`Lưu trữ văn bản [${id}] thành công!`, 'success');
-      renderDocsTable();
-      switchTab('docs');
-    }
-
-    function UtilitiesFormatToday() {
-      const d = new Date();
-      return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
-    }
-
-    function printPayslip(empId) {
-      const u = USERS_DB.find(x => x.id === empId) || USERS_DB[0];
-      const days = appData.timesheet[u.id] || [];
-      const actualDays = days.filter(d => d === 'X').length;
-      const leaveDays = days.filter(d => d === 'P').length;
-      const workingDaysNorm = 22;
-      const salaryPerDay = (u.salary || 0) / workingDaysNorm;
-      const allowance = 1500000;
-      const gross = Math.round((salaryPerDay * actualDays) + allowance);
-      const bhxh = Math.round((u.salary || 0) * 0.105);
-      const net = gross - bhxh;
-
-      document.getElementById('payslip-content').innerHTML = `
-        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 grid grid-cols-2 gap-2 text-slate-700">
-          <div><strong>Mã NV:</strong> ${u.id}</div>
-          <div><strong>Họ và tên:</strong> ${u.name}</div>
-          <div><strong>Phòng ban:</strong> ${u.dept}</div>
-          <div><strong>Chức danh:</strong> ${u.title}</div>
-        </div>
-        <div class="border border-slate-200 rounded-xl overflow-hidden mt-3">
-          <table class="w-full text-left">
-            <tbody class="divide-y divide-slate-100">
-              <tr class="bg-slate-50/50"><td class="p-2 font-semibold">1. Lương cơ bản theo hợp đồng:</td><td class="p-2 text-right font-bold">${(u.salary || 0).toLocaleString('vi-VN')} đ</td></tr>
-              <tr><td class="p-2">2. Ngày công chuẩn trong tháng:</td><td class="p-2 text-right">${workingDaysNorm} ngày</td></tr>
-              <tr><td class="p-2">3. Số ngày làm việc thực tế:</td><td class="p-2 text-right font-bold text-blue-600">${actualDays} ngày (Phép: ${leaveDays} ngày)</td></tr>
-              <tr><td class="p-2">4. Lương theo ngày công:</td><td class="p-2 text-right">${Math.round(salaryPerDay * actualDays).toLocaleString('vi-VN')} đ</td></tr>
-              <tr><td class="p-2">5. Phụ cấp trách nhiệm & ăn trưa:</td><td class="p-2 text-right">${allowance.toLocaleString('vi-VN')} đ</td></tr>
-              <tr class="text-rose-600"><td class="p-2">6. Khấu trừ BHXH (10.5%):</td><td class="p-2 text-right font-medium">-${bhxh.toLocaleString('vi-VN')} đ</td></tr>
-              <tr class="bg-blue-50 text-blue-900 font-bold text-sm"><td class="p-3">THỰC LĨNH CHUYỂN KHOẢN:</td><td class="p-3 text-right text-base font-extrabold text-blue-700">${net.toLocaleString('vi-VN')} đ</td></tr>
-            </tbody>
-          </table>
-        </div>
+      html += `
+        <tr class="hover:bg-slate-50 transition">
+          <td class="py-3 px-4 font-bold text-slate-700">${t.id}</td>
+          <td class="py-3 px-4">
+            <div class="font-bold text-slate-900">${t.title}</div>
+            <div class="text-[10px] text-slate-400">${t.note || ''}</div>
+          </td>
+          <td class="py-3 px-4"><span class="px-2 py-0.5 rounded bg-slate-100 text-slate-600 font-medium">${t.type}</span></td>
+          <td class="py-3 px-4 text-slate-600">${t.assigner}</td>
+          <td class="py-3 px-4 font-semibold text-blue-700">${t.assignee}</td>
+          <td class="py-3 px-4 text-rose-600 font-semibold">${t.deadline}</td>
+          <td class="py-3 px-4 text-center">${stBadge}</td>
+          <td class="py-3 px-4 text-right">${actionBtn}</td>
+        </tr>
       `;
-      document.getElementById('modal-payslip').classList.remove('hidden');
+    });
+    tbody.innerHTML = html;
+  }
+
+  // --- RENDER 8: DOCUMENTS TABLE ---
+  function renderDocsTable() {
+    const tbody = document.getElementById('docs-tbody');
+    let html = '';
+    appData.documents.forEach(d => {
+      html += `
+        <tr class="hover:bg-slate-50 transition">
+          <td class="py-3 px-4 font-bold text-slate-800">${d.id}</td>
+          <td class="py-3 px-4 font-bold text-slate-900">${d.title}</td>
+          <td class="py-3 px-4"><span class="px-2 py-0.5 rounded bg-amber-50 text-amber-800 font-medium">${d.type}</span></td>
+          <td class="py-3 px-4 text-slate-600">${d.issuer}</td>
+          <td class="py-3 px-4 text-slate-500">${d.date}</td>
+          <td class="py-3 px-4 text-center">
+            <a href="${d.fileUrl}" target="_blank" class="px-2.5 py-1 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded text-[11px] font-semibold transition inline-flex items-center space-x-1">
+              <i class="fa-solid fa-arrow-up-right-from-square"></i>
+              <span>Xem File</span>
+            </a>
+          </td>
+          <td class="py-3 px-4 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">${d.status}</span></td>
+        </tr>
+      `;
+    });
+    tbody.innerHTML = html;
+  }
+
+  // --- WORKFLOW ACTIONS ---
+  function approveLeave(reqId) {
+    const req = appData.leaveRequests.find(r => r.id === reqId);
+    if (!req) return;
+
+    callBackend('apiApproveLeave', [reqId, currentUser.name], (res) => {
+      if (res && res.success) {
+        req.status = 'APPROVED';
+        if (!appData.timesheet[req.empId]) appData.timesheet[req.empId] = Array(31).fill('X');
+        const fromDayNum = parseInt(req.from.split('-')[2]) - 1;
+        for (let i = 0; i < req.days; i++) {
+          if (fromDayNum + i < 31) appData.timesheet[req.empId][fromDayNum + i] = 'P';
+        }
+        showToast(res.message || `Đã duyệt đơn ${req.id} thành công!`, 'success');
+        renderDashboard();
+        renderLeaveTable();
+        renderTimesheet();
+      } else {
+        showToast((res && res.message) || 'Phê duyệt đơn thất bại!', 'error');
+      }
+    }, (err) => {
+      showToast('Lỗi máy chủ khi duyệt đơn: ' + err.message, 'error');
+    });
+  }
+
+  function approveSick(sickId) {
+    const sc = appData.sickCases.find(s => s.id === sickId);
+    if (!sc) return;
+
+    callBackend('apiApproveSick', [sickId, currentUser.name], (res) => {
+      if (res && res.success) {
+        sc.status = 'APPROVED';
+        if (!appData.timesheet[sc.empId]) appData.timesheet[sc.empId] = Array(31).fill('X');
+        const fromDayNum = parseInt(sc.from.split('-')[2]) - 1;
+        for (let i = 0; i < sc.days; i++) {
+          if (fromDayNum + i < 31) appData.timesheet[sc.empId][fromDayNum + i] = 'O';
+        }
+        showToast(res.message || `Đã xác nhận hồ sơ BHXH ${sc.id} thành công!`, 'success');
+        renderDashboard();
+        renderSickTable();
+        renderTimesheet();
+      } else {
+        showToast((res && res.message) || 'Phê duyệt hồ sơ ốm đau thất bại!', 'error');
+      }
+    }, (err) => {
+      showToast('Lỗi máy chủ khi duyệt hồ sơ: ' + err.message, 'error');
+    });
+  }
+
+  function rejectLeave(reqId) {
+    if (!confirm(`Bạn có chắc chắn muốn từ chối đơn nghỉ phép [${reqId}]?`)) return;
+    const req = appData.leaveRequests.find(r => r.id === reqId);
+    if (!req) return;
+
+    callBackend('apiRejectLeave', [reqId, currentUser.name, 'Kế hoạch công tác không phù hợp'], (res) => {
+      if (res && res.success) {
+        req.status = 'REJECTED';
+        showToast(res.message || `Đã từ chối đơn ${req.id}!`, 'info');
+        renderDashboard();
+        renderLeaveTable();
+      } else {
+        showToast((res && res.message) || 'Từ chối đơn thất bại!', 'error');
+      }
+    }, (err) => {
+      showToast('Lỗi máy chủ khi từ chối đơn: ' + err.message, 'error');
+    });
+  }
+
+  function rejectSick(sickId) {
+    if (!confirm(`Bạn có chắc chắn muốn từ chối hồ sơ BHXH [${sickId}]?`)) return;
+    const sc = appData.sickCases.find(s => s.id === sickId);
+    if (!sc) return;
+
+    callBackend('apiRejectSick', [sickId, currentUser.name, 'Chứng từ y tế chưa hợp lệ'], (res) => {
+      if (res && res.success) {
+        sc.status = 'REJECTED';
+        showToast(res.message || `Đã từ chối hồ sơ ${sc.id}!`, 'info');
+        renderDashboard();
+        renderSickTable();
+      } else {
+        showToast((res && res.message) || 'Từ chối hồ sơ thất bại!', 'error');
+      }
+    }, (err) => {
+      showToast('Lỗi máy chủ khi từ chối hồ sơ: ' + err.message, 'error');
+    });
+  }
+
+  function calculatePayroll() {
+    if (!confirm('Hệ thống sẽ tổng hợp số ngày công từ bảng Chấm Công và tính lại Lương thực lĩnh cho toàn bộ nhân sự rồi lưu vào Google Sheet. Tiếp tục?')) return;
+    showToast('Đang tính lương và đồng bộ Google Sheets...', 'info');
+
+    callBackend('apiCalculateMonthlyPayroll', ['10/2026'], (res) => {
+      if (res && res.success) {
+        showToast(res.message || 'Đã tính toán và lưu Bảng Lương vào Google Sheet thành công!', 'success');
+        callBackend('apiGetPayrollData', [currentUser.email], (pRes) => {
+          if (pRes && pRes.success) {
+            appData.payroll = pRes.data;
+            renderPayrollTable();
+          }
+        });
+      } else {
+        showToast((res && res.message) || 'Tính lương thất bại!', 'error');
+      }
+    }, (err) => {
+      showToast('Lỗi máy chủ khi tính lương: ' + err.message, 'error');
+    });
+  }
+
+  function handleCreateLeave(e) {
+    e.preventDefault();
+    const type = document.getElementById('leave-type').value;
+    const days = parseInt(document.getElementById('leave-days').value) || 1;
+    const from = document.getElementById('leave-from').value;
+    const to = document.getElementById('leave-to').value;
+    const reason = document.getElementById('leave-reason').value;
+
+    const newId = 'LV-' + Math.floor(1000 + Math.random() * 9000);
+    const leaveObj = {
+      id: newId,
+      empId: currentUser.id,
+      empName: currentUser.name,
+      type: type,
+      from: from,
+      to: to,
+      days: days,
+      reason: reason,
+      status: 'PENDING'
+    };
+
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+    const originalText = submitBtn ? submitBtn.innerHTML : '';
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>Đang gửi đơn...';
     }
 
-    function populateAssigneeSelect() {
-      const select = document.getElementById('task-form-assignee');
-      if (!select) return;
-      select.innerHTML = USERS_DB.map(u => `<option value="${u.name}">${u.name} (${u.dept})</option>`).join('');
+    callBackend('apiSubmitLeave', [leaveObj], (res) => {
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
+      }
+      if (res && res.success) {
+        if (res.newId) leaveObj.id = res.newId;
+        appData.leaveRequests.unshift(leaveObj);
+        closeModal('modal-leave');
+        showToast(res.message || `Nộp đơn ${leaveObj.id} thành công!`, 'success');
+        renderDashboard();
+        renderLeaveTable();
+        switchTab('leave');
+      } else {
+        showToast((res && res.message) || 'Lỗi nộp đơn nghỉ phép!', 'error');
+      }
+    }, (err) => {
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
+      }
+      showToast('Lỗi kết nối máy chủ: ' + err.message, 'error');
+    });
+  }
+
+  function handleCreateSick(e) {
+    e.preventDefault();
+    const hospital = document.getElementById('sick-hospital').value;
+    const from = document.getElementById('sick-from').value;
+    const to = document.getElementById('sick-to').value;
+
+    let calcDays = 1;
+    if (from && to) {
+      const d1 = new Date(from);
+      const d2 = new Date(to);
+      if (!isNaN(d1.getTime()) && !isNaN(d2.getTime())) {
+        calcDays = Math.max(1, Math.round((d2 - d1) / (1000 * 60 * 60 * 24)) + 1);
+      }
     }
 
-    function openLeaveModal() {
-      document.getElementById('leave-emp-name').value = `${currentUser.id} - ${currentUser.name} (${currentUser.dept})`;
-      document.getElementById('modal-leave').classList.remove('hidden');
-    }
-    function openSickModal() {
-      document.getElementById('modal-sick').classList.remove('hidden');
-    }
-    function openTaskModal() {
-      document.getElementById('modal-task').classList.remove('hidden');
-    }
-    function openDocModal() {
-      document.getElementById('modal-doc').classList.remove('hidden');
-    }
-    function closeModal(id) {
-      document.getElementById(id).classList.add('hidden');
+    const newId = 'SC-' + Math.floor(1000 + Math.random() * 9000);
+    const sickObj = {
+      id: newId,
+      empId: currentUser.id,
+      empName: currentUser.name,
+      hospital: hospital,
+      from: from,
+      to: to,
+      days: calcDays,
+      status: 'PENDING'
+    };
+
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+    const originalText = submitBtn ? submitBtn.innerHTML : '';
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>Đang gửi hồ sơ...';
     }
 
-    let toastTimer;
-    function showToast(msg, type = 'success') {
-      clearTimeout(toastTimer);
-      const toast = document.getElementById('toast');
-      document.getElementById('toast-msg').innerText = msg;
-      toast.classList.remove('translate-y-20', 'opacity-0', 'pointer-events-none');
-      toastTimer = setTimeout(() => {
-        toast.classList.add('translate-y-20', 'opacity-0', 'pointer-events-none');
-      }, 4000);
-    }
+    callBackend('apiSubmitSick', [sickObj], (res) => {
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
+      }
+      if (res && res.success) {
+        if (res.newId) sickObj.id = res.newId;
+        appData.sickCases.unshift(sickObj);
+        closeModal('modal-sick');
+        showToast(res.message || `Nộp hồ sơ ốm đau ${sickObj.id} (${calcDays} ngày) thành công!`, 'success');
+        renderDashboard();
+        renderSickTable();
+        switchTab('sick');
+      } else {
+        showToast((res && res.message) || 'Lỗi nộp hồ sơ ốm đau!', 'error');
+      }
+    }, (err) => {
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
+      }
+      showToast('Lỗi kết nối máy chủ: ' + err.message, 'error');
+    });
+  }
 
-    function initApp() {
-      renderDashboard();
-      renderEmployees();
-      renderTimesheet();
-      renderLeaveTable();
-      renderSickTable();
-      renderPayrollTable();
+  function handleSaveTask(e) {
+    e.preventDefault();
+    const title = document.getElementById('task-form-title').value.trim();
+    const type = document.getElementById('task-form-type').value;
+    const assignee = document.getElementById('task-form-assignee').value;
+    const deadline = document.getElementById('task-form-deadline').value;
+    const note = document.getElementById('task-form-note').value;
+    const newId = 'CV-' + Math.floor(100 + Math.random() * 900);
+
+    const taskObj = {
+      id: newId,
+      title: title,
+      type: type,
+      assigner: currentUser.name,
+      assignee: assignee,
+      deadline: deadline,
+      status: 'Đang xử lý',
+      note: note
+    };
+
+    appData.tasks.unshift(taskObj);
+    closeModal('modal-task');
+    renderTasksTable();
+    renderDashboard();
+    switchTab('tasks');
+
+    callBackend('apiSaveTask', [taskObj], (res) => {
+      if (res && res.success) {
+        showToast(`Giao việc [${newId}] cho ${assignee} thành công (Đã lưu Sheet)!`, 'success');
+      } else {
+        appData.tasks = appData.tasks.filter(x => x.id !== newId);
+        renderTasksTable();
+        renderDashboard();
+        showToast((res && res.message) || 'Lưu công việc thất bại!', 'error');
+      }
+    }, (err) => {
+      appData.tasks = appData.tasks.filter(x => x.id !== newId);
       renderTasksTable();
+      renderDashboard();
+      showToast('Lỗi máy chủ khi lưu công việc: ' + err.message, 'error');
+    });
+  }
+
+  function markTaskDone(taskId) {
+    const t = appData.tasks.find(x => x.id === taskId);
+    if (!t) return;
+    const prevStatus = t.status;
+    t.status = 'Hoàn thành';
+    renderTasksTable();
+    renderDashboard();
+
+    callBackend('apiUpdateTaskStatus', [taskId, 'Hoàn thành'], (res) => {
+      if (res && res.success) {
+        showToast(`Đã xác nhận hoàn thành công việc [${taskId}] (Đã cập nhật Sheet)!`, 'success');
+      } else {
+        t.status = prevStatus;
+        renderTasksTable();
+        renderDashboard();
+        showToast((res && res.message) || 'Cập nhật trạng thái thất bại!', 'error');
+      }
+    }, (err) => {
+      t.status = prevStatus;
+      renderTasksTable();
+      renderDashboard();
+      showToast('Lỗi máy chủ: ' + err.message, 'error');
+    });
+  }
+
+  function handleSaveDoc(e) {
+    e.preventDefault();
+    const id = document.getElementById('doc-form-id').value.trim();
+    const type = document.getElementById('doc-form-type').value;
+    const title = document.getElementById('doc-form-title').value.trim();
+    const issuer = document.getElementById('doc-form-issuer').value.trim();
+    const url = document.getElementById('doc-form-url').value.trim();
+
+    const docObj = {
+      id: id,
+      title: title,
+      type: type,
+      issuer: issuer,
+      date: UtilitiesFormatToday(),
+      fileUrl: url,
+      status: 'Hiệu lực'
+    };
+
+    appData.documents.unshift(docObj);
+    closeModal('modal-doc');
+    renderDocsTable();
+    switchTab('docs');
+
+    callBackend('apiSaveDocument', [docObj], (res) => {
+      if (res && res.success) {
+        showToast(`Lưu trữ văn bản [${id}] thành công (Đã lưu Sheet)!`, 'success');
+      } else {
+        appData.documents = appData.documents.filter(x => x.id !== id);
+        renderDocsTable();
+        showToast((res && res.message) || 'Lưu văn bản thất bại!', 'error');
+      }
+    }, (err) => {
+      appData.documents = appData.documents.filter(x => x.id !== id);
       renderDocsTable();
-    }
-  </script>
+      showToast('Lỗi máy chủ khi lưu văn bản: ' + err.message, 'error');
+    });
+  }
+
+  function UtilitiesFormatToday() {
+    const d = new Date();
+    return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
+  }
+
+  function printPayslip(empId) {
+    const u = USERS_DB.find(x => x.id === empId) || USERS_DB[0];
+    const payrollItem = (appData.payroll && appData.payroll.length)
+      ? appData.payroll.find(p => p.empId === empId)
+      : null;
+
+    const days = appData.timesheet[u.id] || [];
+    const leaveDays = days.filter(d => d === 'P').length;
+
+    const baseSalary = payrollItem ? payrollItem.baseSalary : (u.salary || 0);
+    const standardDays = payrollItem ? payrollItem.standardDays : 22;
+    const actualDays = payrollItem ? payrollItem.actualDays : days.filter(d => d === 'X').length;
+    const allowance = payrollItem ? payrollItem.allowance : 1500000;
+    const bhxh = payrollItem ? payrollItem.bhxh : Math.round(baseSalary * 0.105);
+    const salaryPerDay = standardDays > 0 ? (baseSalary / standardDays) : 0;
+    const salaryByDays = Math.round(salaryPerDay * actualDays);
+    const net = payrollItem ? payrollItem.netSalary : Math.max(0, salaryByDays + allowance - bhxh);
+
+    document.getElementById('payslip-content').innerHTML = `
+      <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 grid grid-cols-2 gap-2 text-slate-700">
+        <div><strong>Mã NV:</strong> ${u.id}</div>
+        <div><strong>Họ và tên:</strong> ${u.name}</div>
+        <div><strong>Phòng ban:</strong> ${u.dept}</div>
+        <div><strong>Chức danh:</strong> ${u.title}</div>
+      </div>
+      <div class="border border-slate-200 rounded-xl overflow-hidden mt-3">
+        <table class="w-full text-left">
+          <tbody class="divide-y divide-slate-100">
+            <tr class="bg-slate-50/50"><td class="p-2 font-semibold">1. Lương cơ bản theo hợp đồng:</td><td class="p-2 text-right font-bold">${baseSalary.toLocaleString('vi-VN')} đ</td></tr>
+            <tr><td class="p-2">2. Ngày công chuẩn trong tháng:</td><td class="p-2 text-right">${standardDays} ngày</td></tr>
+            <tr><td class="p-2">3. Số ngày làm việc thực tế:</td><td class="p-2 text-right font-bold text-blue-600">${actualDays} ngày (Phép: ${leaveDays} ngày)</td></tr>
+            <tr><td class="p-2">4. Lương theo ngày công:</td><td class="p-2 text-right">${salaryByDays.toLocaleString('vi-VN')} đ</td></tr>
+            <tr><td class="p-2">5. Phụ cấp trách nhiệm & ăn trưa:</td><td class="p-2 text-right">${allowance.toLocaleString('vi-VN')} đ</td></tr>
+            <tr class="text-rose-600"><td class="p-2">6. Khấu trừ BHXH (10.5%):</td><td class="p-2 text-right font-medium">-${bhxh.toLocaleString('vi-VN')} đ</td></tr>
+            <tr class="bg-blue-50 text-blue-900 font-bold text-sm"><td class="p-3">THỰC LĨNH CHUYỂN KHOẢN:</td><td class="p-3 text-right text-base font-extrabold text-blue-700">${net.toLocaleString('vi-VN')} đ</td></tr>
+          </tbody>
+        </table>
+      </div>
+    `;
+    document.getElementById('modal-payslip').classList.remove('hidden');
+  }
+
+  function populateAssigneeSelect() {
+    const select = document.getElementById('task-form-assignee');
+    if (!select) return;
+    select.innerHTML = USERS_DB.map(u => `<option value="${u.name}">${u.name} (${u.dept})</option>`).join('');
+  }
+
+  function openLeaveModal() {
+    document.getElementById('leave-emp-name').value = `${currentUser.id} - ${currentUser.name} (${currentUser.dept})`;
+    document.getElementById('modal-leave').classList.remove('hidden');
+  }
+  function openSickModal() {
+    document.getElementById('modal-sick').classList.remove('hidden');
+  }
+  function openTaskModal() {
+    document.getElementById('modal-task').classList.remove('hidden');
+  }
+  function openDocModal() {
+    document.getElementById('modal-doc').classList.remove('hidden');
+  }
+  function closeModal(id) {
+    document.getElementById(id).classList.add('hidden');
+  }
+
+  let toastTimer;
+  function showToast(msg, type = 'success') {
+    clearTimeout(toastTimer);
+    const toast = document.getElementById('toast');
+    document.getElementById('toast-msg').innerText = msg;
+    toast.classList.remove('translate-y-20', 'opacity-0', 'pointer-events-none');
+    toastTimer = setTimeout(() => {
+      toast.classList.add('translate-y-20', 'opacity-0', 'pointer-events-none');
+    }, 4000);
+  }
+
+  function initApp() {
+    renderDashboard();
+    renderEmployees();
+    renderTimesheet();
+    renderLeaveTable();
+    renderSickTable();
+    renderPayrollTable();
+    renderTasksTable();
+    renderDocsTable();
+  }
+</script>
+
 </body>
 
 </html>

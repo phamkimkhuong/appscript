@@ -13,7 +13,22 @@ function apiGetEmployees() {
     const ss = getSpreadsheet();
     const sheet = ss.getSheetByName(CONFIG.SHEET_NAMES.USERS);
     const users = sheetToObjects(sheet);
-    return { success: true, data: users };
+
+    // Sanitize: Tuyệt đối không để lộ cột Mật Khẩu ra bên ngoài API
+    const sanitized = users.map(u => ({
+      id: u["Mã NV"],
+      name: u["Họ và Tên"],
+      dept: u["Phòng Ban"],
+      title: u["Chức Vụ"],
+      role: u["Vai Trò"],
+      salary: Number(u["Lương Cơ Bản"]) || 0,
+      email: u["Email"],
+      status: u["Trạng Thái"] || "Đang làm việc",
+      startDate: u["Ngày Vào Làm"] || "",
+      phone: u["Số Điện Thoại"] || ""
+    }));
+
+    return { success: true, data: sanitized };
   } catch(err) {
     return { success: false, message: err.message };
   }
@@ -79,6 +94,7 @@ function apiSaveEmployee(emp) {
       if (attSheet) {
         const defaultDays = Array(31).fill("X");
         [3, 10, 17, 24].forEach(idx => { defaultDays[idx] = "CN"; });
+        [2, 9, 16, 23, 30].forEach(idx => { defaultDays[idx] = "T7"; });
         attSheet.appendRow([newId, emp.name, emp.dept, ...defaultDays, 22, 0, 0]);
       }
 

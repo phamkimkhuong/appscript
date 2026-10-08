@@ -72,12 +72,13 @@ function apiApproveLeave(reqId, reviewerName) {
     let targetEmpId = null;
     let fromDateStr = null;
     let numDays = 1;
+    let foundIndex = -1;
+    let currentStatus = "";
 
     for (let i = 1; i < leaveData.length; i++) {
       if (leaveData[i][0] === reqId) {
-        leaveSheet.getRange(i + 1, 9).setValue("APPROVED"); // Cột Trạng thái
-        leaveSheet.getRange(i + 1, 10).setValue(Utilities.formatDate(new Date(), CONFIG.TIMEZONE, "dd/MM/yyyy HH:mm"));
-        leaveSheet.getRange(i + 1, 11).setValue(reviewerName || "Ban Giám Đốc");
+        foundIndex = i + 1;
+        currentStatus = (leaveData[i][8] || "").toString().trim().toUpperCase();
         targetEmpId = leaveData[i][1];
         fromDateStr = leaveData[i][4];
         numDays = parseInt(leaveData[i][6]) || 1;
@@ -85,27 +86,61 @@ function apiApproveLeave(reqId, reviewerName) {
       }
     }
 
-    if (!targetEmpId) return { success: false, message: "Không tìm thấy đơn nghỉ: " + reqId };
+    if (foundIndex < 0) return { success: false, message: "Không tìm thấy đơn nghỉ: " + reqId };
 
-    // Tự động bắn vào bảng Chấm Công (ChamCong)
+    // Kiểm tra tính hợp lệ của luồng phê duyệt: Chỉ duyệt đơn đang PENDING
+    if (currentStatus === "APPROVED") {
+      return { success: false, message: `Đơn nghỉ [${reqId}] đã được phê duyệt trước đó, không thể thao tác lại!` };
+    }
+    if (currentStatus === "REJECTED") {
+      return { success: false, message: `Đơn nghỉ [${reqId}] đã bị từ chối, không thể phê duyệt trực tiếp!` };
+    }
+
+    leaveSheet.getRange(foundIndex, 9).setValue("APPROVED"); // Cột Trạng thái
+    leaveSheet.getRange(foundIndex, 10).setValue(Utilities.formatDate(new Date(), CONFIG.TIMEZONE, "dd/MM/yyyy HH:mm"));
+    leaveSheet.getRange(foundIndex, 11).setValue(reviewerName || "Ban Giám Đốc");
+
+    // Tự động bắn vào bảng Chấm Công (ChamCong) và tính lại tổng công
     const attSheet = ss.getSheetByName(CONFIG.SHEET_NAMES.ATTENDANCE);
     if (attSheet) {
       const attData = attSheet.getDataRange().getValues();
       let startDay = 1;
       try {
-        startDay = new Date(fromDateStr).getDate();
+        if (fromDateStr instanceof Date) {
+          startDay = fromDateStr.getDate();
+        } else {
+          const str = String(fromDateStr);
+          if (str.includes("-")) {
+            startDay = parseInt(str.split("-")[2]) || 1;
+          } else {
+            startDay = new Date(str).getDate() || 1;
+          }
+        }
       } catch(e) {
-        startDay = parseInt(fromDateStr.split("-")[2]) || 1;
+        startDay = 1;
       }
 
       for (let j = 1; j < attData.length; j++) {
         if (attData[j][0] === targetEmpId) {
           for (let d = 0; d < numDays; d++) {
-            const targetCol = 3 + (startDay + d); // Cột ngày tương ứng
+            const targetCol = 3 + (startDay + d); // Cột ngày tương ứng (1-indexed)
             if (targetCol <= 34) {
               attSheet.getRange(j + 1, targetCol).setValue("P");
             }
           }
+
+          // Tính lại tổng công thực (X), phép (P), ốm (O)
+          const rowVals = attSheet.getRange(j + 1, 4, 1, 31).getValues()[0];
+          let totalX = 0, totalP = 0, totalO = 0;
+          rowVals.forEach(s => {
+            if (s === "X") totalX++;
+            else if (s === "P") totalP++;
+            else if (s === "O") totalO++;
+          });
+
+          attSheet.getRange(j + 1, 35).setValue(totalX); // Tổng công
+          attSheet.getRange(j + 1, 36).setValue(totalP); // Tổng phép
+          attSheet.getRange(j + 1, 37).setValue(totalO); // Tổng ốm
           break;
         }
       }
@@ -133,6 +168,14 @@ function apiRejectLeave(reqId, reason, reviewerName) {
 
     for (let i = 1; i < data.length; i++) {
       if (data[i][0] === reqId) {
+        const currentStatus = (data[i][8] || "").toString().trim().toUpperCase();
+        if (currentStatus === "REJECTED") {
+          return { success: false, message: `Đơn nghỉ [${reqId}] đã ở trạng thái từ chối trước đó!` };
+        }
+        if (currentStatus === "APPROVED") {
+          return { success: false, message: `Đơn nghỉ [${reqId}] đã được phê duyệt và ghi nhận công. Không thể từ chối trực tiếp!` };
+        }
+
         sheet.getRange(i + 1, 9).setValue("REJECTED");
         sheet.getRange(i + 1, 10).setValue(Utilities.formatDate(new Date(), CONFIG.TIMEZONE, "dd/MM/yyyy HH:mm"));
         sheet.getRange(i + 1, 11).setValue((reviewerName || "") + " (Từ chối: " + (reason || "Không duyệt") + ")");

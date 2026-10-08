@@ -17,8 +17,14 @@ function apiGetPayrollData(userEmail) {
     const users = sheetToObjects(userSheet);
     
     const emailNorm = (userEmail || "").trim().toLowerCase();
+    if (!emailNorm) {
+      return { success: false, message: "Yêu cầu cung cấp email để xác thực danh tính!" };
+    }
     const currentUser = users.find(u => (u["Email"] || "").toLowerCase() === emailNorm);
-    const role = currentUser ? (currentUser["Vai Trò"] || CONFIG.ROLES.EMPLOYEE) : CONFIG.ROLES.EMPLOYEE;
+    if (!currentUser) {
+      return { success: false, message: "Tài khoản không tồn tại trong hệ thống. Quyền truy cập bị từ chối!" };
+    }
+    const role = currentUser["Vai Trò"] || CONFIG.ROLES.EMPLOYEE;
 
     const payrollSheet = ss.getSheetByName(CONFIG.SHEET_NAMES.PAYROLL);
     const rawPayroll = sheetToObjects(payrollSheet);
@@ -30,15 +36,17 @@ function apiGetPayrollData(userEmail) {
       title: p["Chức Vụ"],
       baseSalary: Number(p["Lương Cơ Bản"]) || 0,
       standardDays: Number(p["Công Chuẩn"]) || CONFIG.DEFAULT_WORKING_DAYS,
-      actualDays: Number(p["Công Thực"]) || 0,
+      actualDays: (p["Công Thực"] !== undefined && p["Công Thực"] !== "" && !isNaN(Number(p["Công Thực"]))) ? Number(p["Công Thực"]) : 0,
       allowance: Number(p["Phụ Cấp"]) || 0,
       bhxh: Number(p["Khấu Trừ BHXH"]) || 0,
       netSalary: Number(p["Thực Lĩnh"]) || 0,
       status: p["Trạng Thái"] || "Đã chốt lương"
     }));
 
-    if (role === CONFIG.ROLES.EMPLOYEE && currentUser) {
+    if (role === CONFIG.ROLES.EMPLOYEE) {
       payroll = payroll.filter(p => p.empId === currentUser["Mã NV"]);
+    } else if (role !== CONFIG.ROLES.HR && role !== CONFIG.ROLES.MANAGER) {
+      payroll = [];
     }
 
     return { success: true, data: payroll, role: role };
@@ -73,13 +81,17 @@ function apiCalculateMonthlyPayroll(period) {
       const attRow = attList.find(a => a["Mã NV"] === empId);
       
       const standardDays = CONFIG.DEFAULT_WORKING_DAYS;
-      const actualDays = attRow ? (Number(attRow["Tổng Công"]) || 22) : 22;
+      // Sửa lỗi P0: Ngày công bằng 0 phải giữ nguyên 0, không tự động fallback về 22
+      const actualDays = (attRow && attRow["Tổng Công"] !== undefined && attRow["Tổng Công"] !== "" && !isNaN(Number(attRow["Tổng Công"])))
+        ? Number(attRow["Tổng Công"])
+        : 0;
+
       const baseSalary = Number(u["Lương Cơ Bản"]) || 0;
-      const salaryPerDay = baseSalary / standardDays;
+      const salaryPerDay = standardDays > 0 ? (baseSalary / standardDays) : 0;
       const allowance = CONFIG.STANDARD_ALLOWANCE;
       const gross = Math.round((salaryPerDay * actualDays) + allowance);
       const bhxh = Math.round(baseSalary * CONFIG.BHXH_RATE);
-      const net = gross - bhxh;
+      const net = Math.max(0, gross - bhxh);
 
       let foundRow = -1;
       for (let r = 1; r < pData.length; r++) {
