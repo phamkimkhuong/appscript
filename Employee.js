@@ -1,149 +1,25 @@
-/**
- * ====================================================================
- * VINTECH SOLUTIONS - ENTERPRISE HRM & E-OFFICE BACKEND
- * Module: Employee.js (Quản lý Nhân sự - CRUD, Phòng ban, Chức vụ)
- * ====================================================================
- */
-
-/**
- * Lấy toàn bộ danh sách nhân viên
- */
-function apiGetEmployees() {
-  try {
-    const ss = getSpreadsheet();
-    const sheet = ss.getSheetByName(CONFIG.SHEET_NAMES.USERS);
-    const users = sheetToObjects(sheet);
-
-    // Sanitize: Tuyệt đối không để lộ cột Mật Khẩu ra bên ngoài API
-    const sanitized = users.map(u => ({
-      id: u["Mã NV"],
-      name: u["Họ và Tên"],
-      dept: u["Phòng Ban"],
-      title: u["Chức Vụ"],
-      role: u["Vai Trò"],
-      salary: Number(u["Lương Cơ Bản"]) || 0,
-      email: u["Email"],
-      status: u["Trạng Thái"] || "Đang làm việc",
-      startDate: u["Ngày Vào Làm"] || "",
-      phone: u["Số Điện Thoại"] || ""
-    }));
-
-    return { success: true, data: sanitized };
-  } catch (err) {
-    return { success: false, message: err.message };
-  }
+function saveEmployee_(emp) {
+  const auth=authorized_(['manager','hr']);
+  require_(/^[A-Za-z0-9_-]{1,80}$/.test(emp.id),'Mã nhân viên chỉ gồm chữ không dấu, số, gạch ngang hoặc gạch dưới.');
+  require_(safeText_(emp.id,80)&&safeText_(emp.name,120),'Nhập mã và tên nhân viên.');
+  require_(/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emp.email),'Email không hợp lệ.');
+  require_(['employee','manager','hr'].includes(emp.role),'Vai trò không hợp lệ.');
+  require_(Number.isFinite(Number(emp.salary))&&Number(emp.salary)>=0,'Lương không hợp lệ.');
+  const users=rows_(CONFIG.SHEET_NAMES.USERS),old=users.find(u=>u['Mã NV']===emp.id);
+  require_(emp.mode!=='add'||!old,'Mã nhân viên đã tồn tại.');
+  require_(emp.mode!=='edit'||old,'Không tìm thấy nhân viên cần sửa.');
+  require_(!users.some(u=>u['Mã NV']!==emp.id&&String(u['Email']).toLowerCase()===emp.email.toLowerCase()),'Email đã tồn tại.');
+  if(old&&old['Mã NV']===auth.empId)require_(emp.role===auth.role&&emp.status!=='Đã nghỉ việc'&&emp.email.toLowerCase()===REQUEST_CONTEXT_.email,'Không đổi vai trò, email hoặc khóa chính tài khoản đang dùng.');
+  const fields={'Mã NV':emp.id,'Họ và Tên':emp.name,'Phòng Ban':safeText_(emp.dept),'Chức Vụ':safeText_(emp.title),'Vai Trò':emp.role,'Lương Cơ Bản':Number(emp.salary),'Email':emp.email.toLowerCase(),'Trạng Thái':emp.status||'Đang làm việc','Ngày Vào Làm':emp.startDate?date_(emp.startDate).toISOString().slice(0,10):Utilities.formatDate(new Date(),CONFIG.TIMEZONE,'yyyy-MM-dd'),'Số Điện Thoại':safeText_(emp.phone)};
+  if(old)rows_(CONFIG.SHEET_NAMES.TASKS).filter(t=>t['Mã NV Phụ Trách']===old['Mã NV']).forEach(t=>saveRow_(CONFIG.SHEET_NAMES.TASKS,{'Người Phụ Trách':emp.name},t._rowIndex));
+  if(old&&Number(old['Lương Cơ Bản'])!==Number(emp.salary))rows_(CONFIG.SHEET_NAMES.PAYROLL).filter(p=>p['Mã NV']===emp.id).forEach(p=>saveRow_(CONFIG.SHEET_NAMES.PAYROLL,{'Trạng Thái':'Cần tính lại'},p._rowIndex));
+  if(!old)fields['Mật Khẩu']='123456';
+  saveRow_(CONFIG.SHEET_NAMES.USERS,fields,old&&old._rowIndex);
+  return {success:true,newId:emp.id,message:'Đã lưu nhân viên trong lượt demo.'};
 }
-
-/**
- * Thêm mới hoặc Cập nhật thông tin nhân viên 
- * @param {Object} emp - Dữ liệu nhân viên
- * @param {string} [callerEmail] - Email của người thực hiện thao tác
- */
-function apiSaveEmployee(emp, callerEmail) {
-  const auth = verifyUserAuthorization(callerEmail, [CONFIG.ROLES.MANAGER, CONFIG.ROLES.HR]);
-  if (!auth.authorized) {
-    return { success: false, message: auth.message };
-  }
-
-  const lock = LockService.getScriptLock();
-  if (!lock.tryLock(30000)) {
-    return { success: false, message: "Hệ thống đang bận ghi dữ liệu, vui lòng thử lại sau giây lát!" };
-  }
-
-  try {
-    const ss = getSpreadsheet();
-    const sheet = ss.getSheetByName(CONFIG.SHEET_NAMES.USERS);
-    const data = sheet.getDataRange().getValues();
-
-    let existingRowIndex = -1;
-    for (let i = 1; i < data.length; i++) {
-      if (data[i][0] === emp.id) {
-        existingRowIndex = i + 1; // 1-indexed trong Sheets
-        break;
-      }
-    }
-
-    if (existingRowIndex > 0) {
-      // Cập nhật thông tin nhân viên hiện có
-      // Header: Mã NV | Họ và Tên | Phòng Ban | Chức Vụ | Vai Trò | Lương Cơ Bản | Email | Mật Khẩu | Trạng Thái | Ngày Vào Làm | Số Điện Thoại
-      sheet.getRange(existingRowIndex, 2).setValue(emp.name);
-      sheet.getRange(existingRowIndex, 3).setValue(emp.dept);
-      sheet.getRange(existingRowIndex, 4).setValue(emp.title);
-      sheet.getRange(existingRowIndex, 5).setValue(emp.role);
-      sheet.getRange(existingRowIndex, 6).setValue(Number(emp.salary) || 0);
-      sheet.getRange(existingRowIndex, 7).setValue(emp.email);
-      if (emp.status) sheet.getRange(existingRowIndex, 9).setValue(emp.status);
-      if (emp.startDate) sheet.getRange(existingRowIndex, 10).setValue(emp.startDate);
-      if (emp.phone) sheet.getRange(existingRowIndex, 11).setValue(emp.phone);
-
-      return { success: true, message: `Cập nhật thành công nhân viên ${emp.id} - ${emp.name}!` };
-    } else {
-      // Thêm nhân viên mới
-      const newId = emp.id || ("VT-" + String(data.length).padStart(3, "0"));
-      const today = Utilities.formatDate(new Date(), CONFIG.TIMEZONE, "dd/MM/yyyy");
-
-      sheet.appendRow([
-        newId,
-        emp.name,
-        emp.dept,
-        emp.title,
-        emp.role || CONFIG.ROLES.EMPLOYEE,
-        Number(emp.salary) || 0,
-        emp.email,
-        "123456", // Mật khẩu mặc định
-        emp.status || "Đang làm việc",
-        emp.startDate || today,
-        emp.phone || ""
-      ]);
-
-      // Đồng thời thêm dòng chấm công kỳ hiện tại trên Sheet ChamCong cho nhân viên mới
-      const attSheet = ss.getSheetByName(CONFIG.SHEET_NAMES.ATTENDANCE);
-      if (attSheet) {
-        ensureAttendancePeriodColumn(attSheet);
-        const currentPeriod = Utilities.formatDate(new Date(), CONFIG.TIMEZONE, "MM/yyyy");
-        const { days, standardWorkingDays } = generateDefaultDaysForMonth(currentPeriod);
-        attSheet.appendRow([currentPeriod, newId, emp.name, emp.dept, ...days, standardWorkingDays, 0, 0, 0]);
-      }
-
-      return { success: true, message: `Thêm mới thành công nhân sự [${newId}] ${emp.name}!`, newId: newId };
-    }
-  } catch (err) {
-    return { success: false, message: "Lỗi lưu nhân sự: " + err.message };
-  } finally {
-    lock.releaseLock();
-  }
-}
-
-/**
- * Xóa hoặc Khóa nhân viên (Đổi trạng thái sang 'Đã nghỉ việc', kiểm tra RBAC)
- * @param {string} empId - Mã nhân viên
- * @param {string} [callerEmail] - Email của người thực hiện thao tác
- */
-function apiDeleteEmployee(empId, callerEmail) {
-  const auth = verifyUserAuthorization(callerEmail, [CONFIG.ROLES.MANAGER, CONFIG.ROLES.HR]);
-  if (!auth.authorized) {
-    return { success: false, message: auth.message };
-  }
-
-  const lock = LockService.getScriptLock();
-  if (!lock.tryLock(30000)) return { success: false, message: "Hệ thống đang bận!" };
-
-  try {
-    const ss = getSpreadsheet();
-    const sheet = ss.getSheetByName(CONFIG.SHEET_NAMES.USERS);
-    const data = sheet.getDataRange().getValues();
-
-    for (let i = 1; i < data.length; i++) {
-      if (data[i][0] === empId) {
-        // Đổi trạng thái sang Đã nghỉ việc thay vì xóa cứng để lưu lịch sử công/lương
-        sheet.getRange(i + 1, 9).setValue("Đã nghỉ việc");
-        return { success: true, message: `Đã chuyển trạng thái nhân viên ${empId} sang 'Đã nghỉ việc'!` };
-      }
-    }
-    return { success: false, message: "Không tìm thấy nhân viên: " + empId };
-  } catch (err) {
-    return { success: false, message: err.message };
-  } finally {
-    lock.releaseLock();
-  }
+function deleteEmployee_(id) {
+  const auth=authorized_(['manager','hr']);require_(id!==auth.empId,'Không khóa tài khoản đang sử dụng.');
+  const row=rows_(CONFIG.SHEET_NAMES.USERS).find(u=>u['Mã NV']===id);require_(row,'Không tìm thấy nhân viên.');
+  saveRow_(CONFIG.SHEET_NAMES.USERS,{'Trạng Thái':'Đã nghỉ việc'},row._rowIndex);
+  return {success:true,message:'Đã khóa nhân viên.'};
 }

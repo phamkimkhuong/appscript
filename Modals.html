@@ -231,7 +231,7 @@
           <select id="doc-form-status" class="w-full border border-slate-300 rounded-lg px-3 py-2 bg-white">
             <option value="Hiệu lực">Hiệu lực</option>
             <option value="Hết hiệu lực">Hết hiệu lực</option>
-            <option value="Dự thảo">Dự thảo</option>
+            <option value="Dự thảo">Dự thảo</option><option value="Tài liệu tham khảo">Tài liệu tham khảo</option>
           </select>
         </div>
       </div>
@@ -245,7 +245,7 @@
           <div id="doc-file-placeholder" class="space-y-1">
             <i class="fa-solid fa-cloud-arrow-up text-amber-600 text-xl"></i>
             <p class="text-xs font-semibold text-slate-700">Chọn tài liệu từ máy tính để tải lên Drive</p>
-            <p class="text-[11px] text-slate-400">PDF, DOCX, XLSX (tối đa 15MB)</p>
+            <p class="text-[11px] text-slate-400">PDF, DOCX, XLSX (tối đa 10MB)</p>
           </div>
           <div id="doc-file-preview" class="hidden items-center justify-center space-x-2 text-emerald-600 font-semibold text-xs">
             <i class="fa-solid fa-file-circle-check text-base"></i>
@@ -301,15 +301,15 @@
         </div>
         <div>
           <label class="block font-semibold text-slate-700 mb-1">Số ngày</label>
-          <input type="number" id="leave-days" value="2" min="1" max="10" required
+          <input type="number" id="leave-days" value="2" min="1" readonly required
             class="w-full border border-slate-300 rounded-lg px-3 py-2">
         </div>
       </div>
       <div class="grid grid-cols-2 gap-3">
         <div><label class="block font-semibold text-slate-700 mb-1">Từ ngày</label><input type="date" id="leave-from"
-            value="2026-10-10" required class="w-full border border-slate-300 rounded-lg px-3 py-2"></div>
+            value="2026-10-26" required class="w-full border border-slate-300 rounded-lg px-3 py-2"></div>
         <div><label class="block font-semibold text-slate-700 mb-1">Đến ngày</label><input type="date" id="leave-to"
-            value="2026-10-11" required class="w-full border border-slate-300 rounded-lg px-3 py-2"></div>
+            value="2026-10-27" required class="w-full border border-slate-300 rounded-lg px-3 py-2"></div>
       </div>
       <div>
         <label class="block font-semibold text-slate-700 mb-1">Lý do nghỉ cụ thể</label>
@@ -541,7 +541,7 @@
         <ul class="list-disc list-inside space-y-0.5 text-slate-700">
           <li><strong>Nhân viên:</strong> Lê Thị Phương (<code class="bg-white px-1 py-0.5 rounded text-blue-700">phuong.le@vintech.vn</code>) - Nộp đơn, xem phiếu lương của chính mình, bảo mật tiền lương.</li>
           <li><strong>Quản lý:</strong> Trần Minh Trí (<code class="bg-white px-1 py-0.5 rounded text-indigo-700">tri.tran@vintech.vn</code>) - Duyệt đơn nghỉ phép, giao việc theo văn bản, sửa bảng chấm công.</li>
-          <li><strong>HR / Kế toán:</strong> Nguyễn Thu Hương (<code class="bg-white px-1 py-0.5 rounded text-emerald-700">huong.nguyen@vintech.vn</code>) - Duyệt BHXH, yêu cầu bổ sung chứng từ, tính lương và chốt lương toàn công ty.</li>
+          <li><strong>HR / Kế toán:</strong> Nguyễn Thu Hương (<code class="bg-white px-1 py-0.5 rounded text-emerald-700">huong.nguyen@vintech.vn</code>) - Duyệt BHXH, yêu cầu bổ sung chứng từ, tính lương và tổng hợp lương toàn công ty.</li>
         </ul>
       </div>
 
@@ -553,7 +553,7 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
           <div class="p-3 rounded-xl border border-slate-200 bg-slate-50">
             <span class="font-bold text-blue-700 block mb-1">Bước 1: Nộp đơn & Upload chứng từ</span>
-            <p class="text-slate-600">Nhân viên tạo đơn nghỉ phép hoặc hồ sơ ốm đau có tải file chứng từ viện phí thật lên Google Drive.</p>
+            <p class="text-slate-600">Nhân viên tạo đơn nghỉ phép hoặc hồ sơ ốm đau có tải tệp chứng từ giả lập lên Google Drive.</p>
           </div>
           <div class="p-3 rounded-xl border border-slate-200 bg-slate-50">
             <span class="font-bold text-indigo-700 block mb-1">Bước 2: Phê duyệt / Yêu cầu bổ sung</span>
@@ -561,7 +561,7 @@
           </div>
           <div class="p-3 rounded-xl border border-slate-200 bg-slate-50">
             <span class="font-bold text-emerald-700 block mb-1">Bước 3: Chấm công đa kỳ & OT</span>
-            <p class="text-slate-600">Bảng công tự động cập nhật ký hiệu P, O, OT xuyên tháng. Xem công 28/30/31 ngày và xuất file Excel thật.</p>
+            <p class="text-slate-600">Bảng công tự động cập nhật P (hưởng lương), K (không lương), O theo ngày làm việc. Mỗi ô OT là một ngày quy đổi hệ số 1,5; ô này thay thế X, không đồng thời tính cả hai. Xem công 28/30/31 ngày và xuất file Excel thật.</p>
           </div>
           <div class="p-3 rounded-xl border border-slate-200 bg-slate-50">
             <span class="font-bold text-amber-700 block mb-1">Bước 4: Tính lương & Xem phiếu lương</span>
@@ -573,7 +573,7 @@
       <div class="p-3 bg-amber-50 rounded-xl border border-amber-200 flex items-center justify-between">
         <div>
           <span class="font-bold text-amber-900 block">Khôi phục dữ liệu mẫu (Reset Database):</span>
-          <span class="text-amber-800 text-[11px]">Bấm nút này bất cứ lúc nào để reset toàn bộ 7 bảng về dữ liệu demo chuẩn ban đầu.</span>
+          <span class="text-amber-800 text-[11px]">Bấm nút này bất cứ lúc nào để reset 7 bảng trong lượt trải nghiệm của bạn về dữ liệu demo chuẩn ban đầu.</span>
         </div>
         <button onclick="closeModal('modal-guide'); handleResetDatabase();" class="px-3 py-1.5 bg-amber-600 hover:bg-amber-500 text-white rounded-lg font-bold shrink-0 shadow-sm ml-3">
           Khôi Phục Ngay

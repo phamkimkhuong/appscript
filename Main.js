@@ -17,8 +17,16 @@ function doGet(e) {
 }
 
 /**
+ * Entry point hỗ trợ request POST
+ */
+function doPost(e) {
+  return doGet(e);
+}
+
+/**
  * Helper để nhúng các partial HTML vào template chính (nếu dùng)
  */
 function include(filename) {
+  if (!['Styles','Modals','Scripts'].includes(filename)) throw new Error('Partial không hợp lệ.');
   return HtmlService.createHtmlOutputFromFile(filename).getContent();
 }

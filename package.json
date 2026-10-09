@@ -7,7 +7,8 @@
     "type-check": "tsc -p jsconfig.json --noEmit",
     "build:preview": "node build_preview.cjs",
     "push": "clasp push -f",
-    "watch": "clasp push --watch"
+    "watch": "clasp push --watch",
+    "test": "node dev/regression.cjs && node dev/frontend-regression.cjs"
   },
   "repository": {
     "type": "git",

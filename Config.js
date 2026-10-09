@@ -6,7 +6,6 @@
  */
 
 const CONFIG = {
-  DEFAULT_SPREADSHEET_ID: "1XPliJmBsxg2-tlxqZWricZv3VCntgUVv2etVZIvmoxA",
   SHEET_NAMES: {
     USERS: "Users",
     ATTENDANCE: "ChamCong",
@@ -23,6 +22,6 @@ const CONFIG = {
   },
   DEFAULT_WORKING_DAYS: 22,
   STANDARD_ALLOWANCE: 1500000,
-  BHXH_RATE: 0.105, // 10.5%
+  BHXH_RATE: 0.105, // Quy tắc demo 10,5%; không khẳng định áp dụng pháp luật thực tế
   TIMEZONE: "GMT+7"
 };

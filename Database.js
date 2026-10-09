@@ -8,20 +8,15 @@
 /**
  * Mở Spreadsheet an toàn với try/catch và Script Properties
  */
-function getSpreadsheet() {
-  const propId = PropertiesService.getScriptProperties().getProperty("SPREADSHEET_ID");
-  const ssId = propId || CONFIG.DEFAULT_SPREADSHEET_ID;
-  try {
-    return SpreadsheetApp.openById(ssId);
-  } catch (err) {
-    throw new Error("Không thể mở Google Sheet với ID [" + ssId + "]. Vui lòng kiểm tra quyền chia sẻ!");
-  }
+function getSpreadsheet_() {
+  require_(REQUEST_CONTEXT_ && REQUEST_CONTEXT_.ss, 'Phiên chưa được xác thực.');
+  return REQUEST_CONTEXT_.ss;
 }
 
 /**
  * Chuyển đổi dữ liệu 1 Sheet thành mảng Object dựa vào dòng Header
  */
-function sheetToObjects(sheet) {
+function sheetToObjects_(sheet) {
   if (!sheet) return [];
   const data = sheet.getDataRange().getValues();
   if (data.length <= 1) return [];
@@ -50,7 +45,7 @@ function sheetToObjects(sheet) {
 /**
  * Format ngày giờ GMT+7 chuẩn VN
  */
-function formatDateVN(date) {
+function formatDateVN_(date) {
   if (!date) return "";
   const d = new Date(date);
   return Utilities.formatDate(d, CONFIG.TIMEZONE, "dd/MM/yyyy HH:mm");
@@ -62,8 +57,8 @@ function formatDateVN(date) {
  * @param {GoogleAppsScript.Spreadsheet.Spreadsheet} [customSS]
  * @param {boolean} [forceReset] - Xóa sạch dữ liệu cũ và khởi tạo mới
  */
-function setupDatabaseSheets(customSS, forceReset) {
-  const ss = customSS || getSpreadsheet();
+function setupDatabaseSheets_(customSS, forceReset) {
+  const ss = customSS || getSpreadsheet_();
 
   // Helper để lấy sheet hoặc tạo mới, tùy chọn clear nếu forceReset
   const getOrCreateSheet = (name) => {
@@ -73,6 +68,8 @@ function setupDatabaseSheets(customSS, forceReset) {
     } else if (forceReset) {
       sheet.clear();
     }
+    if(sheet.getMaxColumns()<40)sheet.insertColumnsAfter(sheet.getMaxColumns(),40-sheet.getMaxColumns());
+    sheet.getRange(1,1,sheet.getMaxRows(),sheet.getMaxColumns()).setNumberFormat("@");
     return sheet;
   };
 
@@ -130,15 +127,15 @@ function setupDatabaseSheets(customSS, forceReset) {
   let leaveSheet = getOrCreateSheet(CONFIG.SHEET_NAMES.LEAVE);
   if (leaveSheet.getLastRow() < 1) {
     leaveSheet.appendRow(["Mã Đơn", "Mã NV", "Họ và Tên", "Loại Nghỉ", "Từ Ngày", "Đến Ngày", "Số Ngày", "Lý Do", "Trạng Thái", "Ngày Duyệt", "Người Duyệt"]);
-    leaveSheet.appendRow(["LV-2610-01", "VT-001", "Lê Thị Phương", "Nghỉ phép năm", "2026-10-10", "2026-10-11", 2, "Việc gia đình ở quê", "PENDING", "", ""]);
+    leaveSheet.appendRow(["LV-2610-01", "VT-001", "Lê Thị Phương", "Nghỉ phép năm", "2026-10-14", "2026-10-15", 2, "Việc gia đình ở quê", "PENDING", "", ""]);
   }
 
   // 4. Sheet HoSoOmDau (Có hỗ trợ quy trình Yêu cầu bổ sung)
   let sickSheet = getOrCreateSheet(CONFIG.SHEET_NAMES.SICK);
   if (sickSheet.getLastRow() < 1) {
     sickSheet.appendRow(["Mã Hồ Sơ", "Mã NV", "Họ và Tên", "Cơ Sở Y Tế", "Từ Ngày", "Đến Ngày", "Số Ngày", "Chứng Từ URL", "Trạng Thái", "Ngày Duyệt", "Người Duyệt", "Ghi Chú"]);
-    sickSheet.appendRow(["SC-2610-01", "VT-005", "Đinh Thị Huyền Trang", "Bệnh viện Bạch Mai", "2026-10-12", "2026-10-13", 2, "https://drive.google.com/sample_cert.pdf", "APPROVED", "13/10/2026 09:30", "Nguyễn Thu Hương", "Đã đối chiếu chứng từ hợp lệ"]);
-    sickSheet.appendRow(["SC-2610-02", "VT-004", "Hoàng Khương Duy", "Bệnh viện Hồng Ngọc", "2026-10-20", "2026-10-21", 2, "https://drive.google.com/sample_cert2.pdf", "NEED_MORE_INFO", "21/10/2026 14:00", "Nguyễn Thu Hương", "Cần bổ sung giấy chứng nhận nghỉ việc hưởng BHXH có mộc tròn"]);
+    sickSheet.appendRow(["SC-2610-01", "VT-005", "Đinh Thị Huyền Trang", "Bệnh viện Bạch Mai", "2026-10-12", "2026-10-13", 2, "demo:sample", "APPROVED", "13/10/2026 09:30", "Nguyễn Thu Hương", "Đã đối chiếu chứng từ hợp lệ"]);
+    sickSheet.appendRow(["SC-2610-02", "VT-004", "Hoàng Khương Duy", "Bệnh viện Hồng Ngọc", "2026-10-20", "2026-10-21", 2, "demo:sample", "NEED_MORE_INFO", "21/10/2026 14:00", "Nguyễn Thu Hương", "Cần bổ sung giấy chứng nhận nghỉ việc hưởng BHXH có mộc tròn"]);
   }
 
   // 5. Sheet BangLuong
@@ -165,64 +162,45 @@ function setupDatabaseSheets(customSS, forceReset) {
   let docSheet = getOrCreateSheet(CONFIG.SHEET_NAMES.DOCUMENTS);
   if (docSheet.getLastRow() < 1) {
     docSheet.appendRow(["Số Hiệu", "Tiêu Đề Văn Bản", "Loại Văn Bản", "Cơ Quan Ban Hành", "Ngày Ban Hành", "Người Ký", "Link Tài Liệu", "Trạng Thái", "Lĩnh Vực"]);
-    docSheet.appendRow(["01/2026/QĐ-VT", "Quyết định ban hành Quy chế làm việc từ xa (Work From Home)", "Quy chế nội bộ", "Tổng Giám Đốc", "02/01/2026", "Nguyễn Văn An", "https://drive.google.com/sample_doc1.pdf", "Hiệu lực", "Quản trị & Quy chế Nội bộ"]);
-    docSheet.appendRow(["02/2026/QC-LUONG", "Quy chế tiền lương, tiền thưởng và phụ cấp nội bộ năm 2026", "Quy chế lương", "Tổng Giám Đốc", "05/01/2026", "Nguyễn Văn An", "https://drive.google.com/sample_qc_luong.pdf", "Hiệu lực", "Tiền lương & Chế độ BHXH"]);
-    docSheet.appendRow(["18/2026/TB-LUONG", "Thông báo chi trả kỳ lương Tháng 10/2026 và quyết toán công tác phí", "Thông báo trả lương", "Phòng Nhân Sự", "01/10/2026", "Nguyễn Thu Hương", "https://drive.google.com/sample_tb_luong.pdf", "Hiệu lực", "Tiền lương & Chế độ BHXH"]);
-    docSheet.appendRow(["22/2026/QĐ-TL", "Quyết định điều chỉnh bậc lương và phụ cấp trách nhiệm khối Kỹ thuật", "Quyết định điều chỉnh lương", "Tổng Giám Đốc", "15/09/2026", "Nguyễn Văn An", "https://drive.google.com/sample_qd_luong.pdf", "Hiệu lực", "Tiền lương & Chế độ BHXH"]);
-    docSheet.appendRow(["45/2019/QH14", "Bộ luật Lao động năm 2019 số 45/2019/QH14", "Văn bản pháp luật", "Quốc Hội", "20/11/2019", "Chủ tịch Quốc Hội", "https://thuvienphapluat.vn/sample", "Hiệu lực", "Chính sách Lao động & Việc làm"]);
-    docSheet.appendRow(["58/2014/QH13", "Luật Bảo hiểm xã hội năm 2014 và văn bản hướng dẫn chế độ ốm đau", "Văn bản pháp luật", "Quốc Hội", "20/11/2014", "Chủ tịch Quốc Hội", "https://thuvienphapluat.vn/sample_bhxh", "Hiệu lực", "Tiền lương & Chế độ BHXH"]);
-    docSheet.appendRow(["15/2026/TB-VT", "Thông báo lịch nghỉ Lễ và tổ chức khám sức khỏe định kỳ", "Thông báo", "Phòng Nhân Sự", "15/09/2026", "Nguyễn Thu Hương", "https://drive.google.com/sample_doc2.pdf", "Hiệu lực", "Quản trị & Quy chế Nội bộ"]);
+    docSheet.appendRow(["01/2026/QĐ-VT", "Quyết định ban hành Quy chế làm việc từ xa (Work From Home)", "Quy chế nội bộ", "Tổng Giám Đốc", "02/01/2026", "Nguyễn Văn An", "demo:sample", "Hiệu lực", "Quản trị & Quy chế Nội bộ"]);
+    docSheet.appendRow(["02/2026/QC-LUONG", "Quy chế tiền lương, tiền thưởng và phụ cấp nội bộ năm 2026", "Quy chế lương", "Tổng Giám Đốc", "05/01/2026", "Nguyễn Văn An", "demo:sample", "Hiệu lực", "Tiền lương & Chế độ BHXH"]);
+    docSheet.appendRow(["18/2026/TB-LUONG", "Thông báo chi trả kỳ lương Tháng 10/2026 và quyết toán công tác phí", "Thông báo trả lương", "Phòng Nhân Sự", "01/10/2026", "Nguyễn Thu Hương", "demo:sample", "Hiệu lực", "Tiền lương & Chế độ BHXH"]);
+    docSheet.appendRow(["22/2026/QĐ-TL", "Quyết định điều chỉnh bậc lương và phụ cấp trách nhiệm khối Kỹ thuật", "Quyết định điều chỉnh lương", "Tổng Giám Đốc", "15/09/2026", "Nguyễn Văn An", "demo:sample", "Hiệu lực", "Tiền lương & Chế độ BHXH"]);
+    docSheet.appendRow(["45/2019/QH14", "Bộ luật Lao động năm 2019 số 45/2019/QH14", "Văn bản pháp luật", "Quốc Hội", "20/11/2019", "Chủ tịch Quốc Hội", "demo:sample", "Tài liệu tham khảo", "Chính sách Lao động & Việc làm"]);
+    docSheet.appendRow(["DEMO-BHXH", "Tình huống thực hành hồ sơ ốm đau (tài liệu giả lập)", "Văn bản pháp luật", "Bộ phận đào tạo (giả lập)", "01/10/2026", "Người biên soạn demo", "demo:sample", "Tài liệu tham khảo", "Tiền lương & Chế độ BHXH"]);
+    docSheet.appendRow(["15/2026/TB-VT", "Thông báo lịch nghỉ Lễ và tổ chức khám sức khỏe định kỳ", "Thông báo", "Phòng Nhân Sự", "15/09/2026", "Nguyễn Thu Hương", "demo:sample", "Hiệu lực", "Quản trị & Quy chế Nội bộ"]);
   }
 
   Logger.log("Đã khởi tạo hoàn tất toàn bộ 7 Bảng dữ liệu chuẩn Doanh Nghiệp trên Google Sheets!");
   return { success: true, message: "Đã khởi tạo thành công 7 bảng dữ liệu!" };
 }
 
-/**
- * Khôi phục dữ liệu mẫu (Reset Demo Database) về trạng thái chuẩn ban đầu
- * @param {string} [callerEmail] - Email người gọi
- */
-function apiResetDatabase(callerEmail) {
-  const auth = verifyUserAuthorization(callerEmail, [CONFIG.ROLES.MANAGER, CONFIG.ROLES.HR]);
-  if (!auth.authorized) {
-    return { success: false, message: auth.message };
-  }
 
-  const lock = LockService.getScriptLock();
-  if (!lock.tryLock(30000)) return { success: false, message: "Hệ thống đang bận!" };
-
-  try {
-    const ss = getSpreadsheet();
-    setupDatabaseSheets(ss, true);
-    return { success: true, message: "Đã khôi phục toàn bộ 7 bảng dữ liệu mẫu về trạng thái chuẩn thành công!" };
-  } catch(err) {
-    return { success: false, message: "Lỗi khôi phục dữ liệu mẫu: " + err.message };
-  } finally {
-    lock.releaseLock();
-  }
+function rows_(name) { return sheetToObjects_(getSpreadsheet_().getSheetByName(name)); }
+function saveRow_(name,fields,rowIndex) {
+  const sheet=getSpreadsheet_().getSheetByName(name);
+  const headers=sheet.getDataRange().getValues()[0].map(String);
+  Object.keys(fields).forEach(key=>{if(!headers.includes(key))headers.push(key);});
+  if(sheet.getMaxColumns()<headers.length)sheet.insertColumnsAfter(sheet.getMaxColumns(),headers.length-sheet.getMaxColumns());
+  const targetRow=rowIndex||sheet.getLastRow()+1;
+  if(targetRow>sheet.getMaxRows())sheet.insertRowsAfter(sheet.getMaxRows(),targetRow-sheet.getMaxRows());
+  sheet.getRange(1,1,1,headers.length).setValues([headers]);
+  sheet.getRange(targetRow,1,1,headers.length).setNumberFormat("@");
+  const old=rowIndex?sheet.getRange(rowIndex,1,1,headers.length).getValues()[0]:[];
+  const values=headers.map((key,i)=>{
+    const val=Object.prototype.hasOwnProperty.call(fields,key)?fields[key]:(old[i]===undefined?'':old[i]);
+    return typeof val==='string'&&/^[=+@]/.test(val)?"'"+val:val;
+  });
+  sheet.getRange(rowIndex||sheet.getLastRow()+1,1,1,headers.length).setValues([values]);
 }
-
-/**
- * TỰ ĐỘNG TẠO 1 FILE GOOGLE SHEET MỚI TINH TRÊN DRIVE CỦA BẠN
- * và tự động sinh đủ 7 sheet chuẩn cho VinTech Solutions
- */
-function createNewDatabaseSheet() {
-  const newSS = SpreadsheetApp.create("VinTech Solutions - Enterprise HRM & E-Office Database");
-  const newId = newSS.getId();
-  const newUrl = newSS.getUrl();
-
-  // Khởi tạo 7 bảng mẫu vào Sheet mới tạo
-  setupDatabaseSheets(newSS);
-
-  // Lưu ID này vào Script Properties để toàn bộ Web App tự động chuyển sang dùng Sheet mới
-  PropertiesService.getScriptProperties().setProperty("SPREADSHEET_ID", newId);
-
-  Logger.log("=================================================================");
-  Logger.log(" ĐÃ TẠO THÀNH CÔNG GOOGLE SHEET MỚI CHO VINTECH SOLUTIONS!");
-  Logger.log(" Tên file: VinTech Solutions - Enterprise HRM & E-Office Database");
-  Logger.log(" Spreadsheet ID: " + newId);
-  Logger.log(" Đường link xem trực tiếp: " + newUrl);
-  Logger.log("=================================================================");
-
-  return { success: true, id: newId, url: newUrl };
+function resetWorkspace_() {
+  require_(REQUEST_CONTEXT_&&REQUEST_CONTEXT_.workspace,'Không có không gian demo.');
+  setupDatabaseSheets_(getSpreadsheet_(),true);
+  const users=rows_(CONFIG.SHEET_NAMES.USERS);
+  rows_(CONFIG.SHEET_NAMES.TASKS).forEach(task=>{
+    const user=users.find(u=>u['Họ và Tên']===task['Người Phụ Trách']);
+    saveRow_(CONFIG.SHEET_NAMES.TASKS,{'Mã NV Phụ Trách':user?user['Mã NV']:''},task._rowIndex);
+  });
+  ['10/2026','11/2026'].forEach(period=>calculatePayrollInternal_(period));
+  return {success:true,message:'Đã khôi phục dữ liệu trong lượt trải nghiệm của bạn.'};
 }

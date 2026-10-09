@@ -64,3 +64,11 @@
     font-weight: 600;
   }
 </style>
+
+<style>
+.tab-pane > div:has(> table) { overflow-x:auto; }
+.cell-k { background:#ffe4e6;color:#9f1239; }
+[id^="modal-"] > div { max-height:92vh;overflow-y:auto; }
+button:disabled{opacity:.45;cursor:not-allowed;}
+@media(max-width:640px){#screen-app header p{display:none;} .tab-pane table{min-width:720px;} #pane-payroll>div:first-child{flex-wrap:wrap;gap:12px;} }
+</style>

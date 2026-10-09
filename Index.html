@@ -46,7 +46,7 @@
       </div>
 
       <!-- Login Form -->
-      <form onsubmit="handleLoginSubmit(event)" class="space-y-4 relative">
+      <form onsubmit="event.preventDefault(); handleLoginSubmit(event); return false;" class="space-y-4 relative">
         <div>
           <label for="login-username" class="block text-xs font-semibold text-slate-300 mb-1.5 cursor-pointer">Tài khoản
             / Email nội bộ</label>
@@ -73,7 +73,7 @@
           class="w-full py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold shadow-lg shadow-blue-600/30 transition duration-150 flex items-center justify-center space-x-2">
           <span>Đăng Nhập Hệ Thống</span>
         </button>
-      </form>
+      </form><div class="mt-4 text-xs text-slate-300"><p>Doanh nghiệp giả lập • dữ liệu riêng cho mỗi lượt thực hành.</p><div class="flex flex-wrap gap-2 mt-2"><button onclick="fillAndLogin('phuong.le@vintech.vn')">Nhân viên</button><button onclick="fillAndLogin('tri.tran@vintech.vn')">Quản lý</button><button onclick="fillAndLogin('huong.nguyen@vintech.vn')">HR/Kế toán</button></div><p class="mt-2">Mật khẩu demo: 123456. Đăng xuất rồi chọn vai trò khác để tiếp tục cùng dữ liệu.</p></div>
     </div>
   </div>
 
@@ -112,7 +112,7 @@
           </div>
 
           <!-- Nút Hướng Dẫn Demo -->
-          <button onclick="openModal('modal-guide')" title="Xem hướng dẫn các luồng & kịch bản demo chấm thi"
+          <button onclick="openGuideModal()" title="Xem hướng dẫn các luồng & kịch bản demo chấm thi"
             class="text-xs bg-slate-800 hover:bg-indigo-900/40 text-slate-300 hover:text-indigo-300 border border-slate-700 hover:border-indigo-500/50 px-2.5 py-1.5 rounded-xl flex items-center space-x-1.5 transition">
             <i class="fa-solid fa-circle-question text-indigo-400"></i>
             <span class="hidden md:inline font-semibold">Hướng Dẫn Demo</span>
@@ -250,7 +250,7 @@
           <div
             class="bg-white p-4.5 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md hover:border-slate-300 transition duration-150">
             <div class="flex items-center justify-between">
-              <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Quỹ Lương Kỳ Này</span>
+              <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500"><span id="kpi-payroll-label">Quỹ lương</span></span>
               <div
                 class="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xs shadow-xs">
                 <i class="fa-solid fa-money-bill-wave"></i>
@@ -271,7 +271,7 @@
             </div>
             <div class="mt-2 text-2xl font-extrabold text-teal-600"><span id="kpi-working-today">4</span> / <span
                 id="kpi-total-emp-sub">5</span></div>
-            <p class="text-[11px] text-slate-500 font-medium mt-0.5">Tỷ lệ chuyên cần 92%</p>
+            <p class="text-[11px] text-slate-500 font-medium mt-0.5"><span id="kpi-attendance-rate">—</span></p>
           </div>
 
           <div
@@ -297,7 +297,7 @@
               </div>
             </div>
             <div id="kpi-active-tasks" class="mt-2 text-2xl font-extrabold text-indigo-600">3</div>
-            <p class="text-[11px] text-slate-500 font-medium mt-0.5">Gắn văn bản chỉ đạo</p>
+            <p class="text-xs text-slate-500">Văn bản chờ xử lý: <span id="kpi-pending-docs">0</span></p>
           </div>
         </div>
 
@@ -434,8 +434,8 @@
               <span
                 class="px-1.5 py-0.5 rounded cell-ot bg-purple-100 text-purple-800 font-bold border border-purple-200">OT:
                 Làm thêm</span>
-              <span class="px-1.5 py-0.5 rounded cell-p">P: Nghỉ phép</span>
-              <span class="px-1.5 py-0.5 rounded cell-o">O: Nghỉ ốm</span>
+              <span class="px-1.5 py-0.5 rounded cell-p">P: Phép hưởng lương</span>
+              <span class="px-1.5 py-0.5 rounded cell-o">K: Không lương • O: Nghỉ ốm</span>
               <span class="px-1.5 py-0.5 rounded cell-cn">CN: Chủ nhật</span>
               <span class="px-1.5 py-0.5 rounded cell-t7">T7: Thứ bảy</span>
             </div>
@@ -544,7 +544,7 @@
             </h2>
             <p class="text-xs text-slate-500" id="payroll-desc">Tự động kết xuất từ dữ liệu chấm công thực tế</p>
           </div>
-          <div class="flex items-center space-x-2">
+          <div class="flex flex-wrap items-center gap-2"><select id="payroll-period-select" onchange="changeTimesheetPeriod(this.value)" class="border rounded p-2 text-xs"><option value="10/2026">Tháng 10/2026</option><option value="11/2026">Tháng 11/2026</option></select>
             <button id="btn-calc-payroll" onclick="calculatePayroll()"
               class="hidden px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-blue-600 hover:bg-blue-500 text-white shadow-sm flex items-center space-x-1.5 transition">
               <i class="fa-solid fa-calculator"></i>
@@ -592,7 +592,7 @@
             </h2>
             <p class="text-xs text-slate-500">Quản lý nhiệm vụ phòng ban, người phụ trách và hạn hoàn thành</p>
           </div>
-          <button onclick="openTaskModal()"
+          <button data-manager-only onclick="openTaskModal()"
             class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-semibold shadow-md flex items-center space-x-1.5 transition">
             <i class="fa-solid fa-plus"></i>
             <span>Giao Việc Mới</span>
@@ -633,7 +633,7 @@
             <p class="text-xs text-slate-500">Lưu trữ văn bản hành chính, quyết định nội bộ và tra cứu văn bản pháp luật
             </p>
           </div>
-          <button onclick="openDocModal()"
+          <button data-manager-only onclick="openDocModal()"
             class="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-xl text-xs font-semibold shadow-md flex items-center space-x-1.5 transition">
             <i class="fa-solid fa-upload"></i>
             <span>Thêm Văn Bản Mới</span>
