@@ -15,9 +15,9 @@ function doGet(e) {
   var scripts = HtmlService.createHtmlOutputFromFile("Scripts").getContent();
 
   var html = index
-    .replace(/<\?!=\s*include\(['"]Styles['"]\);\s*\?>/g, styles)
-    .replace(/<\?!=\s*include\(['"]Modals['"]\);\s*\?>/g, modals)
-    .replace(/<\?!=\s*include\(['"]Scripts['"]\);\s*\?>/g, scripts);
+    .replace(/<\?!=\s*include\(['"]Styles['"]\);\s*\?>/g, function() { return styles; })
+    .replace(/<\?!=\s*include\(['"]Modals['"]\);\s*\?>/g, function() { return modals; })
+    .replace(/<\?!=\s*include\(['"]Scripts['"]\);\s*\?>/g, function() { return scripts; });
 
   return HtmlService.createHtmlOutput(html)
     .setTitle("VinTech Solutions - Cổng Quản Trị Nhân Sự & Văn Phòng Số Doanh Nghiệp")

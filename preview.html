@@ -171,7 +171,7 @@ button:disabled{opacity:.45;cursor:not-allowed;}
       </div>
 
       <!-- Login Form -->
-      <form onsubmit="event.preventDefault(); handleLoginSubmit(event); return false;" class="space-y-4 relative">
+      <form id="login-form" onsubmit="event.preventDefault(); (window.handleLoginSubmit || handleLoginSubmit)(event); return false;" class="space-y-4 relative">
         <div>
           <label for="login-username" class="block text-xs font-semibold text-slate-300 mb-1.5 cursor-pointer">Tài khoản
             / Email nội bộ</label>
@@ -1447,7 +1447,14 @@ button:disabled{opacity:.45;cursor:not-allowed;}
   const emptyAppData = () => ({ timesheet:{},timesheetByPeriod:{},leaveRequests:[],sickCases:[],tasks:[],documents:[],payroll:[] });
   let appData = emptyAppData();
   let authToken = '';
-  let workspaceKey = sessionStorage.getItem('vintech-workspace') || '';
+  let workspaceKey = '';
+  try {
+    if (typeof sessionStorage !== 'undefined' && sessionStorage) {
+      workspaceKey = sessionStorage.getItem('vintech-workspace') || '';
+    }
+  } catch (err) {
+    workspaceKey = '';
+  }
   let loadingData = false;
   let requestVersion = 0;
   let authGeneration = 0;
@@ -1540,6 +1547,12 @@ button:disabled{opacity:.45;cursor:not-allowed;}
     document.getElementById('login-username').value = email;
     document.getElementById('login-password').value = '123456';
     handleLoginSubmit(null);
+  }
+
+  // Gắn tường minh vào window để mọi chế độ iframe/sandbox đều gọi được từ inline onsubmit
+  if (typeof window !== 'undefined') {
+    window.handleLoginSubmit = handleLoginSubmit;
+    window.fillAndLogin = fillAndLogin;
   }
 
   function loginAsUser(user) {
@@ -3207,10 +3220,30 @@ button:disabled{opacity:.45;cursor:not-allowed;}
     const target=event.target.closest('[data-attachment-kind]');
     if(target&&!target.onclick)viewAttachment(target.dataset.attachmentKind,target.dataset.attachmentId,target.dataset.download==='true');
   });
-  ['leave-from','leave-to'].forEach(id=>document.getElementById(id).addEventListener('change',()=>{
-    document.getElementById('leave-days').value=workingDayCount(document.getElementById('leave-from').value,document.getElementById('leave-to').value);
-  }));
+  ['leave-from','leave-to'].forEach(id=>{
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('change',()=>{
+        const target = document.getElementById('leave-days');
+        if (target) target.value=workingDayCount(document.getElementById('leave-from').value,document.getElementById('leave-to').value);
+      });
+    }
+  });
 
+  // Tự động gắn sự kiện submit trực tiếp vào form đăng nhập
+  function bindLoginForm() {
+    const form = document.getElementById('login-form') || document.querySelector('#screen-login form');
+    if (form && !form.__bound) {
+      form.__bound = true;
+      form.addEventListener('submit', handleLoginSubmit);
+    }
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', bindLoginForm);
+  } else {
+    bindLoginForm();
+  }
+  console.log('VinTech Solutions - Client scripts loaded.');
 </script>
 
 </body>
