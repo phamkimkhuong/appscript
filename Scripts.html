@@ -1,5 +1,6 @@
 <script>
-// Initial in-memory data store (hoạt động song song với Google Sheets)
+  //# sourceURL=scripts.js
+  // Initial in-memory data store (hoạt động song song với Google Sheets)
   let USERS_DB = [];
   const emptyAppData = () => ({ timesheet:{},timesheetByPeriod:{},leaveRequests:[],sickCases:[],tasks:[],documents:[],payroll:[] });
   let appData = emptyAppData();
@@ -385,12 +386,13 @@
         `;
       }
 
+      const defaultAvatar = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=faces';
       html += `
         <tr class="hover:bg-slate-50 transition">
           <td class="py-3 px-4 font-bold text-slate-800">${escapeHtml(u.id)}</td>
           <td class="py-3 px-4">
             <div class="flex items-center space-x-2.5">
-              <img src="${escapeHtml(u.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=faces')}" class="w-7 h-7 rounded-full object-cover border border-slate-200">
+              <img src="${escapeHtml(u.avatar || defaultAvatar)}" class="w-7 h-7 rounded-full object-cover border border-slate-200">
               <div>
                 <div class="font-bold text-slate-900">${escapeHtml(u.name)}</div>
                 <div class="text-[10px] text-slate-400">${escapeHtml(u.email)}</div>
@@ -750,7 +752,7 @@
     const crc=bytes=>{let c=0xffffffff;for(const b of bytes){c^=b;for(let k=0;k<8;k++)c=(c>>>1)^((c&1)?0xedb88320:0);}return (c^0xffffffff)>>>0;};
     const locals=[],central=[];let offset=0;
     for(const [path,value] of Object.entries(files)) {
-      const name=enc.encode(path),data=enc.encode('<?xml version="1.0" encoding="UTF-8"?>'+value),checksum=crc(data);
+      const name=enc.encode(path),data=enc.encode('<'+'?xml version="1.0" encoding="UTF-8"?'+'>'+value),checksum=crc(data);
       const local=new Uint8Array(30+name.length+data.length),v=new DataView(local.buffer);
       v.setUint32(0,0x04034b50,true);v.setUint16(4,20,true);v.setUint16(12,33,true);v.setUint32(14,checksum,true);v.setUint32(18,data.length,true);v.setUint32(22,data.length,true);v.setUint16(26,name.length,true);local.set(name,30);local.set(data,30+name.length);locals.push(local);
       const directory=new Uint8Array(46+name.length),d=new DataView(directory.buffer);
