@@ -173,6 +173,7 @@ function apiApproveSick(sickId, callerEmail) {
 
     let targetEmpId = null;
     let fromDateStr = null;
+    let toDateStr = null;
     let numDays = 1;
     let foundIndex = -1;
     let currentStatus = "";
@@ -183,6 +184,7 @@ function apiApproveSick(sickId, callerEmail) {
         currentStatus = (sickData[i][8] || "").toString().trim().toUpperCase();
         targetEmpId = sickData[i][1];
         fromDateStr = sickData[i][4];
+        toDateStr = sickData[i][5];
         numDays = parseInt(sickData[i][6]) || 1;
         break;
       }
@@ -203,53 +205,10 @@ function apiApproveSick(sickId, callerEmail) {
     sickSheet.getRange(foundIndex, 10).setValue(Utilities.formatDate(new Date(), CONFIG.TIMEZONE, "dd/MM/yyyy HH:mm"));
     sickSheet.getRange(foundIndex, 11).setValue(reviewerName);
 
-    // Tự động bắn vào bảng Chấm Công (ChamCong) với ký hiệu 'O' và tính lại công
-    const attSheet = ss.getSheetByName(CONFIG.SHEET_NAMES.ATTENDANCE);
-    if (attSheet) {
-      const attData = attSheet.getDataRange().getValues();
-      let startDay = 1;
-      try {
-        if (fromDateStr instanceof Date) {
-          startDay = fromDateStr.getDate();
-        } else {
-          const str = String(fromDateStr);
-          if (str.includes("-")) {
-            startDay = parseInt(str.split("-")[2]) || 1;
-          } else {
-            startDay = new Date(str).getDate() || 1;
-          }
-        }
-      } catch(e) {
-        startDay = 1;
-      }
+    // Tự động bắn vào bảng Chấm Công đa kỳ (Hỗ trợ nghỉ xuyên tháng, ví dụ 30/10 đến 02/11)
+    syncLeaveRangeToAttendance(targetEmpId, fromDateStr, toDateStr, numDays, "O");
 
-      for (let j = 1; j < attData.length; j++) {
-        if (attData[j][0] === targetEmpId) {
-          for (let d = 0; d < numDays; d++) {
-            const targetCol = 3 + (startDay + d);
-            if (targetCol <= 34) {
-              attSheet.getRange(j + 1, targetCol).setValue("O");
-            }
-          }
-
-          // Tính lại tổng công thực (X), phép (P), ốm (O)
-          const rowVals = attSheet.getRange(j + 1, 4, 1, 31).getValues()[0];
-          let totalX = 0, totalP = 0, totalO = 0;
-          rowVals.forEach(s => {
-            if (s === "X") totalX++;
-            else if (s === "P") totalP++;
-            else if (s === "O") totalO++;
-          });
-
-          attSheet.getRange(j + 1, 35).setValue(totalX); // Tổng công
-          attSheet.getRange(j + 1, 36).setValue(totalP); // Tổng phép
-          attSheet.getRange(j + 1, 37).setValue(totalO); // Tổng ốm
-          break;
-        }
-      }
-    }
-
-    return { success: true, message: `Đã phê duyệt chế độ BHXH cho hồ sơ [${sickId}] và đồng bộ ký hiệu [O] vào Bảng Chấm Công!` };
+    return { success: true, message: `Đã phê duyệt chế độ BHXH cho hồ sơ [${sickId}] và đồng bộ ký hiệu [O] vào Bảng Chấm Công đa kỳ!` };
   } catch(err) {
     return { success: false, message: "Lỗi duyệt hồ sơ BHXH: " + err.message };
   } finally {
@@ -305,9 +264,115 @@ function apiRejectSick(sickId, reason, callerEmail) {
     }
     return { success: false, message: "Không tìm thấy hồ sơ: " + sickId };
   } catch(err) {
-    return { success: false, message: err.message };
+    return { success: false, message: "Lỗi từ chối hồ sơ: " + err.message };
   } finally {
     lock.releaseLock();
   }
 }
+
+/**
+ * Yêu cầu nhân viên bổ sung chứng từ / thông tin hồ sơ ốm đau BHXH (HR & Ban Quản Lý)
+ * @param {string} sickId - Mã hồ sơ SC-...
+ * @param {string} note - Nội dung lý do yêu cầu bổ sung
+ * @param {string} [callerEmail] - Email HR/Quản lý
+ */
+function apiAskMoreInfoSick(sickId, note, callerEmail) {
+  const auth = verifyUserAuthorization(callerEmail, [CONFIG.ROLES.HR, CONFIG.ROLES.MANAGER]);
+  if (!auth.authorized) {
+    return { success: false, message: auth.message };
+  }
+
+  const lock = LockService.getScriptLock();
+  if (!lock.tryLock(30000)) return { success: false, message: "Hệ thống đang bận!" };
+
+  try {
+    const ss = getSpreadsheet();
+    const sickSheet = ss.getSheetByName(CONFIG.SHEET_NAMES.SICK);
+    const data = sickSheet.getDataRange().getValues();
+
+    // Đảm bảo cột 12 có tiêu đề "Ghi Chú"
+    if (data[0].length < 12) {
+      sickSheet.getRange(1, 12).setValue("Ghi Chú");
+    }
+
+    for (let i = 1; i < data.length; i++) {
+      if (data[i][0] === sickId) {
+        const reviewerName = auth.name || "HR / Ban Quản Lý";
+        sickSheet.getRange(i + 1, 9).setValue("NEED_MORE_INFO");
+        sickSheet.getRange(i + 1, 10).setValue(Utilities.formatDate(new Date(), CONFIG.TIMEZONE, "dd/MM/yyyy HH:mm"));
+        sickSheet.getRange(i + 1, 11).setValue(reviewerName);
+        sickSheet.getRange(i + 1, 12).setValue(note || "Cần bổ sung thêm chứng từ y tế hợp lệ có dấu mộc tròn");
+        return { success: true, message: `Đã gửi yêu cầu bổ sung chứng từ cho hồ sơ [${sickId}]!` };
+      }
+    }
+    return { success: false, message: "Không tìm thấy hồ sơ: " + sickId };
+  } catch (err) {
+    return { success: false, message: "Lỗi yêu cầu bổ sung: " + err.message };
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+/**
+ * Nhân viên nộp bổ sung chứng từ hoặc cập nhật thông tin hồ sơ ốm đau bị yêu cầu bổ sung
+ * Chuyển trạng thái về PENDING để HR/Quản lý duyệt lại
+ * @param {string} sickId - Mã hồ sơ
+ * @param {Object} form - { hospital, from, to, days, fileData, note }
+ * @param {string} [callerEmail] - Email người gọi
+ */
+function apiResubmitSick(sickId, form, callerEmail) {
+  const auth = verifyUserAuthorization(callerEmail);
+  if (!auth.authorized) {
+    return { success: false, message: auth.message };
+  }
+
+  const lock = LockService.getScriptLock();
+  if (!lock.tryLock(30000)) return { success: false, message: "Hệ thống đang bận!" };
+
+  try {
+    const ss = getSpreadsheet();
+    const sickSheet = ss.getSheetByName(CONFIG.SHEET_NAMES.SICK);
+    const data = sickSheet.getDataRange().getValues();
+
+    for (let i = 1; i < data.length; i++) {
+      if (data[i][0] === sickId) {
+        const empId = data[i][1];
+        // Nhân viên chỉ được bổ sung hồ sơ của chính mình (HR/Manager thì có thể hỗ trợ)
+        if (auth.role === CONFIG.ROLES.EMPLOYEE && empId !== auth.empId) {
+          return { success: false, message: "Bạn chỉ có quyền bổ sung hồ sơ của chính mình!" };
+        }
+
+        let newDocUrl = data[i][7];
+        if (form.fileData && form.fileData.base64) {
+          const uploadedUrl = uploadSickDocToDrive(form.fileData, empId, sickId);
+          if (uploadedUrl) newDocUrl = uploadedUrl;
+        }
+
+        if (form.hospital) sickSheet.getRange(i + 1, 4).setValue(form.hospital);
+        if (form.from) sickSheet.getRange(i + 1, 5).setValue(form.from);
+        if (form.to) sickSheet.getRange(i + 1, 6).setValue(form.to);
+        if (form.days) sickSheet.getRange(i + 1, 7).setValue(Number(form.days) || 1);
+        sickSheet.getRange(i + 1, 8).setValue(newDocUrl);
+        sickSheet.getRange(i + 1, 9).setValue("PENDING"); // Đổi lại về PENDING chờ duyệt
+        sickSheet.getRange(i + 1, 10).setValue(Utilities.formatDate(new Date(), CONFIG.TIMEZONE, "dd/MM/yyyy HH:mm"));
+
+        const oldNote = (data[i][11] || "").toString();
+        const resubmitNote = (form.note ? form.note + " | " : "") + "Đã nộp bổ sung chứng từ mới";
+        sickSheet.getRange(i + 1, 12).setValue(resubmitNote);
+
+        return {
+          success: true,
+          message: `Đã nộp bổ sung hồ sơ [${sickId}] thành công! Hồ sơ chuyển sang trạng thái chờ duyệt.`,
+          docUrl: newDocUrl
+        };
+      }
+    }
+    return { success: false, message: "Không tìm thấy hồ sơ: " + sickId };
+  } catch (err) {
+    return { success: false, message: "Lỗi nộp bổ sung: " + err.message };
+  } finally {
+    lock.releaseLock();
+  }
+}
+
 

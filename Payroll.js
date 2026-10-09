@@ -69,29 +69,42 @@ function apiCalculateMonthlyPayroll(period, callerEmail) {
     const userSheet = ss.getSheetByName(CONFIG.SHEET_NAMES.USERS);
     const users = sheetToObjects(userSheet);
 
+    const periodStr = period || "10/2026";
     const attSheet = ss.getSheetByName(CONFIG.SHEET_NAMES.ATTENDANCE);
+    if (attSheet) {
+      ensureAttendancePeriodColumn(attSheet);
+      initPeriodAttendanceIfMissing(attSheet, periodStr, users);
+    }
     const attList = sheetToObjects(attSheet);
 
     const payrollSheet = ss.getSheetByName(CONFIG.SHEET_NAMES.PAYROLL);
     // Xóa dữ liệu cũ của kỳ lương này nếu đã tồn tại để cập nhật mới
     const pData = payrollSheet.getDataRange().getValues();
-    const periodStr = period || "10/2026";
+
+    const monthInfo = generateDefaultDaysForMonth(periodStr);
+    const standardDays = monthInfo.standardWorkingDays || CONFIG.DEFAULT_WORKING_DAYS;
 
     // Duyệt qua từng nhân viên đang làm việc
     users.filter(u => u["Trạng Thái"] !== "Đã nghỉ việc").forEach(u => {
       const empId = u["Mã NV"];
-      const attRow = attList.find(a => a["Mã NV"] === empId);
+      // Tìm dòng chấm công tương ứng chính xác với kỳ lương này
+      const attRow = attList.find(a => (a["Mã Kỳ Công"] || "10/2026") === periodStr && a["Mã NV"] === empId);
       
-      const standardDays = CONFIG.DEFAULT_WORKING_DAYS;
-      // Sửa lỗi P0: Ngày công bằng 0 phải giữ nguyên 0, không tự động fallback về 22
+      // Ngày công thực tế theo kỳ (nếu 0 công thì giữ nguyên 0)
       const actualDays = (attRow && attRow["Tổng Công"] !== undefined && attRow["Tổng Công"] !== "" && !isNaN(Number(attRow["Tổng Công"])))
         ? Number(attRow["Tổng Công"])
+        : 0;
+
+      // Số ngày làm thêm OT (tính thêm 150% lương/ngày)
+      const otDays = (attRow && attRow["Tổng OT"] !== undefined && attRow["Tổng OT"] !== "" && !isNaN(Number(attRow["Tổng OT"])))
+        ? Number(attRow["Tổng OT"])
         : 0;
 
       const baseSalary = Number(u["Lương Cơ Bản"]) || 0;
       const salaryPerDay = standardDays > 0 ? (baseSalary / standardDays) : 0;
       const allowance = CONFIG.STANDARD_ALLOWANCE;
-      const gross = Math.round((salaryPerDay * actualDays) + allowance);
+      const otPay = Math.round(salaryPerDay * 1.5 * otDays);
+      const gross = Math.round((salaryPerDay * actualDays) + allowance + otPay);
       const bhxh = Math.round(baseSalary * CONFIG.BHXH_RATE);
       const net = Math.max(0, gross - bhxh);
 

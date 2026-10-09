@@ -49,7 +49,7 @@ function apiLogin(email, password) {
  * API Lấy dữ liệu khởi tạo toàn bộ ứng dụng dựa theo quyền người dùng (Initial Payload)
  * Đảm bảo nguyên tắc bảo mật: Nhân viên thường không được xem lương người khác!
  */
-function apiGetInitialAppData(userEmail) {
+function apiGetInitialAppData(userEmail, requestedPeriod) {
   try {
     const ss = getSpreadsheet();
 
@@ -81,19 +81,25 @@ function apiGetInitialAppData(userEmail) {
       phone: u["Số Điện Thoại"] || ""
     }));
 
-    // 2. Chấm công (Timesheet map)
+    // 2. Chấm công (Timesheet map theo kỳ tháng/năm)
+    const targetPeriod = (requestedPeriod || "10/2026").trim();
     const attSheet = ss.getSheetByName(CONFIG.SHEET_NAMES.ATTENDANCE);
-    const rawAtt = sheetToObjects(attSheet);
     const timesheetMap = {};
-    rawAtt.forEach(row => {
-      const empId = row["Mã NV"];
-      if (!empId) return;
-      const days = [];
-      for (let d = 1; d <= 31; d++) {
-        days.push(row["Ngày " + d] || "X");
-      }
-      timesheetMap[empId] = days;
-    });
+    if (attSheet) {
+      ensureAttendancePeriodColumn(attSheet);
+      initPeriodAttendanceIfMissing(attSheet, targetPeriod, rawUsers);
+      const rawAtt = sheetToObjects(attSheet);
+      const periodRows = rawAtt.filter(r => (r["Mã Kỳ Công"] || "10/2026") === targetPeriod);
+      periodRows.forEach(row => {
+        const empId = row["Mã NV"];
+        if (!empId) return;
+        const days = [];
+        for (let d = 1; d <= 31; d++) {
+          days.push(row["Ngày " + d] || "");
+        }
+        timesheetMap[empId] = days;
+      });
+    }
 
     // 3. Đơn nghỉ phép
     const leaveSheet = ss.getSheetByName(CONFIG.SHEET_NAMES.LEAVE);
@@ -126,7 +132,8 @@ function apiGetInitialAppData(userEmail) {
       docUrl: s["Chứng Từ URL"],
       status: s["Trạng Thái"] || "PENDING",
       approvedAt: s["Ngày Duyệt"],
-      approvedBy: s["Người Duyệt"]
+      approvedBy: s["Người Duyệt"],
+      note: s["Ghi Chú"] || ""
     }));
 
     // 5. Bảng lương
@@ -183,13 +190,15 @@ function apiGetInitialAppData(userEmail) {
       date: d["Ngày Ban Hành"],
       signer: d["Người Ký"],
       fileUrl: d["Link Tài Liệu"],
-      status: d["Trạng Thái"] || "Hiệu lực"
+      status: d["Trạng Thái"] || "Hiệu lực",
+      category: d["Lĩnh Vực"] || "Quản trị nội bộ"
     }));
 
     return {
       success: true,
       data: {
         users: sanitizedUsers,
+        period: targetPeriod,
         timesheet: timesheetMap,
         leaves: leaves,
         sickCases: sickCases,

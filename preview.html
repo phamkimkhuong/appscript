@@ -66,6 +66,12 @@
     font-weight: 700;
   }
 
+  .cell-ot {
+    background-color: #f3e8ff;
+    color: #6b21a8;
+    font-weight: 800;
+  }
+
   .cell-l {
     background-color: #f3e8ff;
     color: #7e22ce;
@@ -108,20 +114,20 @@
       <!-- Login Form -->
       <form onsubmit="handleLoginSubmit(event)" class="space-y-4 relative">
         <div>
-          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Tài khoản / Email nội bộ</label>
+          <label for="login-username" class="block text-xs font-semibold text-slate-300 mb-1.5 cursor-pointer">Tài khoản / Email nội bộ</label>
           <div class="relative">
-            <i class="fa-regular fa-envelope absolute left-3.5 top-3 text-slate-500 text-xs"></i>
-            <input type="text" id="login-username" required placeholder="phuong.le@vintech.vn"
-              class="w-full bg-slate-800/80 border border-slate-700 rounded-xl pl-9 pr-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            <i class="fa-regular fa-envelope absolute left-3.5 top-3 text-slate-500 text-xs pointer-events-none"></i>
+            <input type="email" id="login-username" required placeholder="Nhập email (VD: phuong.le@vintech.vn)" autocomplete="username"
+              class="w-full bg-slate-800/80 border border-slate-700 rounded-xl pl-9 pr-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-text">
           </div>
         </div>
 
         <div>
-          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Mật khẩu</label>
+          <label for="login-password" class="block text-xs font-semibold text-slate-300 mb-1.5 cursor-pointer">Mật khẩu</label>
           <div class="relative">
-            <i class="fa-solid fa-lock absolute left-3.5 top-3 text-slate-500 text-xs"></i>
-            <input type="password" id="login-password" required value="123456" placeholder="••••••••"
-              class="w-full bg-slate-800/80 border border-slate-700 rounded-xl pl-9 pr-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            <i class="fa-solid fa-lock absolute left-3.5 top-3 text-slate-500 text-xs pointer-events-none"></i>
+            <input type="password" id="login-password" required value="" placeholder="Nhập mật khẩu..." autocomplete="current-password"
+              class="w-full bg-slate-800/80 border border-slate-700 rounded-xl pl-9 pr-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-text">
           </div>
         </div>
 
@@ -130,6 +136,8 @@
           <span>Đăng Nhập Hệ Thống</span>
         </button>
       </form>
+
+
     </div>
   </div>
 
@@ -160,15 +168,29 @@
         </div>
 
         <!-- Sync Indicator & Profile Menu -->
-        <div class="flex items-center space-x-4">
+        <div class="flex items-center space-x-2 sm:space-x-3">
           <div id="sync-status"
-            class="hidden sm:flex items-center space-x-1.5 text-xs text-emerald-400 bg-emerald-950/40 border border-emerald-800/40 px-3 py-1 rounded-full">
+            class="hidden lg:flex items-center space-x-1.5 text-xs text-emerald-400 bg-emerald-950/40 border border-emerald-800/40 px-3 py-1 rounded-full">
             <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-            <span class="font-medium">Google Sheets Connected</span>
+            <span class="font-medium">Google Sheets Live</span>
           </div>
 
+          <!-- Nút Hướng Dẫn Demo -->
+          <button onclick="openModal('modal-guide')" title="Xem hướng dẫn các luồng & kịch bản demo chấm thi"
+            class="text-xs bg-slate-800 hover:bg-indigo-900/40 text-slate-300 hover:text-indigo-300 border border-slate-700 hover:border-indigo-500/50 px-2.5 py-1.5 rounded-xl flex items-center space-x-1.5 transition">
+            <i class="fa-solid fa-circle-question text-indigo-400"></i>
+            <span class="hidden md:inline font-semibold">Hướng Dẫn Demo</span>
+          </button>
+
+          <!-- Nút Khôi Phục Dữ Liệu Demo -->
+          <button onclick="handleResetDatabase()" title="Khôi phục toàn bộ 7 bảng dữ liệu mẫu chuẩn"
+            class="text-xs bg-slate-800 hover:bg-amber-900/40 text-slate-300 hover:text-amber-300 border border-slate-700 hover:border-amber-500/50 px-2.5 py-1.5 rounded-xl flex items-center space-x-1.5 transition">
+            <i class="fa-solid fa-arrows-rotate text-amber-400"></i>
+            <span class="hidden md:inline font-semibold">Khôi Phục Demo</span>
+          </button>
+
           <!-- User info -->
-          <div class="flex items-center space-x-3">
+          <div class="flex items-center space-x-2.5 pl-1 border-l border-slate-800">
             <img id="user-avatar" src="" class="w-8 h-8 rounded-full border border-slate-700 object-cover" alt="Avatar">
             <div class="text-left hidden sm:block">
               <div id="user-name" class="text-xs font-bold text-white leading-tight">--</div>
@@ -249,14 +271,16 @@
         <!-- Banner Greeting -->
         <div
           class="bg-gradient-to-r from-slate-950 via-slate-900 to-indigo-950 rounded-2xl p-6 text-white shadow-xl border border-slate-800 flex flex-col md:flex-row items-start md:items-center justify-between gap-5 relative overflow-hidden">
-          <div class="absolute -right-10 -bottom-10 w-44 h-44 bg-blue-600/10 rounded-full blur-3xl pointer-events-none"></div>
+          <div class="absolute -right-10 -bottom-10 w-44 h-44 bg-blue-600/10 rounded-full blur-3xl pointer-events-none">
+          </div>
           <div class="relative z-10">
             <div class="flex items-center space-x-2.5">
               <h2 class="text-2xl font-extrabold tracking-tight">Xin chào, <span id="greet-name">--</span> 👋</h2>
               <span id="greet-badge"
                 class="px-3 py-0.5 rounded-full text-xs font-bold bg-blue-500/25 text-blue-300 border border-blue-400/40">--</span>
             </div>
-            <p class="text-slate-300 text-sm mt-1.5 font-medium">Chúc bạn một ngày làm việc tràn đầy năng lượng tại VinTech Solutions!</p>
+            <p class="text-slate-300 text-sm mt-1.5 font-medium">Chúc bạn một ngày làm việc tràn đầy năng lượng tại
+              VinTech Solutions!</p>
           </div>
           <div class="flex items-center space-x-3 shrink-0 relative z-10">
             <button onclick="openLeaveModal()"
@@ -273,57 +297,79 @@
         </div>
 
         <!-- Metric Cards -->
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md hover:border-slate-300 transition duration-150">
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5">
+          <div
+            class="bg-white p-4.5 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md hover:border-slate-300 transition duration-150">
             <div class="flex items-center justify-between">
-              <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Quân Số Nhân Sự</span>
-              <div class="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-sm shadow-sm"><i
-                  class="fa-solid fa-users"></i></div>
+              <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Quân Số Nhân Sự</span>
+              <div
+                class="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-xs shadow-xs">
+                <i class="fa-solid fa-users"></i></div>
             </div>
             <div id="kpi-total-emp" class="mt-2 text-2xl font-extrabold text-slate-900">5</div>
-            <p class="text-xs text-slate-500 font-medium mt-0.5">3 phòng ban chức năng</p>
+            <p class="text-[11px] text-slate-500 font-medium mt-0.5">3 phòng ban chức năng</p>
           </div>
 
-          <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md hover:border-slate-300 transition duration-150">
+          <div
+            class="bg-white p-4.5 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md hover:border-slate-300 transition duration-150">
             <div class="flex items-center justify-between">
-              <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Đi Làm Hôm Nay</span>
-              <div class="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-sm shadow-sm"><i
-                  class="fa-solid fa-user-check"></i></div>
+              <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Quỹ Lương Kỳ Này</span>
+              <div
+                class="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xs shadow-xs">
+                <i class="fa-solid fa-money-bill-wave"></i></div>
             </div>
-            <div class="mt-2 text-2xl font-extrabold text-emerald-600"><span id="kpi-working-today">4</span> / <span
-                id="kpi-total-emp-sub">5</span></div>
-            <p class="text-xs text-slate-500 font-medium mt-0.5">Tỷ lệ chuyên cần 92.4%</p>
+            <div id="kpi-payroll-total" class="mt-2 text-xl font-extrabold text-emerald-700 truncate">-- đ</div>
+            <p class="text-[11px] text-emerald-600 font-medium mt-0.5" id="kpi-payroll-status">Đã chốt lương kỳ này</p>
           </div>
 
-          <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md hover:border-slate-300 transition duration-150">
+          <div
+            class="bg-white p-4.5 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md hover:border-slate-300 transition duration-150">
             <div class="flex items-center justify-between">
-              <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Đơn Chờ Xử Lý</span>
-              <div class="w-9 h-9 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-sm shadow-sm"><i
-                  class="fa-solid fa-clock-rotate-left"></i></div>
+              <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Đi Làm Hôm Nay</span>
+              <div
+                class="w-8 h-8 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center text-xs shadow-xs">
+                <i class="fa-solid fa-user-check"></i></div>
+            </div>
+            <div class="mt-2 text-2xl font-extrabold text-teal-600"><span id="kpi-working-today">4</span> / <span
+                id="kpi-total-emp-sub">5</span></div>
+            <p class="text-[11px] text-slate-500 font-medium mt-0.5">Tỷ lệ chuyên cần 92%</p>
+          </div>
+
+          <div
+            class="bg-white p-4.5 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md hover:border-slate-300 transition duration-150">
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Đơn & Hồ Sơ Chờ</span>
+              <div
+                class="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-xs shadow-xs">
+                <i class="fa-solid fa-clock-rotate-left"></i></div>
             </div>
             <div id="kpi-pending-total" class="mt-2 text-2xl font-extrabold text-amber-600">0</div>
-            <p class="text-xs text-slate-500 font-medium mt-0.5">Nghỉ phép & chế độ BHXH</p>
+            <p class="text-[11px] text-slate-500 font-medium mt-0.5">Phép & Chế độ BHXH</p>
           </div>
 
-          <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md hover:border-slate-300 transition duration-150">
+          <div
+            class="bg-white p-4.5 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md hover:border-slate-300 transition duration-150 col-span-2 sm:col-span-1">
             <div class="flex items-center justify-between">
-              <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Nhiệm Vụ Đang Chạy</span>
-              <div class="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-sm shadow-sm"><i
-                  class="fa-solid fa-list-check"></i></div>
+              <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Nhiệm Vụ Đang Chạy</span>
+              <div
+                class="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-xs shadow-xs">
+                <i class="fa-solid fa-list-check"></i></div>
             </div>
             <div id="kpi-active-tasks" class="mt-2 text-2xl font-extrabold text-indigo-600">3</div>
-            <p class="text-xs text-slate-500 font-medium mt-0.5">Kỳ đánh giá Q4/2026</p>
+            <p class="text-[11px] text-slate-500 font-medium mt-0.5">Gắn văn bản chỉ đạo</p>
           </div>
         </div>
 
         <!-- Workflow Review Box -->
         <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm">
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4 pb-3 border-b border-slate-100">
+          <div
+            class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4 pb-3 border-b border-slate-100">
             <h3 class="text-base font-bold text-slate-900 flex items-center space-x-2.5">
               <i class="fa-solid fa-bell text-amber-500 text-base"></i>
               <span>Danh Sách Đơn Cần Phê Duyệt & Xử Lý</span>
             </h3>
-            <span id="role-notice" class="text-xs font-semibold px-3 py-1 rounded-full bg-slate-100 text-slate-600 border border-slate-200/80 w-fit"></span>
+            <span id="role-notice"
+              class="text-xs font-semibold px-3 py-1 rounded-full bg-slate-100 text-slate-600 border border-slate-200/80 w-fit"></span>
           </div>
           <div id="dash-pending-list" class="space-y-3">
             <!-- Rendered by JS -->
@@ -412,42 +458,60 @@
         <div
           class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div class="flex flex-wrap items-center gap-3">
-            <span class="text-xs font-bold text-slate-500 uppercase">Kỳ Chấm Công: Tháng 10/2026</span>
-            <div class="flex items-center space-x-2 text-[11px] font-semibold text-slate-600">
+            <!-- Bộ chọn kỳ chấm công Đa kỳ (Tháng/Năm) -->
+            <div class="flex items-center space-x-1.5 bg-slate-100 p-1 rounded-xl border border-slate-200">
+              <button onclick="prevTimesheetPeriod()" title="Kỳ trước"
+                class="w-7 h-7 flex items-center justify-center rounded-lg bg-white shadow-xs text-slate-700 hover:text-blue-600 transition">
+                <i class="fa-solid fa-chevron-left text-xs"></i>
+              </button>
+              <div class="flex items-center space-x-1.5 px-2">
+                <i class="fa-solid fa-calendar-days text-blue-600 text-xs"></i>
+                <select id="timesheet-period-select" onchange="changeTimesheetPeriod(this.value)"
+                  class="bg-transparent text-xs font-bold text-slate-800 focus:outline-none cursor-pointer py-0.5">
+                  <option value="09/2026">Tháng 09/2026</option>
+                  <option value="10/2026" selected>Tháng 10/2026</option>
+                  <option value="11/2026">Tháng 11/2026</option>
+                  <option value="12/2026">Tháng 12/2026</option>
+                  <option value="01/2027">Tháng 01/2027</option>
+                  <option value="02/2027">Tháng 02/2027 (28 ngày)</option>
+                  <option value="03/2027">Tháng 03/2027</option>
+                </select>
+              </div>
+              <button onclick="nextTimesheetPeriod()" title="Kỳ kế tiếp"
+                class="w-7 h-7 flex items-center justify-center rounded-lg bg-white shadow-xs text-slate-700 hover:text-blue-600 transition">
+                <i class="fa-solid fa-chevron-right text-xs"></i>
+              </button>
+            </div>
+
+            <span id="timesheet-days-badge"
+              class="px-2 py-1 rounded-lg bg-blue-50 text-blue-700 font-bold text-[11px] border border-blue-200/60">
+              31 ngày (22 công chuẩn)
+            </span>
+
+            <div class="flex items-center space-x-1.5 text-[11px] font-semibold text-slate-600">
               <span class="px-1.5 py-0.5 rounded cell-x">X: Đi làm</span>
+              <span
+                class="px-1.5 py-0.5 rounded cell-ot bg-purple-100 text-purple-800 font-bold border border-purple-200">OT:
+                Làm thêm</span>
               <span class="px-1.5 py-0.5 rounded cell-p">P: Nghỉ phép</span>
               <span class="px-1.5 py-0.5 rounded cell-o">O: Nghỉ ốm</span>
               <span class="px-1.5 py-0.5 rounded cell-cn">CN: Chủ nhật</span>
+              <span class="px-1.5 py-0.5 rounded cell-t7">T7: Thứ bảy</span>
             </div>
           </div>
-          <button onclick="showToast('Dữ liệu chấm công đang được đồng bộ trực tiếp với Google Sheets!', 'success')"
+          <button onclick="exportTimesheetExcel()"
             class="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm flex items-center space-x-1.5 transition">
             <i class="fa-solid fa-file-excel"></i>
-            <span>Xuất Báo Cáo Google Sheet / Excel</span>
+            <span>Xuất Báo Cáo Excel (.xls)</span>
           </button>
         </div>
 
         <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
           <div class="overflow-x-auto max-h-[600px]">
             <table class="w-full border-collapse text-xs text-left" id="timesheet-table">
-              <thead class="bg-slate-900 text-white sticky top-0 z-20">
-                <tr>
-                  <th
-                    class="py-3 px-3 font-semibold sticky left-0 bg-slate-900 z-30 min-w-[70px] text-center border-r border-slate-800">
-                    Mã NV</th>
-                  <th
-                    class="py-3 px-3 font-semibold sticky left-[70px] bg-slate-900 z-30 min-w-[170px] border-r border-slate-800">
-                    Họ và Tên</th>
-                  <th class="py-3 px-2 font-semibold min-w-[90px] border-r border-slate-800 text-center">Phòng Ban</th>
-                  <script>
-                    for (let d = 1; d <= 31; d++) {
-                      const isSunday = (d % 7 === 4);
-                      document.write(`<th class="p-1 font-semibold text-center border-r border-slate-800 matrix-cell ${isSunday ? 'bg-rose-950 text-rose-300' : ''}">${d}</th>`);
-                    }
-                  </script>
-                  <th class="py-3 px-2 font-bold text-center bg-blue-900 text-white min-w-[65px]">Công Thực</th>
-                  <th class="py-3 px-2 font-bold text-center bg-indigo-900 text-white min-w-[55px]">Phép (P)</th>
-                  <th class="py-3 px-2 font-bold text-center bg-amber-900 text-white min-w-[55px]">Ốm (O)</th>
+              <thead class="bg-slate-900 text-white sticky top-0 z-20" id="timesheet-thead">
+                <tr id="timesheet-header-tr">
+                  <!-- Header cột ngày được sinh động theo số ngày của kỳ (28, 30 hoặc 31 ngày) -->
                 </tr>
               </thead>
               <tbody id="timesheet-tbody" class="divide-y divide-slate-100">
@@ -520,6 +584,7 @@
                 <th class="py-3 px-3 text-center">Số Ngày</th>
                 <th class="py-3 px-4 text-center">Chứng Từ Viện Phí</th>
                 <th class="py-3 px-4 text-center">Trạng Thái</th>
+                <th class="py-3 px-4">Ghi Chú / Phản Hồi</th>
                 <th class="py-3 px-4 text-right">Thao Tác</th>
               </tr>
             </thead>
@@ -534,7 +599,8 @@
       <section id="pane-payroll" class="tab-pane hidden space-y-4">
         <div class="flex items-center justify-between">
           <div>
-            <h2 class="text-lg font-bold text-slate-900">Bảng Lương Doanh Nghiệp (Tháng 10/2026)</h2>
+            <h2 class="text-lg font-bold text-slate-900" id="payroll-period-title">Bảng Lương Doanh Nghiệp (Kỳ 10/2026)
+            </h2>
             <p class="text-xs text-slate-500" id="payroll-desc">Tự động kết xuất từ dữ liệu chấm công thực tế</p>
           </div>
           <div class="flex items-center space-x-2">
@@ -561,6 +627,7 @@
                 <th class="py-3 px-4 text-right">Lương Cơ Bản</th>
                 <th class="py-3 px-3 text-center">Công Chuẩn</th>
                 <th class="py-3 px-3 text-center">Công Thực</th>
+                <th class="py-3 px-3 text-center text-purple-700 font-bold">Làm Thêm (OT)</th>
                 <th class="py-3 px-4 text-right">Phụ Cấp</th>
                 <th class="py-3 px-4 text-right font-bold text-blue-700">Thực Lĩnh (VND)</th>
                 <th class="py-3 px-4 text-center">Thao Tác</th>
@@ -632,6 +699,41 @@
           </button>
         </div>
 
+        <!-- Search & Filter Controls -->
+        <div
+          class="bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col md:flex-row items-stretch md:items-center gap-3">
+          <div class="relative flex-grow">
+            <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-400 text-xs"></i>
+            <input type="text" id="doc-search-input" oninput="filterDocuments()"
+              placeholder="Tìm kiếm văn bản theo số hiệu, trích yếu, cơ quan ban hành..."
+              class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-3.5 py-2 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-500">
+          </div>
+          <div class="flex flex-wrap sm:flex-nowrap items-center gap-2 shrink-0">
+            <select id="doc-type-filter" onchange="filterDocuments()"
+              class="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-700 cursor-pointer focus:outline-none focus:ring-2 focus:ring-amber-500">
+              <option value="all">Tất cả loại văn bản</option>
+              <option value="salary_docs"> Văn bản tiền lương (3 loại)</option>
+              <option value="Quy chế nội bộ">Quy chế nội bộ</option>
+              <option value="Quy chế lương">Quy chế lương</option>
+              <option value="Thông báo trả lương">Thông báo trả lương</option>
+              <option value="Quyết định điều chỉnh lương">Quyết định điều chỉnh lương</option>
+              <option value="Văn bản pháp luật">Văn bản pháp luật</option>
+              <option value="Thông báo">Thông báo</option>
+              <option value="Quyết định">Quyết định</option>
+            </select>
+            <select id="doc-category-filter" onchange="filterDocuments()"
+              class="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-700 cursor-pointer focus:outline-none focus:ring-2 focus:ring-amber-500">
+              <option value="all">Tất cả lĩnh vực tra cứu</option>
+              <option value="Chính sách Lao động & Việc làm">Lao động & Việc làm</option>
+              <option value="Tiền lương & Chế độ BHXH">Tiền lương & BHXH</option>
+              <option value="Thuế & Kế toán Doanh nghiệp">Thuế & Kế toán</option>
+              <option value="Quản trị & Quy chế Nội bộ">Quản trị & Quy chế</option>
+              <option value="An toàn Vệ sinh Lao động">An toàn vệ sinh LĐ</option>
+              <option value="Công nghệ & Bảo mật">Công nghệ & Bảo mật</option>
+            </select>
+          </div>
+        </div>
+
         <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
           <table class="w-full text-xs text-left">
             <thead class="bg-slate-100/80 text-slate-700 uppercase font-semibold text-[11px] border-b border-slate-200">
@@ -639,6 +741,7 @@
                 <th class="py-3 px-4">Số Hiệu</th>
                 <th class="py-3 px-4">Trích Yếu / Tiêu Đề</th>
                 <th class="py-3 px-4">Loại Văn Bản</th>
+                <th class="py-3 px-4">Lĩnh Vực</th>
                 <th class="py-3 px-4">Cơ Quan Ban Hành</th>
                 <th class="py-3 px-4">Ngày Ban Hành</th>
                 <th class="py-3 px-4 text-center">Tài Liệu</th>
@@ -822,47 +925,114 @@
   </div>
 </div>
 
-<!-- MODAL 3: THÊM VĂN BẢN (DOCUMENT MODAL) -->
+<!-- MODAL 3: THÊM / SỬA VĂN BẢN (DOCUMENT MODAL) -->
 <div id="modal-doc"
   class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
-  <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200">
+  <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 max-h-[92vh] overflow-y-auto">
     <div class="flex items-center justify-between pb-3 border-b border-slate-100">
-      <h3 class="text-base font-bold text-slate-900">Lưu Trữ Văn Bản & Quy Chế Mới</h3>
+      <h3 id="modal-doc-title" class="text-base font-bold text-slate-900">Lưu Trữ Văn Bản & Quy Chế Mới</h3>
       <button onclick="closeModal('modal-doc')" class="text-slate-400 hover:text-slate-600"><i
           class="fa-solid fa-xmark"></i></button>
     </div>
-    <form onsubmit="handleSaveDoc(event)" class="mt-4 space-y-3.5 text-xs">
+    <form id="form-doc" onsubmit="handleSaveDoc(event)" class="mt-4 space-y-3.5 text-xs">
+      <input type="hidden" id="doc-form-mode" value="add">
+      <input type="hidden" id="doc-form-orig-id" value="">
+
       <div class="grid grid-cols-2 gap-3">
-        <div><label class="block font-semibold text-slate-700 mb-1">Số hiệu</label><input type="text" id="doc-form-id"
-            placeholder="05/2026/QĐ-VT" required class="w-full border border-slate-300 rounded-lg px-3 py-2"></div>
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Số hiệu văn bản</label>
+          <input type="text" id="doc-form-id" placeholder="05/2026/QĐ-VT" required
+            class="w-full border border-slate-300 rounded-lg px-3 py-2">
+        </div>
         <div>
           <label class="block font-semibold text-slate-700 mb-1">Loại văn bản</label>
           <select id="doc-form-type" class="w-full border border-slate-300 rounded-lg px-3 py-2 bg-white">
             <option value="Quy chế nội bộ">Quy chế nội bộ</option>
+            <option value="Quy chế lương">Quy chế lương (Văn bản lương)</option>
+            <option value="Thông báo trả lương">Thông báo trả lương (Văn bản lương)</option>
+            <option value="Quyết định điều chỉnh lương">Quyết định điều chỉnh lương (Văn bản lương)</option>
             <option value="Văn bản pháp luật">Văn bản pháp luật</option>
             <option value="Thông báo">Thông báo</option>
             <option value="Quyết định">Quyết định</option>
           </select>
         </div>
       </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Lĩnh vực tra cứu</label>
+          <select id="doc-form-category" class="w-full border border-slate-300 rounded-lg px-3 py-2 bg-white font-medium">
+            <option value="Chính sách Lao động & Việc làm">Chính sách Lao động & Việc làm</option>
+            <option value="Tiền lương & Chế độ BHXH">Tiền lương & Chế độ BHXH</option>
+            <option value="Thuế & Kế toán Doanh nghiệp">Thuế & Kế toán Doanh nghiệp</option>
+            <option value="Quản trị & Quy chế Nội bộ" selected>Quản trị & Quy chế Nội bộ</option>
+            <option value="An toàn Vệ sinh Lao động">An toàn Vệ sinh Lao động</option>
+            <option value="Công nghệ & Bảo mật">Công nghệ & Bảo mật</option>
+          </select>
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Ngày ban hành</label>
+          <input type="date" id="doc-form-date" required class="w-full border border-slate-300 rounded-lg px-3 py-2">
+        </div>
+      </div>
+
       <div>
         <label class="block font-semibold text-slate-700 mb-1">Trích yếu / Tiêu đề văn bản</label>
         <input type="text" id="doc-form-title" placeholder="Quy định sử dụng tài sản doanh nghiệp..." required
           class="w-full border border-slate-300 rounded-lg px-3 py-2">
       </div>
+
       <div class="grid grid-cols-2 gap-3">
-        <div><label class="block font-semibold text-slate-700 mb-1">Cơ quan / Người ký</label><input type="text"
-            id="doc-form-issuer" placeholder="Tổng Giám Đốc" required
-            class="w-full border border-slate-300 rounded-lg px-3 py-2"></div>
-        <div><label class="block font-semibold text-slate-700 mb-1">Link tài liệu (Drive/Web)</label><input type="text"
-            id="doc-form-url" value="https://drive.google.com/sample.pdf"
-            class="w-full border border-slate-300 rounded-lg px-3 py-2"></div>
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Cơ quan ban hành / Ký</label>
+          <input type="text" id="doc-form-issuer" placeholder="Tổng Giám Đốc" required
+            class="w-full border border-slate-300 rounded-lg px-3 py-2">
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Trạng thái hiệu lực</label>
+          <select id="doc-form-status" class="w-full border border-slate-300 rounded-lg px-3 py-2 bg-white">
+            <option value="Hiệu lực">Hiệu lực</option>
+            <option value="Hết hiệu lực">Hết hiệu lực</option>
+            <option value="Dự thảo">Dự thảo</option>
+          </select>
+        </div>
       </div>
-      <div class="pt-3 flex justify-end space-x-2">
+
+      <div>
+        <label class="block font-semibold text-slate-700 mb-1">Đính kèm file tài liệu lên Google Drive (PDF, Word, Excel)</label>
+        <div class="border-2 border-dashed border-slate-300 hover:border-amber-500 rounded-xl bg-slate-50 p-3.5 text-center cursor-pointer transition"
+          onclick="document.getElementById('doc-file-input').click()">
+          <input type="file" id="doc-file-input" accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg" class="hidden"
+            onchange="handleDocFileSelected(event)">
+          <div id="doc-file-placeholder" class="space-y-1">
+            <i class="fa-solid fa-cloud-arrow-up text-amber-600 text-xl"></i>
+            <p class="text-xs font-semibold text-slate-700">Chọn tài liệu từ máy tính để tải lên Drive</p>
+            <p class="text-[11px] text-slate-400">PDF, DOCX, XLSX (tối đa 15MB)</p>
+          </div>
+          <div id="doc-file-preview" class="hidden items-center justify-center space-x-2 text-emerald-600 font-semibold text-xs">
+            <i class="fa-solid fa-file-circle-check text-base"></i>
+            <span id="doc-file-name" class="truncate max-w-[200px] text-slate-800"></span>
+            <span id="doc-file-size" class="text-slate-400 text-[10px]"></span>
+            <button type="button" onclick="event.stopPropagation(); clearDocFile();" class="text-rose-500 hover:text-rose-700 ml-1">
+              <i class="fa-solid fa-circle-xmark"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <label class="block font-semibold text-slate-700 mb-1">Hoặc đường dẫn liên kết ngoài (URL)</label>
+        <input type="text" id="doc-form-url" placeholder="https://drive.google.com/sample_doc.pdf"
+          class="w-full border border-slate-300 rounded-lg px-3 py-2 text-slate-600">
+      </div>
+
+      <div class="pt-3 flex justify-end space-x-2 border-t border-slate-100">
         <button type="button" onclick="closeModal('modal-doc')"
           class="px-4 py-2 border border-slate-300 rounded-xl text-slate-600 font-semibold">Hủy</button>
-        <button type="submit" class="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-xl font-semibold">Lưu
-          Văn Bản</button>
+        <button type="submit" id="btn-save-doc" class="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-xl font-semibold shadow-md flex items-center space-x-1.5">
+          <i class="fa-solid fa-floppy-disk"></i>
+          <span>Lưu Văn Bản</span>
+        </button>
       </div>
     </form>
   </div>
@@ -924,11 +1094,19 @@
   <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200">
     <div class="flex items-center justify-between pb-3 border-b border-slate-200">
       <div>
-        <h3 class="text-base font-bold text-slate-900">PHIẾU LƯƠNG THÁNG 10/2026</h3>
-        <p class="text-xs text-slate-500">VinTech Solutions JSC</p>
+        <h3 id="payslip-modal-title" class="text-base font-bold text-slate-900">PHIẾU LƯƠNG ĐIỆN TỬ</h3>
+        <p class="text-xs text-slate-500">VinTech Solutions - Enterprise HRM</p>
       </div>
-      <button onclick="closeModal('modal-payslip')" class="text-slate-400 hover:text-slate-600"><i
-          class="fa-solid fa-xmark"></i></button>
+      <div class="flex items-center space-x-2">
+        <select id="payslip-period-select" onchange="changePayslipPeriod(this.value)"
+          class="bg-slate-100 text-xs font-bold text-slate-800 rounded-lg px-2.5 py-1 border border-slate-200 cursor-pointer focus:outline-none">
+          <option value="10/2026">Kỳ 10/2026</option>
+          <option value="11/2026">Kỳ 11/2026</option>
+          <option value="12/2026">Kỳ 12/2026</option>
+        </select>
+        <button onclick="closeModal('modal-payslip')" class="text-slate-400 hover:text-slate-600"><i
+            class="fa-solid fa-xmark"></i></button>
+      </div>
     </div>
     <div id="payslip-content" class="py-4 text-xs space-y-3"></div>
     <div class="pt-3 border-t border-slate-200 flex justify-end">
@@ -994,6 +1172,183 @@
   </div>
 </div>
 
+<!-- MODAL 7: YÊU CẦU BỔ SUNG HỒ SƠ ỐM ĐAU (NEED_MORE_INFO) -->
+<div id="modal-sick-more-info"
+  class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+  <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200">
+    <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+      <h3 class="text-base font-bold text-amber-700 flex items-center space-x-2">
+        <i class="fa-solid fa-triangle-exclamation text-amber-500"></i>
+        <span>Yêu Cầu Bổ Sung Hồ Sơ BHXH</span>
+      </h3>
+      <button onclick="closeModal('modal-sick-more-info')" class="text-slate-400 hover:text-slate-600"><i
+          class="fa-solid fa-xmark"></i></button>
+    </div>
+    <form onsubmit="handleSendSickMoreInfo(event)" class="mt-4 space-y-3.5 text-xs">
+      <input type="hidden" id="sick-more-info-id" value="">
+      <div class="bg-amber-50 p-3 rounded-xl border border-amber-200/60 text-amber-900 space-y-1">
+        <div class="font-bold" id="sick-more-info-title">Hồ sơ: SC-...</div>
+        <div class="text-[11px] text-amber-700" id="sick-more-info-sub">Nhân sự: --</div>
+      </div>
+      <div>
+        <label class="block font-semibold text-slate-700 mb-1">Chi tiết yêu cầu bổ sung chứng từ / giải trình</label>
+        <textarea id="sick-more-info-note" rows="3" required placeholder="Ví dụ: Cần bổ sung giấy ra viện hoặc giấy chứng nhận nghỉ việc hưởng BHXH có mộc tròn của bệnh viện..."
+          class="w-full border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-amber-500"></textarea>
+      </div>
+      <div class="pt-3 flex justify-end space-x-2 border-t border-slate-100">
+        <button type="button" onclick="closeModal('modal-sick-more-info')"
+          class="px-4 py-2 border border-slate-300 rounded-xl text-slate-600 font-semibold">Hủy</button>
+        <button type="submit"
+          class="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-xl font-semibold shadow-md flex items-center space-x-1.5">
+          <i class="fa-solid fa-paper-plane"></i>
+          <span>Gửi Yêu Cầu Cho Nhân Viên</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- MODAL 8: NỘP BỔ SUNG CHỨNG TỪ ỐM ĐAU -->
+<div id="modal-sick-resubmit"
+  class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+  <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto">
+    <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+      <h3 class="text-base font-bold text-slate-900 flex items-center space-x-2">
+        <i class="fa-solid fa-file-circle-plus text-blue-600"></i>
+        <span>Nộp Bổ Sung Chứng Từ Viện Phí / BHXH</span>
+      </h3>
+      <button onclick="closeModal('modal-sick-resubmit')" class="text-slate-400 hover:text-slate-600"><i
+          class="fa-solid fa-xmark"></i></button>
+    </div>
+    <form onsubmit="handleResubmitSick(event)" class="mt-4 space-y-3.5 text-xs">
+      <input type="hidden" id="sick-resubmit-id" value="">
+      <div class="bg-amber-50 p-3 rounded-xl border border-amber-200 text-amber-900 space-y-1">
+        <div class="font-bold text-[11px] uppercase text-amber-800">Yêu cầu từ HR / Quản lý:</div>
+        <div class="text-xs italic" id="sick-resubmit-hr-note">--</div>
+      </div>
+
+      <div>
+        <label class="block font-semibold text-slate-700 mb-1">Cơ sở khám bệnh / Bệnh viện</label>
+        <input type="text" id="sick-resubmit-hospital" required class="w-full border border-slate-300 rounded-lg px-3 py-2">
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <div><label class="block font-semibold text-slate-700 mb-1">Từ ngày</label><input type="date" id="sick-resubmit-from" required class="w-full border border-slate-300 rounded-lg px-3 py-2"></div>
+        <div><label class="block font-semibold text-slate-700 mb-1">Đến ngày</label><input type="date" id="sick-resubmit-to" required class="w-full border border-slate-300 rounded-lg px-3 py-2"></div>
+      </div>
+
+      <div>
+        <label class="block font-semibold text-slate-700 mb-1">Tải lên file chứng từ mới bổ sung (Google Drive)</label>
+        <div class="border-2 border-dashed border-slate-300 hover:border-blue-400 rounded-xl bg-slate-50 p-3.5 text-center cursor-pointer transition"
+          onclick="document.getElementById('sick-resubmit-file-input').click()">
+          <input type="file" id="sick-resubmit-file-input" accept=".pdf,.png,.jpg,.jpeg" class="hidden"
+            onchange="handleSickResubmitFileSelected(event)">
+          <div id="sick-resubmit-file-placeholder" class="space-y-1">
+            <i class="fa-solid fa-cloud-arrow-up text-blue-600 text-xl"></i>
+            <p class="text-xs font-semibold text-slate-700">Chọn tệp chứng từ mới (PDF, JPG, PNG)</p>
+            <p class="text-[11px] text-slate-400">Tự động tải lên thư mục Drive an toàn</p>
+          </div>
+          <div id="sick-resubmit-file-preview" class="hidden items-center justify-center space-x-2 text-emerald-600 font-semibold text-xs">
+            <i class="fa-solid fa-file-circle-check text-base"></i>
+            <span id="sick-resubmit-file-name" class="truncate max-w-[200px] text-slate-800"></span>
+            <span id="sick-resubmit-file-size" class="text-slate-400 text-[10px]"></span>
+            <button type="button" onclick="event.stopPropagation(); clearSickResubmitFile();" class="text-rose-500 hover:text-rose-700 ml-1">
+              <i class="fa-solid fa-circle-xmark"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <label class="block font-semibold text-slate-700 mb-1">Ghi chú giải trình bổ sung</label>
+        <textarea id="sick-resubmit-note" rows="2" placeholder="Đã bổ sung giấy ra viện có dấu đỏ theo yêu cầu..."
+          class="w-full border border-slate-300 rounded-lg p-2.5"></textarea>
+      </div>
+
+      <div class="pt-3 flex justify-end space-x-2 border-t border-slate-100">
+        <button type="button" onclick="closeModal('modal-sick-resubmit')"
+          class="px-4 py-2 border border-slate-300 rounded-xl text-slate-600 font-semibold">Hủy</button>
+        <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-semibold shadow-md flex items-center space-x-1.5">
+          <i class="fa-solid fa-arrow-up-from-bracket"></i>
+          <span>Nộp Bổ Sung & Chuyển Chờ Duyệt</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- MODAL 9: HƯỚNG DẪN SỬ DỤNG & KỊCH BẢN DEMO -->
+<div id="modal-guide"
+  class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+  <div class="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto">
+    <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+      <div class="flex items-center space-x-2.5">
+        <div class="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center font-bold">
+          <i class="fa-solid fa-book-open"></i>
+        </div>
+        <div>
+          <h3 class="text-base font-bold text-slate-900">Hướng Dẫn Vận Hành & Kịch Bản Demo</h3>
+          <p class="text-xs text-slate-500">VinTech Solutions - Enterprise HRM & E-Office</p>
+        </div>
+      </div>
+      <button onclick="closeModal('modal-guide')" class="text-slate-400 hover:text-slate-600"><i
+          class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="mt-4 space-y-4 text-xs text-slate-700 leading-relaxed">
+      <div class="p-3 bg-blue-50/70 rounded-xl border border-blue-200/60">
+        <h4 class="font-bold text-blue-900 mb-1 flex items-center space-x-1.5">
+          <i class="fa-solid fa-circle-info text-blue-600"></i>
+          <span>1. Các tài khoản và vai trò trong hệ thống:</span>
+        </h4>
+        <ul class="list-disc list-inside space-y-0.5 text-slate-700">
+          <li><strong>Nhân viên:</strong> Lê Thị Phương (<code class="bg-white px-1 py-0.5 rounded text-blue-700">phuong.le@vintech.vn</code>) - Nộp đơn, xem phiếu lương của chính mình, bảo mật tiền lương.</li>
+          <li><strong>Quản lý:</strong> Trần Minh Trí (<code class="bg-white px-1 py-0.5 rounded text-indigo-700">tri.tran@vintech.vn</code>) - Duyệt đơn nghỉ phép, giao việc theo văn bản, sửa bảng chấm công.</li>
+          <li><strong>HR / Kế toán:</strong> Nguyễn Thu Hương (<code class="bg-white px-1 py-0.5 rounded text-emerald-700">huong.nguyen@vintech.vn</code>) - Duyệt BHXH, yêu cầu bổ sung chứng từ, tính lương và chốt lương toàn công ty.</li>
+        </ul>
+      </div>
+
+      <div class="space-y-2">
+        <h4 class="font-bold text-slate-900 text-sm flex items-center space-x-1.5">
+          <i class="fa-solid fa-route text-indigo-600"></i>
+          <span>2. Kịch bản demo luồng nghiệp vụ khép kín (Khách & Hội đồng đánh giá):</span>
+        </h4>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+          <div class="p-3 rounded-xl border border-slate-200 bg-slate-50">
+            <span class="font-bold text-blue-700 block mb-1">Bước 1: Nộp đơn & Upload chứng từ</span>
+            <p class="text-slate-600">Nhân viên tạo đơn nghỉ phép hoặc hồ sơ ốm đau có tải file chứng từ viện phí thật lên Google Drive.</p>
+          </div>
+          <div class="p-3 rounded-xl border border-slate-200 bg-slate-50">
+            <span class="font-bold text-indigo-700 block mb-1">Bước 2: Phê duyệt / Yêu cầu bổ sung</span>
+            <p class="text-slate-600">Quản lý hoặc HR duyệt đơn, hoặc bấm "Yêu cầu bổ sung" để nhân viên nộp lại chứng từ hợp lệ.</p>
+          </div>
+          <div class="p-3 rounded-xl border border-slate-200 bg-slate-50">
+            <span class="font-bold text-emerald-700 block mb-1">Bước 3: Chấm công đa kỳ & OT</span>
+            <p class="text-slate-600">Bảng công tự động cập nhật ký hiệu P, O, OT xuyên tháng. Xem công 28/30/31 ngày và xuất file Excel thật.</p>
+          </div>
+          <div class="p-3 rounded-xl border border-slate-200 bg-slate-50">
+            <span class="font-bold text-amber-700 block mb-1">Bước 4: Tính lương & Xem phiếu lương</span>
+            <p class="text-slate-600">Tính lương tự động theo kỳ, đồng bộ Google Sheets, xem phiếu lương chi tiết từng kỳ với làm thêm OT.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="p-3 bg-amber-50 rounded-xl border border-amber-200 flex items-center justify-between">
+        <div>
+          <span class="font-bold text-amber-900 block">Khôi phục dữ liệu mẫu (Reset Database):</span>
+          <span class="text-amber-800 text-[11px]">Bấm nút này bất cứ lúc nào để reset toàn bộ 7 bảng về dữ liệu demo chuẩn ban đầu.</span>
+        </div>
+        <button onclick="closeModal('modal-guide'); handleResetDatabase();" class="px-3 py-1.5 bg-amber-600 hover:bg-amber-500 text-white rounded-lg font-bold shrink-0 shadow-sm ml-3">
+          Khôi Phục Ngay
+        </button>
+      </div>
+    </div>
+    <div class="pt-3 border-t border-slate-100 flex justify-end">
+      <button onclick="closeModal('modal-guide')"
+        class="px-4 py-2 bg-slate-900 text-white rounded-xl font-semibold text-xs">Đã hiểu</button>
+    </div>
+  </div>
+</div>
+
 <!-- TOAST NOTIFICATION -->
 <div id="toast"
   class="fixed bottom-5 right-5 z-50 transform transition-all duration-300 translate-y-20 opacity-0 pointer-events-none flex items-center space-x-3 bg-slate-900 text-white px-4 py-3 rounded-xl shadow-2xl border border-slate-700">
@@ -1034,9 +1389,13 @@
       { id: 'CV-103', title: 'Triển khai hạ tầng máy chủ cho chi nhánh', type: 'Kỹ thuật', assigner: 'Trần Minh Trí', assignee: 'Hoàng Khương Duy', deadline: '2026-10-18', status: 'Đang xử lý', note: 'Cần mua license', docId: '' }
     ],
     documents: [
-      { id: '01/2026/QĐ-VT', title: 'Quy chế làm việc từ xa (Work From Home) và bảo mật dữ liệu', type: 'Quy chế nội bộ', issuer: 'Tổng Giám Đốc', date: '02/01/2026', fileUrl: 'https://drive.google.com/sample_doc1.pdf', status: 'Hiệu lực' },
-      { id: '45/2019/QH14', title: 'Bộ luật Lao động năm 2019 số 45/2019/QH14', type: 'Văn bản pháp luật', issuer: 'Quốc Hội', date: '20/11/2019', fileUrl: 'https://thuvienphapluat.vn/sample', status: 'Hiệu lực' },
-      { id: '15/2026/TB-VT', title: 'Thông báo lịch khám sức khỏe định kỳ doanh nghiệp 2026', type: 'Thông báo', issuer: 'Phòng Nhân Sự', date: '15/09/2026', fileUrl: 'https://drive.google.com/sample_doc2.pdf', status: 'Hiệu lực' }
+      { id: '01/2026/QĐ-VT', title: 'Quy chế làm việc từ xa (Work From Home) và bảo mật dữ liệu', type: 'Quy chế nội bộ', category: 'Nội bộ công ty', issuer: 'Tổng Giám Đốc', date: '02/01/2026', fileUrl: 'https://drive.google.com/sample_doc1.pdf', status: 'Hiệu lực' },
+      { id: '02/2026/QC-LUONG', title: 'Quy chế phân phối tiền lương và tiền thưởng 2026', type: 'Quy chế nội bộ', category: 'Lao động - Tiền lương', issuer: 'Tổng Giám Đốc', date: '05/01/2026', fileUrl: 'https://drive.google.com/sample_qc_luong.pdf', status: 'Hiệu lực' },
+      { id: '18/2026/TB-LUONG', title: 'Thông báo chi trả lương và tạm ứng tháng 10/2026', type: 'Thông báo', category: 'Lao động - Tiền lương', issuer: 'Phòng Kế Toán', date: '01/10/2026', fileUrl: 'https://drive.google.com/sample_tb_luong.pdf', status: 'Hiệu lực' },
+      { id: '22/2026/QĐ-TL', title: 'Quyết định điều chỉnh thang bảng lương & phụ cấp công việc', type: 'Quyết định', category: 'Lao động - Tiền lương', issuer: 'Tổng Giám Đốc', date: '15/01/2026', fileUrl: 'https://drive.google.com/sample_qd_luong.pdf', status: 'Hiệu lực' },
+      { id: '45/2019/QH14', title: 'Bộ luật Lao động năm 2019 số 45/2019/QH14', type: 'Văn bản pháp luật', category: 'Lao động - Tiền lương', issuer: 'Quốc Hội', date: '20/11/2019', fileUrl: 'https://thuvienphapluat.vn/sample', status: 'Hiệu lực' },
+      { id: '58/2014/QH13', title: 'Luật Bảo hiểm xã hội số 58/2014/QH13', type: 'Văn bản pháp luật', category: 'Bảo hiểm xã hội', issuer: 'Quốc Hội', date: '20/11/2014', fileUrl: 'https://thuvienphapluat.vn/sample_bhxh', status: 'Hiệu lực' },
+      { id: '15/2026/TB-VT', title: 'Thông báo lịch khám sức khỏe định kỳ doanh nghiệp 2026', type: 'Thông báo', category: 'Nội bộ công ty', issuer: 'Phòng Nhân Sự', date: '15/09/2026', fileUrl: 'https://drive.google.com/sample_doc2.pdf', status: 'Hiệu lực' }
     ],
     payroll: [
       { period: '10/2026', empId: 'VT-001', empName: 'Lê Thị Phương', title: 'Chuyên viên Lập trình', baseSalary: 18000000, standardDays: 22, actualDays: 22, allowance: 1500000, bhxh: 1890000, netSalary: 17610000, status: 'Đã chốt lương' },
@@ -1044,10 +1403,12 @@
       { period: '10/2026', empId: 'VT-003', empName: 'Nguyễn Thu Hương', title: 'Kế toán trưởng / HR Lead', baseSalary: 24000000, standardDays: 22, actualDays: 22, allowance: 1500000, bhxh: 2520000, netSalary: 22980000, status: 'Đã chốt lương' },
       { period: '10/2026', empId: 'VT-004', empName: 'Hoàng Khương Duy', title: 'Kỹ sư Hệ thống', baseSalary: 16500000, standardDays: 22, actualDays: 22, allowance: 1500000, bhxh: 1732500, netSalary: 16267500, status: 'Đã chốt lương' },
       { period: '10/2026', empId: 'VT-005', empName: 'Đinh Thị Huyền Trang', title: 'Chuyên viên Kinh doanh', baseSalary: 15000000, standardDays: 22, actualDays: 20, allowance: 1500000, bhxh: 1575000, netSalary: 13561364, status: 'Đã chốt lương' }
-    ]
+    ],
+    timesheetByPeriod: {}
   };
 
   let currentUser = null;
+  let currentTimesheetPeriod = '10/2026';
 
   // --- XSS SANITIZER HELPER ---
   function escapeHtml(str) {
@@ -1092,10 +1453,13 @@
           }
           if (callback) callback({ success: true, profile: user });
         } else if (fnName === 'apiGetInitialAppData') {
+          if (!appData.timesheetByPeriod) appData.timesheetByPeriod = {};
+          appData.timesheetByPeriod['10/2026'] = appData.timesheet;
           if (callback) callback({
             success: true,
             data: {
               users: USERS_DB,
+              period: '10/2026',
               timesheet: appData.timesheet,
               leaves: appData.leaveRequests,
               sickCases: appData.sickCases,
@@ -1104,12 +1468,59 @@
               documents: appData.documents
             }
           });
+        } else if (fnName === 'apiGetAttendance') {
+          const reqPeriod = (args && args[0]) || currentTimesheetPeriod;
+          const info = generateDefaultDaysForMonth(reqPeriod);
+          if (!appData.timesheetByPeriod) appData.timesheetByPeriod = {};
+          if (!appData.timesheetByPeriod[reqPeriod]) {
+            const mockMap = {};
+            USERS_DB.forEach(u => {
+              mockMap[u.id] = [...info.days];
+            });
+            appData.timesheetByPeriod[reqPeriod] = mockMap;
+          }
+          if (callback) callback({
+            success: true,
+            period: reqPeriod,
+            daysInMonth: info.daysInMonth,
+            timesheet: appData.timesheetByPeriod[reqPeriod]
+          });
         } else if (fnName === 'apiSubmitSick') {
           const sickObj = (args && args[0]) || {};
           const mockUrl = (sickObj.fileData && sickObj.fileData.name)
             ? 'https://drive.google.com/file/d/sample_drive_id/view'
             : 'https://drive.google.com/sample_cert.pdf';
           if (callback) callback({ success: true, message: "Nộp hồ sơ ốm đau thành công!", newId: sickObj.id, docUrl: mockUrl });
+        } else if (fnName === 'apiAskMoreInfoSick') {
+          const sId = (args && args[0]);
+          const note = (args && args[1]) || '';
+          const sc = appData.sickCases.find(s => s.id === sId);
+          if (sc) {
+            sc.status = 'NEED_MORE_INFO';
+            sc.note = note;
+          }
+          if (callback) callback({ success: true, message: "Đã gửi yêu cầu bổ sung chứng từ y tế tới nhân viên!" });
+        } else if (fnName === 'apiResubmitSick') {
+          const sId = (args && args[0]);
+          const form = (args && args[1]) || {};
+          const sc = appData.sickCases.find(s => s.id === sId);
+          if (sc) {
+            sc.status = 'PENDING';
+            sc.note = 'Đã nộp bổ sung: ' + (form.note || '');
+            if (form.fileData && form.fileData.name) {
+              sc.docUrl = 'https://drive.google.com/file/d/sample_resubmit_' + Date.now() + '/view';
+            }
+          }
+          if (callback) callback({ success: true, message: "Đã nộp lại chứng từ thành công! Hồ sơ chuyển về trạng thái Chờ duyệt.", docUrl: sc ? sc.docUrl : '' });
+        } else if (fnName === 'apiSaveDocument' || fnName === 'apiUpdateDocument') {
+          const docObj = (args && args[0]) || {};
+          const mockUrl = (docObj.fileData && docObj.fileData.name)
+            ? 'https://drive.google.com/file/d/sample_drive_doc_' + Date.now() + '/view'
+            : (docObj.fileUrl || 'https://drive.google.com/sample_doc.pdf');
+          docObj.fileUrl = mockUrl;
+          if (callback) callback({ success: true, message: "Lưu văn bản thành công!", docUrl: mockUrl });
+        } else if (fnName === 'apiResetDatabase') {
+          if (callback) callback({ success: true, message: "Đã khôi phục toàn bộ dữ liệu mẫu VinTech Solutions thành công!" });
         } else {
           if (callback) callback({ success: true, message: "Thao tác mô phỏng thành công!" });
         }
@@ -1188,10 +1599,15 @@
     populateAssigneeSelect();
 
     // Kết nối fetch dữ liệu thật từ Google Sheets theo quyền người dùng
-    callBackend('apiGetInitialAppData', [user.email], (res) => {
+    callBackend('apiGetInitialAppData', [user.email, currentTimesheetPeriod], (res) => {
       if (res && res.success && res.data) {
         if (res.data.users && res.data.users.length) USERS_DB = res.data.users;
-        if (res.data.timesheet) appData.timesheet = res.data.timesheet;
+        if (res.data.timesheet) {
+          appData.timesheet = res.data.timesheet;
+          if (!appData.timesheetByPeriod) appData.timesheetByPeriod = {};
+          appData.timesheetByPeriod[res.data.period || currentTimesheetPeriod] = res.data.timesheet;
+        }
+        if (res.data.period) currentTimesheetPeriod = res.data.period;
         if (res.data.leaves) appData.leaveRequests = res.data.leaves;
         if (res.data.sickCases) appData.sickCases = res.data.sickCases;
         if (res.data.payroll) appData.payroll = res.data.payroll;
@@ -1245,10 +1661,22 @@
     const roleNotice = document.getElementById('role-notice');
     const kpiTotal = document.getElementById('kpi-total-emp');
     const kpiTotalSub = document.getElementById('kpi-total-emp-sub');
+    const kpiPayroll = document.getElementById('kpi-payroll-total');
+    const kpiPayrollSub = document.getElementById('kpi-payroll-total-sub');
     const kpiActiveTasks = document.getElementById('kpi-active-tasks');
 
     kpiTotal.innerText = USERS_DB.length;
     kpiTotalSub.innerText = USERS_DB.length;
+
+    // KPI Quỹ Lương
+    if (kpiPayroll) {
+      const totalPayroll = (appData.payroll || []).reduce((sum, p) => sum + (Number(p.netSalary) || 0), 0);
+      kpiPayroll.innerText = totalPayroll > 0 ? (totalPayroll.toLocaleString('vi-VN') + ' đ') : '96.978.864 đ';
+    }
+    if (kpiPayrollSub) {
+      kpiPayrollSub.innerText = `Kỳ hiện tại: ${currentTimesheetPeriod || '10/2026'}`;
+    }
+
     kpiActiveTasks.innerText = appData.tasks.filter(t => t.status !== 'Hoàn thành').length;
 
     let pendings = [];
@@ -1268,18 +1696,36 @@
       });
     });
 
-    // Lọc hồ sơ ốm đau theo quyền hạn bảo mật
-    appData.sickCases.filter(s => s.status === 'PENDING').forEach(s => {
+    // Lọc hồ sơ ốm đau theo quyền hạn bảo mật và trạng thái PENDING hoặc NEED_MORE_INFO
+    appData.sickCases.filter(s => s.status === 'PENDING' || s.status === 'NEED_MORE_INFO').forEach(s => {
       // Nhân viên chỉ thấy hồ sơ ốm đau của chính mình (bảo mật thông tin y tế)
       if (currentUser.role === 'employee' && s.empId !== currentUser.id) return;
+
+      const isNeedInfo = (s.status === 'NEED_MORE_INFO');
+      let title = `Hồ sơ nghỉ ốm hưởng BHXH (${s.days} ngày)`;
+      let sub = `${escapeHtml(s.empName)} • ${escapeHtml(s.hospital)} • Từ ${escapeHtml(s.from)} đến ${escapeHtml(s.to)}`;
+      if (isNeedInfo) {
+        if (currentUser.role === 'employee') {
+          title = `Hồ sơ cần bổ sung chứng từ y tế (${s.id})`;
+          sub = `HR yêu cầu bổ sung: "${escapeHtml(s.note || 'Cần nộp lại chứng từ/hóa đơn y tế hợp lệ')}"`;
+        } else {
+          title = `Hồ sơ ốm đau [Yêu cầu bổ sung] (${s.id})`;
+          sub = `${escapeHtml(s.empName)} • Đang chờ NV bổ sung chứng từ • Ghi chú: "${escapeHtml(s.note || '')}"`;
+        }
+      }
 
       pendings.push({
         type: 'sick',
         id: s.id,
-        title: `Hồ sơ nghỉ ốm hưởng BHXH (${s.days} ngày)`,
-        sub: `${escapeHtml(s.empName)} • ${escapeHtml(s.hospital)} • Từ ${escapeHtml(s.from)} đến ${escapeHtml(s.to)}`,
+        status: s.status,
+        title: title,
+        sub: sub,
+        isNeedInfo: isNeedInfo,
         canApprove: (currentUser.role === 'hr'),
-        roleReq: currentUser.role === 'employee' ? 'Đang chờ HR duyệt BHXH' : 'HR & Kế toán duyệt'
+        canResubmit: (currentUser.role === 'employee' && isNeedInfo),
+        roleReq: isNeedInfo
+          ? (currentUser.role === 'employee' ? 'Cần bạn nộp lại' : 'Chờ nhân viên bổ sung')
+          : (currentUser.role === 'employee' ? 'Đang chờ HR duyệt BHXH' : 'HR & Kế toán duyệt')
       });
     });
 
@@ -1287,7 +1733,7 @@
 
     // Cập nhật Badge trên thanh Menu Tab theo quyền
     const leavesPendingCount = appData.leaveRequests.filter(r => r.status === 'PENDING' && (currentUser.role !== 'employee' || r.empId === currentUser.id)).length;
-    const sickPendingCount = appData.sickCases.filter(s => s.status === 'PENDING' && (currentUser.role !== 'employee' || s.empId === currentUser.id)).length;
+    const sickPendingCount = appData.sickCases.filter(s => (s.status === 'PENDING' || (currentUser.role === 'employee' && s.status === 'NEED_MORE_INFO')) && (currentUser.role !== 'employee' || s.empId === currentUser.id)).length;
 
     if (leavesPendingCount > 0) {
       badgeLeave.innerText = leavesPendingCount;
@@ -1317,8 +1763,8 @@
           <i class="fa-solid fa-circle-check text-emerald-500 text-3xl mb-2.5"></i>
           <p class="text-xs sm:text-sm font-medium text-slate-600">
             ${currentUser.role === 'employee'
-              ? 'Bạn hiện không có đơn nào đang chờ xử lý. Tất cả quy trình đã hoàn tất!'
-              : 'Hiện tại không có đơn nào đang chờ xử lý. Tất cả quy trình đã hoàn tất!'}
+          ? 'Bạn hiện không có đơn nào đang chờ xử lý. Tất cả quy trình đã hoàn tất!'
+          : 'Hiện tại không có đơn nào đang chờ xử lý. Tất cả quy trình đã hoàn tất!'}
           </p>
         </div>
       `;
@@ -1328,7 +1774,12 @@
     let html = '';
     pendings.forEach(p => {
       let actionBtn = '';
-      if (p.canApprove) {
+      if (p.canResubmit) {
+        actionBtn = `
+          <button onclick="openSickResubmitModal('${p.id}')" class="px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-xs font-bold shadow-sm transition flex items-center space-x-1">
+            <i class="fa-solid fa-upload mr-1"></i><span>Bổ sung hồ sơ</span>
+          </button>`;
+      } else if (p.canApprove) {
         if (p.type === 'leave') {
           actionBtn = `
             <div class="flex items-center space-x-1.5">
@@ -1338,19 +1789,20 @@
         } else {
           actionBtn = `
             <div class="flex items-center space-x-1.5">
-              <button onclick="approveSick('${p.id}')" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold shadow-sm transition flex items-center space-x-1"><i class="fa-solid fa-check mr-1"></i><span>Duyệt BHXH</span></button>
-              <button onclick="rejectSick('${p.id}')" class="px-2.5 py-1.5 bg-rose-100 hover:bg-rose-200 text-rose-700 rounded-lg text-xs font-bold transition flex items-center space-x-1"><i class="fa-solid fa-xmark"></i></button>
+              <button onclick="approveSick('${p.id}')" class="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold shadow-sm transition flex items-center space-x-1"><i class="fa-solid fa-check mr-1"></i><span>Duyệt</span></button>
+              <button onclick="openSickMoreInfoModal('${p.id}')" class="px-2.5 py-1.5 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-xs font-bold shadow-sm transition flex items-center space-x-1" title="Yêu cầu bổ sung chứng từ"><i class="fa-solid fa-triangle-exclamation mr-1"></i><span>Bổ sung</span></button>
+              <button onclick="rejectSick('${p.id}')" class="px-2 py-1.5 bg-rose-100 hover:bg-rose-200 text-rose-700 rounded-lg text-xs font-bold transition flex items-center space-x-1"><i class="fa-solid fa-xmark"></i></button>
             </div>`;
         }
       } else {
-        actionBtn = `<span class="text-xs px-3 py-1.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200/80 font-semibold flex items-center space-x-1"><i class="fa-solid fa-clock"></i><span>${p.roleReq}</span></span>`;
+        actionBtn = `<span class="text-xs px-3 py-1.5 rounded-full ${p.isNeedInfo ? 'bg-amber-100 text-amber-800 border border-amber-300' : 'bg-amber-50 text-amber-700 border border-amber-200/80'} font-semibold flex items-center space-x-1"><i class="fa-solid fa-clock"></i><span>${p.roleReq}</span></span>`;
       }
 
       html += `
         <div class="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-slate-50/70 hover:bg-slate-100/80 rounded-2xl border border-slate-200/80 transition duration-150 gap-3">
           <div class="flex items-center space-x-3.5">
-            <div class="w-10 h-10 rounded-xl ${p.type === 'leave' ? 'bg-amber-100 text-amber-700' : 'bg-rose-100 text-rose-700'} flex items-center justify-center text-base font-bold shrink-0 shadow-sm">
-              <i class="${p.type === 'leave' ? 'fa-solid fa-file-pen' : 'fa-solid fa-heart-pulse'}"></i>
+            <div class="w-10 h-10 rounded-xl ${p.type === 'leave' ? 'bg-amber-100 text-amber-700' : p.isNeedInfo ? 'bg-amber-100 text-amber-800' : 'bg-rose-100 text-rose-700'} flex items-center justify-center text-base font-bold shrink-0 shadow-sm">
+              <i class="${p.type === 'leave' ? 'fa-solid fa-file-pen' : p.isNeedInfo ? 'fa-solid fa-triangle-exclamation' : 'fa-solid fa-heart-pulse'}"></i>
             </div>
             <div>
               <div class="text-sm font-bold text-slate-900">${p.title}</div>
@@ -1558,31 +2010,125 @@
     });
   }
 
-  // --- RENDER 3: BẢNG CHẤM CÔNG (TIMESHEET) ---
+  // --- RENDER 3: BẢNG CHẤM CÔNG ĐA KỲ (TIMESHEET MULTI-PERIOD) ---
+  function getDaysInMonth(month, year) {
+    return new Date(year, month, 0).getDate();
+  }
+
+  function generateDefaultDaysForMonth(period) {
+    const parts = (period || '10/2026').split('/');
+    const month = parseInt(parts[0], 10) || 10;
+    const year = parseInt(parts[1], 10) || 2026;
+    const totalDays = getDaysInMonth(month, year);
+    const days = Array(31).fill('');
+    let standardWorkingDays = 0;
+
+    for (let d = 1; d <= 31; d++) {
+      if (d <= totalDays) {
+        const dt = new Date(year, month - 1, d);
+        const dow = dt.getDay(); // 0: CN, 6: T7
+        if (dow === 0) {
+          days[d - 1] = 'CN';
+        } else if (dow === 6) {
+          days[d - 1] = 'T7';
+        } else {
+          days[d - 1] = 'X';
+          standardWorkingDays++;
+        }
+      } else {
+        days[d - 1] = '';
+      }
+    }
+    return { days, daysInMonth: totalDays, standardWorkingDays };
+  }
+
+  function renderTimesheetHeader(period) {
+    const tr = document.getElementById('timesheet-header-tr');
+    if (!tr) return;
+    const parts = (period || '10/2026').split('/');
+    const month = parseInt(parts[0], 10) || 10;
+    const year = parseInt(parts[1], 10) || 2026;
+    const totalDays = getDaysInMonth(month, year);
+
+    // Cập nhật badge số ngày & công chuẩn
+    const info = generateDefaultDaysForMonth(period);
+    const badge = document.getElementById('timesheet-days-badge');
+    if (badge) {
+      badge.innerText = `${totalDays} ngày (${info.standardWorkingDays} công chuẩn)`;
+    }
+
+    let thHtml = `
+      <th class="py-3 px-3 font-semibold sticky left-0 bg-slate-900 z-30 min-w-[70px] text-center border-r border-slate-800">Mã NV</th>
+      <th class="py-3 px-3 font-semibold sticky left-[70px] bg-slate-900 z-30 min-w-[170px] border-r border-slate-800">Họ và Tên</th>
+      <th class="py-3 px-2 font-semibold min-w-[90px] border-r border-slate-800 text-center">Phòng Ban</th>
+    `;
+
+    for (let d = 1; d <= totalDays; d++) {
+      const dt = new Date(year, month - 1, d);
+      const dow = dt.getDay();
+      const isSunday = (dow === 0);
+      const isSaturday = (dow === 6);
+      let thClass = 'p-1 font-semibold text-center border-r border-slate-800 matrix-cell';
+      let title = `Ngày ${d}/${month}/${year}`;
+      if (isSunday) {
+        thClass += ' bg-rose-950 text-rose-300 font-bold';
+        title += ' (Chủ Nhật)';
+      } else if (isSaturday) {
+        thClass += ' bg-slate-800 text-slate-300 font-medium';
+        title += ' (Thứ Bảy)';
+      }
+      thHtml += `<th class="${thClass}" title="${title}">${d}</th>`;
+    }
+
+    thHtml += `
+      <th class="py-3 px-2 font-bold text-center bg-blue-900 text-white min-w-[65px]">Công Thực</th>
+      <th class="py-3 px-2 font-bold text-center bg-indigo-900 text-white min-w-[55px]">Phép (P)</th>
+      <th class="py-3 px-2 font-bold text-center bg-amber-900 text-white min-w-[55px]">Ốm (O)</th>
+      <th class="py-3 px-2 font-bold text-center bg-purple-900 text-white min-w-[55px]">OT</th>
+    `;
+    tr.innerHTML = thHtml;
+  }
+
   function renderTimesheet() {
+    renderTimesheetHeader(currentTimesheetPeriod);
     const tbody = document.getElementById('timesheet-tbody');
+    if (!tbody) return;
+
+    const parts = currentTimesheetPeriod.split('/');
+    const month = parseInt(parts[0], 10) || 10;
+    const year = parseInt(parts[1], 10) || 2026;
+    const totalDays = getDaysInMonth(month, year);
+
+    if (!appData.timesheetByPeriod) appData.timesheetByPeriod = {};
+    if (!appData.timesheetByPeriod[currentTimesheetPeriod] && appData.timesheet) {
+      appData.timesheetByPeriod[currentTimesheetPeriod] = appData.timesheet;
+    }
+    const periodMap = appData.timesheetByPeriod[currentTimesheetPeriod] || {};
+
     let rows = '';
 
     USERS_DB.filter(u => u.status !== 'Đã nghỉ việc').forEach(u => {
-      const days = appData.timesheet[u.id] || Array(31).fill('X');
+      const rawDays = periodMap[u.id] || generateDefaultDaysForMonth(currentTimesheetPeriod).days;
       let cellsHtml = '';
-      let totalX = 0, totalP = 0, totalO = 0;
+      let totalX = 0, totalP = 0, totalO = 0, totalOT = 0;
 
-      days.forEach((sym, dIdx) => {
+      for (let dIdx = 0; dIdx < totalDays; dIdx++) {
+        const sym = rawDays[dIdx] || 'X';
         let cClass = 'cell-x';
         if (sym === 'P') { cClass = 'cell-p'; totalP++; }
         else if (sym === 'O') { cClass = 'cell-o'; totalO++; }
+        else if (sym === 'OT') { cClass = 'cell-ot'; totalOT++; }
         else if (sym === 'CN') { cClass = 'cell-cn'; }
         else if (sym === 'T7') { cClass = 'cell-t7'; }
         else { totalX++; }
 
         const canEditAtt = (currentUser && (currentUser.role === 'hr' || currentUser.role === 'manager'));
         const clickAttr = canEditAtt
-          ? `onclick="cycleAttendanceCell('${u.id}', ${dIdx + 1}, '${sym}')" title="Bấm để đổi ký hiệu công (X ➔ P ➔ O ➔ CN ➔ X)" style="cursor: pointer;"`
+          ? `onclick="cycleAttendanceCell('${u.id}', ${dIdx + 1}, '${sym}')" title="Bấm để đổi ký hiệu công (X ➔ OT ➔ P ➔ O ➔ CN ➔ X)" style="cursor: pointer;"`
           : '';
 
         cellsHtml += `<td class="p-0 text-center border-r border-slate-100 matrix-cell ${cClass}" ${clickAttr}>${sym}</td>`;
-      });
+      }
 
       const isMe = (currentUser && currentUser.id === u.id);
       rows += `
@@ -1597,42 +2143,227 @@
           <td class="py-2.5 px-2 text-center font-extrabold text-blue-700 bg-blue-50/50">${totalX}</td>
           <td class="py-2.5 px-2 text-center font-bold text-indigo-700 bg-indigo-50/50">${totalP}</td>
           <td class="py-2.5 px-2 text-center font-bold text-amber-700 bg-amber-50/50">${totalO}</td>
+          <td class="py-2.5 px-2 text-center font-bold text-purple-700 bg-purple-50/50">${totalOT}</td>
         </tr>
       `;
     });
     tbody.innerHTML = rows;
   }
 
+  function changeTimesheetPeriod(period) {
+    if (!period) return;
+    currentTimesheetPeriod = period;
+    const sel = document.getElementById('timesheet-period-select');
+    if (sel && sel.value !== period) sel.value = period;
+
+    showToast(`Đang tải ma trận chấm công kỳ ${period}...`, 'info');
+
+    const callerEmail = currentUser ? currentUser.email : '';
+    callBackend('apiGetAttendance', [period, callerEmail], (res) => {
+      if (res && res.success && res.timesheet) {
+        if (!appData.timesheetByPeriod) appData.timesheetByPeriod = {};
+        appData.timesheetByPeriod[period] = res.timesheet;
+        appData.timesheet = res.timesheet;
+        renderTimesheet();
+        showToast(`Đã chuyển sang bảng công ${period} (${res.daysInMonth} ngày)!`, 'success');
+      } else {
+        showToast((res && res.message) || 'Lỗi tải bảng chấm công kỳ mới!', 'error');
+      }
+    }, (err) => {
+      showToast('Lỗi máy chủ khi tải chấm công: ' + err.message, 'error');
+    });
+  }
+
+  function prevTimesheetPeriod() {
+    const parts = currentTimesheetPeriod.split('/');
+    let m = parseInt(parts[0], 10);
+    let y = parseInt(parts[1], 10);
+    m--;
+    if (m < 1) { m = 12; y--; }
+    const newPeriod = `${String(m).padStart(2, '0')}/${y}`;
+    changeTimesheetPeriod(newPeriod);
+  }
+
+  function nextTimesheetPeriod() {
+    const parts = currentTimesheetPeriod.split('/');
+    let m = parseInt(parts[0], 10);
+    let y = parseInt(parts[1], 10);
+    m++;
+    if (m > 12) { m = 1; y++; }
+    const newPeriod = `${String(m).padStart(2, '0')}/${y}`;
+    changeTimesheetPeriod(newPeriod);
+  }
+
   function cycleAttendanceCell(empId, day, currentSym) {
     if (currentUser.role !== 'hr' && currentUser.role !== 'manager') return;
-    const nextMap = { 'X': 'P', 'P': 'O', 'O': 'CN', 'CN': 'X', 'T7': 'X' };
+    const nextMap = { 'X': 'OT', 'OT': 'P', 'P': 'O', 'O': 'CN', 'CN': 'X', 'T7': 'OT' };
     const nextSym = nextMap[currentSym] || 'X';
 
-    // Cập nhật tạm thời trên UI
-    if (appData.timesheet[empId]) {
-      appData.timesheet[empId][day - 1] = nextSym;
+    const period = currentTimesheetPeriod;
+    if (!appData.timesheetByPeriod) appData.timesheetByPeriod = {};
+    if (!appData.timesheetByPeriod[period]) {
+      appData.timesheetByPeriod[period] = appData.timesheet || {};
+    }
+    if (appData.timesheetByPeriod[period][empId]) {
+      appData.timesheetByPeriod[period][empId][day - 1] = nextSym;
       renderTimesheet();
     }
 
     const callerEmail = currentUser ? currentUser.email : '';
-    callBackend('apiUpdateAttendanceCell', [empId, day, nextSym, callerEmail], (res) => {
+    callBackend('apiUpdateAttendanceCell', [empId, day, nextSym, callerEmail, period], (res) => {
       if (res && res.success) {
-        showToast(res.message || `Đã cập nhật công ngày ${day} thành [${nextSym}]!`, 'success');
+        showToast(res.message || `Đã cập nhật công ngày ${day} (${period}) thành [${nextSym}]!`, 'success');
       } else {
         showToast((res && res.message) || 'Lỗi cập nhật bảng chấm công!', 'error');
         // Rollback nếu thất bại
-        if (appData.timesheet[empId]) {
-          appData.timesheet[empId][day - 1] = currentSym;
+        if (appData.timesheetByPeriod[period] && appData.timesheetByPeriod[period][empId]) {
+          appData.timesheetByPeriod[period][empId][day - 1] = currentSym;
           renderTimesheet();
         }
       }
     }, (err) => {
       showToast('Lỗi máy chủ: ' + err.message, 'error');
-      if (appData.timesheet[empId]) {
-        appData.timesheet[empId][day - 1] = currentSym;
+      if (appData.timesheetByPeriod[period] && appData.timesheetByPeriod[period][empId]) {
+        appData.timesheetByPeriod[period][empId][day - 1] = currentSym;
         renderTimesheet();
       }
     });
+  }
+
+  function exportTimesheetExcel() {
+    showToast(`Đang chuẩn bị xuất file Excel Bảng Chấm Công kỳ ${currentTimesheetPeriod}...`, 'info');
+    const period = currentTimesheetPeriod || '10/2026';
+    const parts = period.split('/');
+    const month = parseInt(parts[0], 10) || 10;
+    const year = parseInt(parts[1], 10) || 2026;
+    const totalDays = getDaysInMonth(month, year);
+    const periodMap = (appData.timesheetByPeriod && appData.timesheetByPeriod[period]) || appData.timesheet || {};
+
+    let tableHtml = `
+      <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+      <head><meta charset="utf-8"/><title>Bảng Chấm Công ${period}</title>
+      <style>
+        table { border-collapse: collapse; font-family: Calibri, Arial, sans-serif; }
+        th, td { border: 1px solid #d1d5db; padding: 6px 8px; text-align: center; }
+        th { background-color: #0f172a; color: #ffffff; font-weight: bold; }
+        .sat { background-color: #f1f5f9; }
+        .sun { background-color: #ffe4e6; color: #be123c; font-weight: bold; }
+        .ot { background-color: #faf5ff; color: #7e22ce; font-weight: bold; }
+        .leave { background-color: #e0e7ff; color: #3730a3; font-weight: bold; }
+        .sick { background-color: #fef3c7; color: #92400e; font-weight: bold; }
+        .title-row { font-size: 16pt; font-weight: bold; text-align: center; background-color: transparent; }
+      </style>
+      </head>
+      <body>
+      <table>
+        <tr><td colspan="${totalDays + 7}" class="title-row" style="height: 40px; text-align: center;">BẢNG CHẤM CÔNG CHI TIẾT - VINTECH SOLUTIONS</td></tr>
+        <tr><td colspan="${totalDays + 7}" style="text-align: center; font-style: italic;">Kỳ làm việc: Tháng ${period} | Xuất ngày: ${UtilitiesFormatToday()}</td></tr>
+        <tr><td colspan="${totalDays + 7}"></td></tr>
+        <tr>
+          <th>Mã NV</th>
+          <th>Họ và Tên</th>
+          <th>Phòng Ban</th>
+          <th>Chức Danh</th>`;
+
+    for (let d = 1; d <= totalDays; d++) {
+      const dt = new Date(year, month - 1, d);
+      const dow = dt.getDay();
+      let cls = '';
+      if (dow === 0) cls = ' class="sun"';
+      else if (dow === 6) cls = ' class="sat"';
+      tableHtml += `<th${cls}>${d}</th>`;
+    }
+
+    tableHtml += `
+          <th style="background-color: #1e3a8a;">Công Thực (X)</th>
+          <th style="background-color: #3730a3;">Phép (P)</th>
+          <th style="background-color: #78350f;">Ốm (O)</th>
+          <th style="background-color: #581c87;">OT (Làm thêm)</th>
+        </tr>`;
+
+    USERS_DB.filter(u => u.status !== 'Đã nghỉ việc').forEach(u => {
+      const rawDays = periodMap[u.id] || generateDefaultDaysForMonth(period).days;
+      let totalX = 0, totalP = 0, totalO = 0, totalOT = 0;
+      let rowCells = '';
+      for (let d = 0; d < totalDays; d++) {
+        const sym = rawDays[d] || 'X';
+        let cls = '';
+        if (sym === 'P') { totalP++; cls = ' class="leave"'; }
+        else if (sym === 'O') { totalO++; cls = ' class="sick"'; }
+        else if (sym === 'OT') { totalOT++; cls = ' class="ot"'; }
+        else if (sym === 'CN') { cls = ' class="sun"'; }
+        else if (sym === 'T7') { cls = ' class="sat"'; }
+        else { totalX++; }
+        rowCells += `<td${cls}>${sym}</td>`;
+      }
+
+      tableHtml += `
+        <tr>
+          <td style="font-weight: bold; text-align: center;">${escapeHtml(u.id)}</td>
+          <td style="text-align: left; font-weight: 500;">${escapeHtml(u.name)}</td>
+          <td style="text-align: center;">${escapeHtml(u.dept)}</td>
+          <td style="text-align: left;">${escapeHtml(u.title)}</td>
+          ${rowCells}
+          <td style="font-weight: bold; background-color: #eff6ff;">${totalX}</td>
+          <td style="font-weight: bold; background-color: #eef2ff;">${totalP}</td>
+          <td style="font-weight: bold; background-color: #fefce8;">${totalO}</td>
+          <td style="font-weight: bold; background-color: #faf5ff;">${totalOT}</td>
+        </tr>`;
+    });
+
+    tableHtml += `</table></body></html>`;
+
+    // Tải xuống file Excel trực tiếp trên trình duyệt
+    const blob = new Blob(['\uFEFF' + tableHtml], { type: 'application/vnd.ms-excel;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `Bang_Cham_Cong_Thang_${period.replace('/', '_')}.xls`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+
+    showToast(`Đã xuất và tải về file Excel Bảng Chấm Công kỳ ${period} thành công!`, 'success');
+  }
+
+  // Cập nhật ma trận công cục bộ khi duyệt đơn nghỉ xuyên tháng (ví dụ 30/10 đến 02/11)
+  function applyLeaveRangeToClientTimesheet(empId, fromDateStr, toDateStr, numDays, symbol) {
+    let startDate = new Date(String(fromDateStr).replace(/-/g, '/'));
+    let endDate;
+    if (toDateStr) {
+      endDate = new Date(String(toDateStr).replace(/-/g, '/'));
+    } else {
+      endDate = new Date(startDate.getTime());
+      endDate.setDate(startDate.getDate() + (parseInt(String(numDays), 10) || 1) - 1);
+    }
+
+    const cur = new Date(startDate.getTime());
+    let safety = 0;
+    while (cur <= endDate && safety < 60) {
+      safety++;
+      const m = String(cur.getMonth() + 1).padStart(2, '0');
+      const y = cur.getFullYear();
+      const pKey = `${m}/${y}`;
+      const day = cur.getDate();
+
+      if (!appData.timesheetByPeriod) appData.timesheetByPeriod = {};
+      if (!appData.timesheetByPeriod[pKey]) {
+        const info = generateDefaultDaysForMonth(pKey);
+        const mockMap = {};
+        USERS_DB.forEach(u => { mockMap[u.id] = [...info.days]; });
+        appData.timesheetByPeriod[pKey] = mockMap;
+      }
+
+      if (appData.timesheetByPeriod[pKey][empId]) {
+        appData.timesheetByPeriod[pKey][empId][day - 1] = symbol;
+      }
+      if (pKey === currentTimesheetPeriod && appData.timesheet && appData.timesheet[empId]) {
+        appData.timesheet[empId][day - 1] = symbol;
+      }
+
+      cur.setDate(cur.getDate() + 1);
+    }
   }
 
   // --- RENDER 4: LEAVE TABLE ---
@@ -1687,17 +2418,26 @@
         stBadge = `<span class="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 font-bold text-[10px]"><i class="fa-solid fa-check mr-1"></i>Đã duyệt BHXH</span>`;
       } else if (s.status === 'REJECTED') {
         stBadge = `<span class="px-2.5 py-1 rounded-full bg-rose-100 text-rose-800 font-bold text-[10px]"><i class="fa-solid fa-xmark mr-1"></i>Từ chối</span>`;
+      } else if (s.status === 'NEED_MORE_INFO') {
+        stBadge = `<span class="px-2.5 py-1 rounded-full bg-amber-100 text-amber-800 font-bold text-[10px]"><i class="fa-solid fa-triangle-exclamation mr-1"></i>Yêu cầu bổ sung</span>`;
       } else {
         stBadge = `<span class="px-2.5 py-1 rounded-full bg-amber-100 text-amber-800 font-bold text-[10px]"><i class="fa-solid fa-clock mr-1"></i>Chờ HR duyệt</span>`;
       }
 
-      let actions = '---';
-      if (s.status === 'PENDING' && canApproveSick) {
+      let actions = '<span class="text-slate-400 text-xs">---</span>';
+      if ((s.status === 'PENDING' || s.status === 'NEED_MORE_INFO') && canApproveSick) {
         actions = `
           <div class="flex items-center justify-end space-x-1.5">
-            <button onclick="approveSick('${s.id}')" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded font-bold text-[11px] shadow-sm transition">Duyệt BHXH</button>
-            <button onclick="rejectSick('${s.id}')" class="px-2.5 py-1 bg-rose-600 hover:bg-rose-500 text-white rounded font-bold text-[11px] shadow-sm transition">Từ chối</button>
+            <button onclick="approveSick('${s.id}')" class="px-2 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded font-bold text-[11px] shadow-sm transition" title="Duyệt hồ sơ">Duyệt</button>
+            <button onclick="openSickMoreInfoModal('${s.id}')" class="px-2 py-1 bg-amber-500 hover:bg-amber-600 text-white rounded font-bold text-[11px] shadow-sm transition" title="Yêu cầu bổ sung chứng từ">Bổ sung</button>
+            <button onclick="rejectSick('${s.id}')" class="px-2 py-1 bg-rose-600 hover:bg-rose-500 text-white rounded font-bold text-[11px] shadow-sm transition" title="Từ chối hồ sơ">Từ chối</button>
           </div>
+        `;
+      } else if (s.status === 'NEED_MORE_INFO' && currentUser.role === 'employee' && s.empId === currentUser.id) {
+        actions = `
+          <button onclick="openSickResubmitModal('${s.id}')" class="px-2.5 py-1 bg-amber-500 hover:bg-amber-600 text-white rounded font-bold text-[11px] shadow-sm transition flex items-center space-x-1 ml-auto">
+            <i class="fa-solid fa-upload"></i><span>Bổ sung hồ sơ</span>
+          </button>
         `;
       }
 
@@ -1717,6 +2457,7 @@
               </a>
             ` : `<span class="text-slate-400 text-[11px]">Không có</span>`}
           </td>
+          <td class="py-3 px-4 text-xs text-slate-600 max-w-xs truncate" title="${escapeHtml(s.note || '')}">${escapeHtml(s.note || '---')}</td>
           <td class="py-3 px-4 text-center">${stBadge}</td>
           <td class="py-3 px-4 text-right">${actions}</td>
         </tr>
@@ -1730,6 +2471,10 @@
     const tbody = document.getElementById('payroll-tbody');
     const desc = document.getElementById('payroll-desc');
     const btnCalc = document.getElementById('btn-calc-payroll');
+    const titleEl = document.getElementById('payroll-period-title');
+    if (titleEl) {
+      titleEl.innerText = `Kỳ: Tháng ${currentTimesheetPeriod || '10/2026'}`;
+    }
 
     if (currentUser.role === 'employee') {
       desc.innerText = 'Chế độ xem cá nhân: Chỉ hiển thị dữ liệu phiếu lương của bạn';
@@ -1753,6 +2498,7 @@
             <td class="py-3 px-4 text-right font-medium">${(p.baseSalary || 0).toLocaleString('vi-VN')} đ</td>
             <td class="py-3 px-3 text-center font-bold text-slate-500">${p.standardDays || 22}</td>
             <td class="py-3 px-3 text-center font-extrabold text-blue-600">${p.actualDays || 0}</td>
+            <td class="py-3 px-3 text-center font-extrabold text-purple-600">${p.otDays || 0}</td>
             <td class="py-3 px-4 text-right text-slate-600">${(p.allowance || 0).toLocaleString('vi-VN')} đ</td>
             <td class="py-3 px-4 text-right font-extrabold text-blue-700 text-sm">${(p.netSalary || 0).toLocaleString('vi-VN')} đ</td>
             <td class="py-3 px-4 text-center">
@@ -1768,11 +2514,13 @@
       USERS_DB.filter(u => u.status !== 'Đã nghỉ việc').forEach(u => {
         if (currentUser.role === 'employee' && u.id !== currentUser.id) return;
 
-        const days = appData.timesheet[u.id] || [];
+        const days = (appData.timesheetByPeriod && appData.timesheetByPeriod[currentTimesheetPeriod] && appData.timesheetByPeriod[currentTimesheetPeriod][u.id]) || (appData.timesheet && appData.timesheet[u.id]) || [];
         const actualDays = days.filter(d => d === 'X').length;
+        const otDays = days.filter(d => d === 'OT').length;
         const allowance = 1500000;
         const salaryPerDay = (u.salary || 0) / workingDaysNorm;
-        const gross = Math.round((salaryPerDay * actualDays) + allowance);
+        const otPay = Math.round(salaryPerDay * 1.5 * otDays);
+        const gross = Math.round((salaryPerDay * actualDays) + otPay + allowance);
         const bhxh = Math.round((u.salary || 0) * 0.105);
         const netSalary = Math.max(0, gross - bhxh);
 
@@ -1784,6 +2532,7 @@
             <td class="py-3 px-4 text-right font-medium">${(u.salary || 0).toLocaleString('vi-VN')} đ</td>
             <td class="py-3 px-3 text-center font-bold text-slate-500">${workingDaysNorm}</td>
             <td class="py-3 px-3 text-center font-extrabold text-blue-600">${actualDays}</td>
+            <td class="py-3 px-3 text-center font-extrabold text-purple-600">${otDays}</td>
             <td class="py-3 px-4 text-right text-slate-600">${allowance.toLocaleString('vi-VN')} đ</td>
             <td class="py-3 px-4 text-right font-extrabold text-blue-700 text-sm">${netSalary.toLocaleString('vi-VN')} đ</td>
             <td class="py-3 px-4 text-center">
@@ -1849,30 +2598,95 @@
   }
 
   // --- RENDER 8: DOCUMENTS TABLE ---
+  function filterDocuments() {
+    renderDocsTable();
+  }
+
   function renderDocsTable() {
     const tbody = document.getElementById('docs-tbody');
+    if (!tbody) return;
+
+    const searchKeyword = (document.getElementById('doc-search-input') ? document.getElementById('doc-search-input').value.trim().toLowerCase() : '');
+    const filterType = (document.getElementById('doc-filter-type') ? document.getElementById('doc-filter-type').value : '');
+    const filterCategory = (document.getElementById('doc-filter-category') ? document.getElementById('doc-filter-category').value : '');
+
+    let docs = appData.documents || [];
+
+    // Lọc theo từ khóa tìm kiếm (Số hiệu, Tiêu đề, Cơ quan, Lĩnh vực)
+    if (searchKeyword) {
+      docs = docs.filter(d =>
+        (d.id && d.id.toLowerCase().includes(searchKeyword)) ||
+        (d.title && d.title.toLowerCase().includes(searchKeyword)) ||
+        (d.issuer && d.issuer.toLowerCase().includes(searchKeyword)) ||
+        (d.category && d.category.toLowerCase().includes(searchKeyword))
+      );
+    }
+
+    // Lọc theo loại văn bản (bao gồm nhóm Văn bản tiền lương)
+    if (filterType) {
+      if (filterType === 'salary_docs') {
+        docs = docs.filter(d =>
+          (d.category && d.category.toLowerCase().includes('lương')) ||
+          (d.title && d.title.toLowerCase().includes('lương')) ||
+          (d.id && d.id.toLowerCase().includes('luong')) ||
+          (d.type === 'Quy chế nội bộ' && d.title.toLowerCase().includes('lương'))
+        );
+      } else {
+        docs = docs.filter(d => d.type === filterType);
+      }
+    }
+
+    // Lọc theo Lĩnh Vực pháp luật / chuyên môn
+    if (filterCategory) {
+      docs = docs.filter(d => d.category === filterCategory);
+    }
+
+    if (docs.length === 0) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="9" class="py-8 text-center text-slate-400">
+            <i class="fa-solid fa-magnifying-glass text-2xl mb-2 text-slate-300"></i>
+            <p class="text-sm font-medium">Không tìm thấy văn bản phù hợp với bộ lọc tìm kiếm.</p>
+          </td>
+        </tr>
+      `;
+      return;
+    }
+
     let html = '';
-    appData.documents.forEach(d => {
+    docs.forEach(d => {
+      const catBadge = d.category
+        ? `<span class="px-2 py-0.5 rounded-md text-[10px] font-semibold bg-blue-50 text-blue-700 border border-blue-200">${escapeHtml(d.category)}</span>`
+        : `<span class="text-slate-400 text-xs">---</span>`;
+
       html += `
         <tr class="hover:bg-slate-50 transition">
-          <td class="py-3 px-4 font-bold text-slate-800">${d.id}</td>
-          <td class="py-3 px-4 font-bold text-slate-900">${d.title}</td>
-          <td class="py-3 px-4"><span class="px-2 py-0.5 rounded bg-amber-50 text-amber-800 font-medium">${d.type}</span></td>
-          <td class="py-3 px-4 text-slate-600">${d.issuer}</td>
-          <td class="py-3 px-4 text-slate-500">${d.date}</td>
+          <td class="py-3 px-4 font-bold text-slate-800">${escapeHtml(d.id)}</td>
+          <td class="py-3 px-4 font-bold text-slate-900">${escapeHtml(d.title)}</td>
+          <td class="py-3 px-4"><span class="px-2 py-0.5 rounded bg-amber-50 text-amber-800 font-medium text-xs">${escapeHtml(d.type)}</span></td>
+          <td class="py-3 px-4">${catBadge}</td>
+          <td class="py-3 px-4 text-slate-600">${escapeHtml(d.issuer)}</td>
+          <td class="py-3 px-4 text-slate-500">${escapeHtml(d.date)}</td>
           <td class="py-3 px-4 text-center">
-            <a href="${d.fileUrl}" target="_blank" rel="noopener noreferrer" class="px-2.5 py-1 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded text-[11px] font-semibold transition inline-flex items-center space-x-1">
+            <a href="${escapeHtml(d.fileUrl)}" target="_blank" rel="noopener noreferrer" class="px-2.5 py-1 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded text-[11px] font-semibold transition inline-flex items-center space-x-1 border border-blue-200">
               <i class="fa-solid fa-arrow-up-right-from-square"></i>
               <span>Xem File</span>
             </a>
           </td>
-          <td class="py-3 px-4 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">${d.status}</span></td>
+          <td class="py-3 px-4 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">${escapeHtml(d.status || 'Hiệu lực')}</span></td>
           <td class="py-3 px-4 text-right">
-            <button onclick="assignTaskFromDoc('${d.id}')"
-              class="px-2.5 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 hover:text-indigo-900 rounded font-semibold text-[11px] inline-flex items-center space-x-1 border border-indigo-200 shadow-xs transition">
-              <i class="fa-solid fa-list-check"></i>
-              <span>Giao Việc</span>
-            </button>
+            <div class="flex items-center justify-end space-x-1.5">
+              <button onclick="editDoc('${escapeHtml(d.id)}')"
+                class="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded font-semibold text-[11px] inline-flex items-center space-x-1 border border-slate-300 transition" title="Chỉnh sửa văn bản">
+                <i class="fa-solid fa-pen-to-square"></i>
+                <span>Sửa</span>
+              </button>
+              <button onclick="assignTaskFromDoc('${escapeHtml(d.id)}')"
+                class="px-2 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 hover:text-indigo-900 rounded font-semibold text-[11px] inline-flex items-center space-x-1 border border-indigo-200 transition" title="Giao việc theo văn bản này">
+                <i class="fa-solid fa-list-check"></i>
+                <span>Giao Việc</span>
+              </button>
+            </div>
           </td>
         </tr>
       `;
@@ -1889,11 +2703,7 @@
     callBackend('apiApproveLeave', [reqId, callerEmail], (res) => {
       if (res && res.success) {
         req.status = 'APPROVED';
-        if (!appData.timesheet[req.empId]) appData.timesheet[req.empId] = Array(31).fill('X');
-        const fromDayNum = parseInt(req.from.split('-')[2]) - 1;
-        for (let i = 0; i < req.days; i++) {
-          if (fromDayNum + i < 31) appData.timesheet[req.empId][fromDayNum + i] = 'P';
-        }
+        applyLeaveRangeToClientTimesheet(req.empId, req.from, req.to, req.days, 'P');
         showToast(res.message || `Đã duyệt đơn ${req.id} thành công!`, 'success');
         renderDashboard();
         renderLeaveTable();
@@ -1914,11 +2724,7 @@
     callBackend('apiApproveSick', [sickId, callerEmail], (res) => {
       if (res && res.success) {
         sc.status = 'APPROVED';
-        if (!appData.timesheet[sc.empId]) appData.timesheet[sc.empId] = Array(31).fill('X');
-        const fromDayNum = parseInt(sc.from.split('-')[2]) - 1;
-        for (let i = 0; i < sc.days; i++) {
-          if (fromDayNum + i < 31) appData.timesheet[sc.empId][fromDayNum + i] = 'O';
-        }
+        applyLeaveRangeToClientTimesheet(sc.empId, sc.from, sc.to, sc.days, 'O');
         showToast(res.message || `Đã xác nhận hồ sơ BHXH ${sc.id} thành công!`, 'success');
         renderDashboard();
         renderSickTable();
@@ -1972,13 +2778,14 @@
   }
 
   function calculatePayroll() {
-    if (!confirm('Hệ thống sẽ tổng hợp số ngày công từ bảng Chấm Công và tính lại Lương thực lĩnh cho toàn bộ nhân sự rồi lưu vào Google Sheet. Tiếp tục?')) return;
-    showToast('Đang tính lương và đồng bộ Google Sheets...', 'info');
+    const targetPeriod = currentTimesheetPeriod || '10/2026';
+    if (!confirm(`Hệ thống sẽ tổng hợp số ngày công kỳ [${targetPeriod}] từ bảng Chấm Công và tính lại Lương thực lĩnh cho toàn bộ nhân sự rồi lưu vào Google Sheet. Tiếp tục?`)) return;
+    showToast(`Đang tính lương kỳ ${targetPeriod} và đồng bộ Google Sheets...`, 'info');
 
     const callerEmail = currentUser ? currentUser.email : '';
-    callBackend('apiCalculateMonthlyPayroll', ['10/2026', callerEmail], (res) => {
+    callBackend('apiCalculateMonthlyPayroll', [targetPeriod, callerEmail], (res) => {
       if (res && res.success) {
-        showToast(res.message || 'Đã tính toán và lưu Bảng Lương vào Google Sheet thành công!', 'success');
+        showToast(res.message || `Đã tính toán và lưu Bảng Lương kỳ ${targetPeriod} vào Google Sheet thành công!`, 'success');
         callBackend('apiGetPayrollData', [currentUser.email], (pRes) => {
           if (pRes && pRes.success) {
             appData.payroll = pRes.data;
@@ -2153,14 +2960,14 @@
 
     if (selectedSickFile) {
       const reader = new FileReader();
-      reader.onload = function(evt) {
+      reader.onload = function (evt) {
         doSubmit({
           name: selectedSickFile.name,
           type: selectedSickFile.type,
           base64: evt.target.result
         });
       };
-      reader.onerror = function() {
+      reader.onerror = function () {
         showToast("Không thể đọc tệp tin cục bộ!", "error");
         doSubmit(null);
       };
@@ -2242,43 +3049,177 @@
     });
   }
 
+  // --- DOCUMENT ATTACHMENT & EDIT LOGIC ---
+  let selectedDocFile = null;
+  let currentEditingDocId = null;
+
+  function handleDocFileSelected(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    if (file.size > 15 * 1024 * 1024) {
+      showToast('Kích thước tệp vượt quá 15MB! Vui lòng chọn tệp nhỏ hơn.', 'error');
+      event.target.value = '';
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      selectedDocFile = {
+        name: file.name,
+        type: file.type || 'application/octet-stream',
+        data: e.target.result.split(',')[1]
+      };
+      const fnameEl = document.getElementById('doc-filename');
+      const fsizeEl = document.getElementById('doc-filesize');
+      const preview = document.getElementById('doc-file-preview');
+      const placeholder = document.getElementById('doc-upload-placeholder');
+      if (fnameEl) fnameEl.innerText = file.name;
+      if (fsizeEl) fsizeEl.innerText = `(${(file.size / 1024).toFixed(1)} KB)`;
+      if (preview) preview.classList.remove('hidden');
+      if (placeholder) placeholder.classList.add('hidden');
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function clearDocFile() {
+    selectedDocFile = null;
+    const input = document.getElementById('doc-file-input');
+    if (input) input.value = '';
+    const preview = document.getElementById('doc-file-preview');
+    if (preview) preview.classList.add('hidden');
+    const placeholder = document.getElementById('doc-upload-placeholder');
+    if (placeholder) placeholder.classList.remove('hidden');
+  }
+
+  function openDocModal(docId) {
+    currentEditingDocId = docId || null;
+    const titleEl = document.getElementById('modal-doc-title');
+    const idInput = document.getElementById('doc-form-id');
+    const typeInput = document.getElementById('doc-form-type');
+    const catInput = document.getElementById('doc-form-category');
+    const titleInput = document.getElementById('doc-form-title');
+    const issuerInput = document.getElementById('doc-form-issuer');
+    const dateInput = document.getElementById('doc-form-date');
+    const urlInput = document.getElementById('doc-form-url');
+
+    clearDocFile();
+
+    if (docId) {
+      const doc = (appData.documents || []).find(d => d.id === docId);
+      if (doc) {
+        if (titleEl) titleEl.innerText = 'Chỉnh Sửa Văn Bản / Tài Liệu';
+        if (idInput) { idInput.value = doc.id; idInput.readOnly = true; }
+        if (typeInput) typeInput.value = doc.type || 'Quy chế nội bộ';
+        if (catInput) catInput.value = doc.category || 'Nội bộ công ty';
+        if (titleInput) titleInput.value = doc.title || '';
+        if (issuerInput) issuerInput.value = doc.issuer || '';
+        if (dateInput) {
+          if (doc.date && doc.date.includes('/')) {
+            const p = doc.date.split('/');
+            dateInput.value = `${p[2]}-${p[1].padStart(2, '0')}-${p[0].padStart(2, '0')}`;
+          } else {
+            dateInput.value = doc.date || '';
+          }
+        }
+        if (urlInput) urlInput.value = doc.fileUrl || '';
+      }
+    } else {
+      if (titleEl) titleEl.innerText = 'Ban Hành Văn Bản / Lưu Trữ Tài Liệu';
+      if (idInput) { idInput.value = ''; idInput.readOnly = false; }
+      if (titleInput) titleInput.value = '';
+      if (issuerInput) issuerInput.value = 'Ban Giám Đốc';
+      if (dateInput) dateInput.value = new Date().toISOString().split('T')[0];
+      if (urlInput) urlInput.value = '';
+    }
+
+    document.getElementById('modal-doc').classList.remove('hidden');
+  }
+
+  function editDoc(docId) {
+    openDocModal(docId);
+  }
+
   function handleSaveDoc(e) {
-    e.preventDefault();
+    if (e) e.preventDefault();
     const id = document.getElementById('doc-form-id').value.trim();
     const type = document.getElementById('doc-form-type').value;
+    const category = document.getElementById('doc-form-category').value;
     const title = document.getElementById('doc-form-title').value.trim();
     const issuer = document.getElementById('doc-form-issuer').value.trim();
+    const dateVal = document.getElementById('doc-form-date').value;
     const url = document.getElementById('doc-form-url').value.trim();
+
+    if (!id || !title) {
+      showToast('Vui lòng nhập đầy đủ Số hiệu và Trích yếu văn bản!', 'error');
+      return;
+    }
+
+    let formattedDate = UtilitiesFormatToday();
+    if (dateVal) {
+      const dp = dateVal.split('-');
+      if (dp.length === 3) formattedDate = `${dp[2]}/${dp[1]}/${dp[0]}`;
+    }
 
     const docObj = {
       id: id,
       title: title,
       type: type,
+      category: category,
       issuer: issuer,
-      date: UtilitiesFormatToday(),
-      fileUrl: url,
-      status: 'Hiệu lực'
+      date: formattedDate,
+      fileUrl: url || 'https://drive.google.com/sample_doc.pdf',
+      status: 'Hiệu lực',
+      fileData: selectedDocFile
     };
 
-    appData.documents.unshift(docObj);
-    closeModal('modal-doc');
-    renderDocsTable();
-    switchTab('docs');
-
+    const isEdit = !!currentEditingDocId;
     const callerEmail = currentUser ? currentUser.email : '';
-    callBackend('apiSaveDocument', [docObj, callerEmail], (res) => {
-      if (res && res.success) {
-        showToast(`Lưu trữ văn bản [${id}] thành công (Đã lưu Sheet)!`, 'success');
-      } else {
+
+    if (isEdit) {
+      const idx = appData.documents.findIndex(d => d.id === id);
+      if (idx !== -1) {
+        appData.documents[idx] = { ...appData.documents[idx], ...docObj };
+      }
+      closeModal('modal-doc');
+      renderDocsTable();
+      showToast('Đang cập nhật văn bản lên Google Sheet & Drive...', 'info');
+
+      callBackend('apiUpdateDocument', [docObj, callerEmail], (res) => {
+        if (res && res.success) {
+          if (res.docUrl) {
+            const f = appData.documents.find(d => d.id === id);
+            if (f) f.fileUrl = res.docUrl;
+            renderDocsTable();
+          }
+          showToast(`Cập nhật văn bản [${id}] thành công!`, 'success');
+        } else {
+          showToast((res && res.message) || 'Lỗi cập nhật văn bản!', 'error');
+        }
+      });
+    } else {
+      appData.documents.unshift(docObj);
+      closeModal('modal-doc');
+      renderDocsTable();
+      switchTab('docs');
+      showToast('Đang lưu trữ văn bản và tải tệp lên Drive...', 'info');
+
+      callBackend('apiSaveDocument', [docObj, callerEmail], (res) => {
+        if (res && res.success) {
+          if (res.docUrl) {
+            docObj.fileUrl = res.docUrl;
+            renderDocsTable();
+          }
+          showToast(`Lưu trữ văn bản [${id}] thành công (Đã lưu Drive & Sheet)!`, 'success');
+        } else {
+          appData.documents = appData.documents.filter(x => x.id !== id);
+          renderDocsTable();
+          showToast((res && res.message) || 'Lưu văn bản thất bại!', 'error');
+        }
+      }, (err) => {
         appData.documents = appData.documents.filter(x => x.id !== id);
         renderDocsTable();
-        showToast((res && res.message) || 'Lưu văn bản thất bại!', 'error');
-      }
-    }, (err) => {
-      appData.documents = appData.documents.filter(x => x.id !== id);
-      renderDocsTable();
-      showToast('Lỗi máy chủ khi lưu văn bản: ' + err.message, 'error');
-    });
+        showToast('Lỗi máy chủ khi lưu văn bản: ' + err.message, 'error');
+      });
+    }
   }
 
   function UtilitiesFormatToday() {
@@ -2286,14 +3227,143 @@
     return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
   }
 
-  function printPayslip(empId) {
+  // --- SICK LEAVE EXTRA INFO & RESUBMISSION WORKFLOW ---
+  let currentMoreInfoSickId = null;
+  function openSickMoreInfoModal(sickId) {
+    currentMoreInfoSickId = sickId;
+    const sc = appData.sickCases.find(s => s.id === sickId);
+    document.getElementById('sick-moreinfo-id').value = sickId;
+    document.getElementById('sick-moreinfo-emp').innerText = sc ? `${sc.empName} (Mã: ${sc.empId})` : '';
+    document.getElementById('sick-moreinfo-reason').value = '';
+    document.getElementById('modal-sick-more-info').classList.remove('hidden');
+  }
+
+  function handleSendSickMoreInfo(e) {
+    if (e) e.preventDefault();
+    const reason = document.getElementById('sick-moreinfo-reason').value.trim();
+    if (!reason) {
+      showToast('Vui lòng nhập lý do hoặc nội dung yêu cầu bổ sung!', 'error');
+      return;
+    }
+    const sickId = currentMoreInfoSickId;
+    const sc = appData.sickCases.find(s => s.id === sickId);
+    if (!sc) return;
+
+    const callerEmail = currentUser ? currentUser.email : '';
+    showToast('Đang gửi yêu cầu bổ sung chứng từ...', 'info');
+    callBackend('apiAskMoreInfoSick', [sickId, reason, callerEmail], (res) => {
+      if (res && res.success) {
+        sc.status = 'NEED_MORE_INFO';
+        sc.note = reason;
+        closeModal('modal-sick-more-info');
+        renderSickTable();
+        renderDashboard();
+        showToast(res.message || `Đã gửi yêu cầu bổ sung chứng từ cho hồ sơ ${sickId}!`, 'success');
+      } else {
+        showToast((res && res.message) || 'Lỗi gửi yêu cầu bổ sung!', 'error');
+      }
+    }, (err) => {
+      showToast('Lỗi máy chủ: ' + err.message, 'error');
+    });
+  }
+
+  let currentResubmitSickId = null;
+  let selectedSickResubmitFile = null;
+  function openSickResubmitModal(sickId) {
+    currentResubmitSickId = sickId;
+    const sc = appData.sickCases.find(s => s.id === sickId);
+    document.getElementById('sick-resubmit-id').value = sickId;
+    document.getElementById('sick-resubmit-note-box').innerText = sc ? (sc.note || 'HR yêu cầu bổ sung chứng từ y tế') : '';
+    document.getElementById('sick-resubmit-note').value = '';
+    clearSickResubmitFile();
+    document.getElementById('modal-sick-resubmit').classList.remove('hidden');
+  }
+
+  function handleSickResubmitFileSelected(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    if (file.size > 10 * 1024 * 1024) {
+      showToast('Kích thước tệp vượt quá 10MB! Vui lòng chọn tệp nhỏ hơn.', 'error');
+      event.target.value = '';
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      selectedSickResubmitFile = {
+        name: file.name,
+        type: file.type || 'application/octet-stream',
+        data: e.target.result.split(',')[1]
+      };
+      document.getElementById('sick-resubmit-filename').innerText = file.name;
+      document.getElementById('sick-resubmit-file-preview').classList.remove('hidden');
+      document.getElementById('sick-resubmit-upload-placeholder').classList.add('hidden');
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function clearSickResubmitFile() {
+    selectedSickResubmitFile = null;
+    const input = document.getElementById('sick-resubmit-file-input');
+    if (input) input.value = '';
+    const preview = document.getElementById('sick-resubmit-file-preview');
+    if (preview) preview.classList.add('hidden');
+    const placeholder = document.getElementById('sick-resubmit-upload-placeholder');
+    if (placeholder) placeholder.classList.remove('hidden');
+  }
+
+  function handleResubmitSick(e) {
+    if (e) e.preventDefault();
+    if (!selectedSickResubmitFile) {
+      showToast('Vui lòng chọn tệp chứng từ viện phí / giấy ra viện mới để bổ sung!', 'error');
+      return;
+    }
+    const sickId = currentResubmitSickId;
+    const note = document.getElementById('sick-resubmit-note').value.trim();
+    const sc = appData.sickCases.find(s => s.id === sickId);
+    if (!sc) return;
+
+    const callerEmail = currentUser ? currentUser.email : '';
+    const formObj = {
+      note: note,
+      fileData: selectedSickResubmitFile
+    };
+
+    showToast('Đang tải tệp lên Google Drive và nộp lại hồ sơ...', 'info');
+    callBackend('apiResubmitSick', [sickId, formObj, callerEmail], (res) => {
+      if (res && res.success) {
+        sc.status = 'PENDING';
+        sc.note = 'Đã nộp bổ sung: ' + note;
+        if (res.docUrl) sc.docUrl = res.docUrl;
+        closeModal('modal-sick-resubmit');
+        renderSickTable();
+        renderDashboard();
+        showToast(res.message || `Đã nộp lại chứng từ cho hồ sơ ${sickId} thành công!`, 'success');
+      } else {
+        showToast((res && res.message) || 'Lỗi khi nộp lại chứng từ!', 'error');
+      }
+    }, (err) => {
+      showToast('Lỗi máy chủ khi nộp lại hồ sơ: ' + err.message, 'error');
+    });
+  }
+
+  // --- PAYSLIP LOGIC ---
+  let currentPayslipEmpId = null;
+  function printPayslip(empId, period) {
+    if (!empId) empId = currentPayslipEmpId || (currentUser ? currentUser.id : 'VT-001');
+    currentPayslipEmpId = empId;
+    if (!period) period = currentTimesheetPeriod || '10/2026';
+
+    const pSel = document.getElementById('payslip-period-select');
+    if (pSel && pSel.value !== period) pSel.value = period;
+
     const u = USERS_DB.find(x => x.id === empId) || USERS_DB[0];
     const payrollItem = (appData.payroll && appData.payroll.length)
       ? appData.payroll.find(p => p.empId === empId)
       : null;
 
-    const days = appData.timesheet[u.id] || [];
+    const days = (appData.timesheetByPeriod && appData.timesheetByPeriod[period] && appData.timesheetByPeriod[period][u.id]) || (appData.timesheet && appData.timesheet[u.id]) || [];
     const leaveDays = days.filter(d => d === 'P').length;
+    const otDays = payrollItem ? (payrollItem.otDays || 0) : days.filter(d => d === 'OT').length;
 
     const baseSalary = payrollItem ? payrollItem.baseSalary : (u.salary || 0);
     const standardDays = payrollItem ? payrollItem.standardDays : 22;
@@ -2302,7 +3372,8 @@
     const bhxh = payrollItem ? payrollItem.bhxh : Math.round(baseSalary * 0.105);
     const salaryPerDay = standardDays > 0 ? (baseSalary / standardDays) : 0;
     const salaryByDays = Math.round(salaryPerDay * actualDays);
-    const net = payrollItem ? payrollItem.netSalary : Math.max(0, salaryByDays + allowance - bhxh);
+    const otPay = payrollItem && payrollItem.otPay !== undefined ? payrollItem.otPay : Math.round(salaryPerDay * 1.5 * otDays);
+    const net = payrollItem ? payrollItem.netSalary : Math.max(0, salaryByDays + otPay + allowance - bhxh);
 
     document.getElementById('payslip-content').innerHTML = `
       <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 grid grid-cols-2 gap-2 text-slate-700">
@@ -2310,6 +3381,8 @@
         <div><strong>Họ và tên:</strong> ${escapeHtml(u.name)}</div>
         <div><strong>Phòng ban:</strong> ${escapeHtml(u.dept)}</div>
         <div><strong>Chức danh:</strong> ${escapeHtml(u.title)}</div>
+        <div><strong>Kỳ lương:</strong> Tháng ${escapeHtml(period)}</div>
+        <div><strong>Ngày xuất:</strong> ${UtilitiesFormatToday()}</div>
       </div>
       <div class="border border-slate-200 rounded-xl overflow-hidden mt-3">
         <table class="w-full text-left">
@@ -2317,15 +3390,20 @@
             <tr class="bg-slate-50/50"><td class="p-2 font-semibold">1. Lương cơ bản theo hợp đồng:</td><td class="p-2 text-right font-bold">${baseSalary.toLocaleString('vi-VN')} đ</td></tr>
             <tr><td class="p-2">2. Ngày công chuẩn trong tháng:</td><td class="p-2 text-right">${standardDays} ngày</td></tr>
             <tr><td class="p-2">3. Số ngày làm việc thực tế:</td><td class="p-2 text-right font-bold text-blue-600">${actualDays} ngày (Phép: ${leaveDays} ngày)</td></tr>
-            <tr><td class="p-2">4. Lương theo ngày công:</td><td class="p-2 text-right">${salaryByDays.toLocaleString('vi-VN')} đ</td></tr>
-            <tr><td class="p-2">5. Phụ cấp trách nhiệm & ăn trưa:</td><td class="p-2 text-right">${allowance.toLocaleString('vi-VN')} đ</td></tr>
-            <tr class="text-rose-600"><td class="p-2">6. Khấu trừ BHXH (10.5%):</td><td class="p-2 text-right font-medium">-${bhxh.toLocaleString('vi-VN')} đ</td></tr>
+            <tr><td class="p-2">4. Lương theo ngày công thực tế:</td><td class="p-2 text-right">${salaryByDays.toLocaleString('vi-VN')} đ</td></tr>
+            <tr class="bg-purple-50/40 text-purple-900"><td class="p-2 font-medium">5. Làm thêm giờ (OT: ${otDays} ngày x 150% lương):</td><td class="p-2 text-right font-bold text-purple-700">+${otPay.toLocaleString('vi-VN')} đ</td></tr>
+            <tr><td class="p-2">6. Phụ cấp trách nhiệm & ăn trưa:</td><td class="p-2 text-right">${allowance.toLocaleString('vi-VN')} đ</td></tr>
+            <tr class="text-rose-600"><td class="p-2">7. Khấu trừ BHXH bắt buộc (10.5%):</td><td class="p-2 text-right font-medium">-${bhxh.toLocaleString('vi-VN')} đ</td></tr>
             <tr class="bg-blue-50 text-blue-900 font-bold text-sm"><td class="p-3">THỰC LĨNH CHUYỂN KHOẢN:</td><td class="p-3 text-right text-base font-extrabold text-blue-700">${net.toLocaleString('vi-VN')} đ</td></tr>
           </tbody>
         </table>
       </div>
     `;
     document.getElementById('modal-payslip').classList.remove('hidden');
+  }
+
+  function changePayslipPeriod(period) {
+    printPayslip(currentPayslipEmpId, period);
   }
 
   function populateAssigneeSelect() {
@@ -2375,11 +3453,51 @@
     }
   }
 
-  function openDocModal() {
-    document.getElementById('modal-doc').classList.remove('hidden');
-  }
   function closeModal(id) {
     document.getElementById(id).classList.add('hidden');
+  }
+
+  // --- DEMO & PRACTICE GUIDE WORKFLOW ---
+  function openGuideModal() {
+    const modal = document.getElementById('modal-guide');
+    if (modal) modal.classList.remove('hidden');
+  }
+
+  function handleResetDatabase() {
+    if (!confirm('CẢNH BÁO QUAN TRỌNG:\n\nBạn có chắc chắn muốn KHÔI PHỤC TOÀN BỘ CƠ SỞ DỮ LIỆU DEMO về trạng thái mặc định chuẩn?\n\nToàn bộ 7 bảng tính trên Google Sheet (Nhân viên, Chấm công đa kỳ, Nghỉ phép, Ốm đau BHXH, Bảng lương, Công việc, Văn bản E-Office) sẽ được đặt lại dữ liệu mẫu VinTech Solutions.')) {
+      return;
+    }
+
+    showToast('Đang tiến hành khôi phục toàn bộ Database mẫu...', 'info');
+    const callerEmail = currentUser ? currentUser.email : '';
+    callBackend('apiResetDatabase', [callerEmail], (res) => {
+      if (res && res.success) {
+        showToast(res.message || 'Khôi phục dữ liệu thành công! Đang tải lại ứng dụng...', 'success');
+        setTimeout(() => {
+          callBackend('apiGetInitialAppData', [callerEmail, currentTimesheetPeriod], (initRes) => {
+            if (initRes && initRes.success && initRes.data) {
+              if (initRes.data.users) USERS_DB = initRes.data.users;
+              if (initRes.data.timesheet) {
+                appData.timesheet = initRes.data.timesheet;
+                if (!appData.timesheetByPeriod) appData.timesheetByPeriod = {};
+                appData.timesheetByPeriod[initRes.data.period || currentTimesheetPeriod] = initRes.data.timesheet;
+              }
+              if (initRes.data.leaves) appData.leaveRequests = initRes.data.leaves;
+              if (initRes.data.sickCases) appData.sickCases = initRes.data.sickCases;
+              if (initRes.data.payroll) appData.payroll = initRes.data.payroll;
+              if (initRes.data.tasks) appData.tasks = initRes.data.tasks;
+              if (initRes.data.documents) appData.documents = initRes.data.documents;
+            }
+            initApp();
+            showToast('Đã làm mới toàn bộ giao diện với dữ liệu chuẩn!', 'success');
+          });
+        }, 1200);
+      } else {
+        showToast((res && res.message) || 'Lỗi khi khôi phục dữ liệu!', 'error');
+      }
+    }, (err) => {
+      showToast('Lỗi máy chủ khi khôi phục database: ' + err.message, 'error');
+    });
   }
 
   let toastTimer;
@@ -2404,7 +3522,6 @@
     renderDocsTable();
   }
 </script>
-
 </body>
 
 </html>

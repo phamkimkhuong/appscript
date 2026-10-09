@@ -90,6 +90,7 @@ function apiApproveLeave(reqId, callerEmail) {
 
     let targetEmpId = null;
     let fromDateStr = null;
+    let toDateStr = null;
     let numDays = 1;
     let foundIndex = -1;
     let currentStatus = "";
@@ -100,6 +101,7 @@ function apiApproveLeave(reqId, callerEmail) {
         currentStatus = (leaveData[i][8] || "").toString().trim().toUpperCase();
         targetEmpId = leaveData[i][1];
         fromDateStr = leaveData[i][4];
+        toDateStr = leaveData[i][5];
         numDays = parseInt(leaveData[i][6]) || 1;
         break;
       }
@@ -121,53 +123,10 @@ function apiApproveLeave(reqId, callerEmail) {
     leaveSheet.getRange(foundIndex, 10).setValue(Utilities.formatDate(new Date(), CONFIG.TIMEZONE, "dd/MM/yyyy HH:mm"));
     leaveSheet.getRange(foundIndex, 11).setValue(reviewerName);
 
-    // Tự động bắn vào bảng Chấm Công (ChamCong) và tính lại tổng công
-    const attSheet = ss.getSheetByName(CONFIG.SHEET_NAMES.ATTENDANCE);
-    if (attSheet) {
-      const attData = attSheet.getDataRange().getValues();
-      let startDay = 1;
-      try {
-        if (fromDateStr instanceof Date) {
-          startDay = fromDateStr.getDate();
-        } else {
-          const str = String(fromDateStr);
-          if (str.includes("-")) {
-            startDay = parseInt(str.split("-")[2]) || 1;
-          } else {
-            startDay = new Date(str).getDate() || 1;
-          }
-        }
-      } catch (e) {
-        startDay = 1;
-      }
+    // Tự động bắn vào bảng Chấm Công (Hỗ trợ đa kỳ và nghỉ xuyên tháng, ví dụ 30/10 đến 02/11)
+    syncLeaveRangeToAttendance(targetEmpId, fromDateStr, toDateStr, numDays, "P");
 
-      for (let j = 1; j < attData.length; j++) {
-        if (attData[j][0] === targetEmpId) {
-          for (let d = 0; d < numDays; d++) {
-            const targetCol = 3 + (startDay + d); // Cột ngày tương ứng (1-indexed)
-            if (targetCol <= 34) {
-              attSheet.getRange(j + 1, targetCol).setValue("P");
-            }
-          }
-
-          // Tính lại tổng công thực (X), phép (P), ốm (O)
-          const rowVals = attSheet.getRange(j + 1, 4, 1, 31).getValues()[0];
-          let totalX = 0, totalP = 0, totalO = 0;
-          rowVals.forEach(s => {
-            if (s === "X") totalX++;
-            else if (s === "P") totalP++;
-            else if (s === "O") totalO++;
-          });
-
-          attSheet.getRange(j + 1, 35).setValue(totalX); // Tổng công
-          attSheet.getRange(j + 1, 36).setValue(totalP); // Tổng phép
-          attSheet.getRange(j + 1, 37).setValue(totalO); // Tổng ốm
-          break;
-        }
-      }
-    }
-
-    return { success: true, message: `Đã phê duyệt đơn [${reqId}] và tự động đồng bộ ký hiệu [P] vào Bảng Chấm Công!` };
+    return { success: true, message: `Đã phê duyệt đơn [${reqId}] và tự động đồng bộ ký hiệu [P] vào Bảng Chấm Công đa kỳ!` };
   } catch (err) {
     return { success: false, message: "Lỗi phê duyệt đơn: " + err.message };
   } finally {

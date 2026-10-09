@@ -15,3 +15,5 @@ tsconfig.json
 README.md
 hrm_eoffice/**
 preview.html
+build_preview.js
+build_preview.cjs

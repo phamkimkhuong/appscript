@@ -48,20 +48,24 @@
       <!-- Login Form -->
       <form onsubmit="handleLoginSubmit(event)" class="space-y-4 relative">
         <div>
-          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Tài khoản / Email nội bộ</label>
+          <label for="login-username" class="block text-xs font-semibold text-slate-300 mb-1.5 cursor-pointer">Tài khoản
+            / Email nội bộ</label>
           <div class="relative">
-            <i class="fa-regular fa-envelope absolute left-3.5 top-3 text-slate-500 text-xs"></i>
-            <input type="text" id="login-username" required placeholder="phuong.le@vintech.vn"
-              class="w-full bg-slate-800/80 border border-slate-700 rounded-xl pl-9 pr-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            <i class="fa-regular fa-envelope absolute left-3.5 top-3 text-slate-500 text-xs pointer-events-none"></i>
+            <input type="email" id="login-username" required placeholder="Nhập email (VD: phuong.le@vintech.vn)"
+              autocomplete="username"
+              class="w-full bg-slate-800/80 border border-slate-700 rounded-xl pl-9 pr-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-text">
           </div>
         </div>
 
         <div>
-          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Mật khẩu</label>
+          <label for="login-password" class="block text-xs font-semibold text-slate-300 mb-1.5 cursor-pointer">Mật
+            khẩu</label>
           <div class="relative">
-            <i class="fa-solid fa-lock absolute left-3.5 top-3 text-slate-500 text-xs"></i>
-            <input type="password" id="login-password" required value="123456" placeholder="••••••••"
-              class="w-full bg-slate-800/80 border border-slate-700 rounded-xl pl-9 pr-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            <i class="fa-solid fa-lock absolute left-3.5 top-3 text-slate-500 text-xs pointer-events-none"></i>
+            <input type="password" id="login-password" required value="" placeholder="Nhập mật khẩu..."
+              autocomplete="current-password"
+              class="w-full bg-slate-800/80 border border-slate-700 rounded-xl pl-9 pr-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-text">
           </div>
         </div>
 
@@ -100,15 +104,29 @@
         </div>
 
         <!-- Sync Indicator & Profile Menu -->
-        <div class="flex items-center space-x-4">
+        <div class="flex items-center space-x-2 sm:space-x-3">
           <div id="sync-status"
-            class="hidden sm:flex items-center space-x-1.5 text-xs text-emerald-400 bg-emerald-950/40 border border-emerald-800/40 px-3 py-1 rounded-full">
+            class="hidden lg:flex items-center space-x-1.5 text-xs text-emerald-400 bg-emerald-950/40 border border-emerald-800/40 px-3 py-1 rounded-full">
             <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-            <span class="font-medium">Google Sheets Connected</span>
+            <span class="font-medium">Google Sheets Live</span>
           </div>
 
+          <!-- Nút Hướng Dẫn Demo -->
+          <button onclick="openModal('modal-guide')" title="Xem hướng dẫn các luồng & kịch bản demo chấm thi"
+            class="text-xs bg-slate-800 hover:bg-indigo-900/40 text-slate-300 hover:text-indigo-300 border border-slate-700 hover:border-indigo-500/50 px-2.5 py-1.5 rounded-xl flex items-center space-x-1.5 transition">
+            <i class="fa-solid fa-circle-question text-indigo-400"></i>
+            <span class="hidden md:inline font-semibold">Hướng Dẫn Demo</span>
+          </button>
+
+          <!-- Nút Khôi Phục Dữ Liệu Demo -->
+          <button onclick="handleResetDatabase()" title="Khôi phục toàn bộ 7 bảng dữ liệu mẫu chuẩn"
+            class="text-xs bg-slate-800 hover:bg-amber-900/40 text-slate-300 hover:text-amber-300 border border-slate-700 hover:border-amber-500/50 px-2.5 py-1.5 rounded-xl flex items-center space-x-1.5 transition">
+            <i class="fa-solid fa-arrows-rotate text-amber-400"></i>
+            <span class="hidden md:inline font-semibold">Khôi Phục Demo</span>
+          </button>
+
           <!-- User info -->
-          <div class="flex items-center space-x-3">
+          <div class="flex items-center space-x-2.5 pl-1 border-l border-slate-800">
             <img id="user-avatar" src="" class="w-8 h-8 rounded-full border border-slate-700 object-cover" alt="Avatar">
             <div class="text-left hidden sm:block">
               <div id="user-name" class="text-xs font-bold text-white leading-tight">--</div>
@@ -189,14 +207,16 @@
         <!-- Banner Greeting -->
         <div
           class="bg-gradient-to-r from-slate-950 via-slate-900 to-indigo-950 rounded-2xl p-6 text-white shadow-xl border border-slate-800 flex flex-col md:flex-row items-start md:items-center justify-between gap-5 relative overflow-hidden">
-          <div class="absolute -right-10 -bottom-10 w-44 h-44 bg-blue-600/10 rounded-full blur-3xl pointer-events-none"></div>
+          <div class="absolute -right-10 -bottom-10 w-44 h-44 bg-blue-600/10 rounded-full blur-3xl pointer-events-none">
+          </div>
           <div class="relative z-10">
             <div class="flex items-center space-x-2.5">
               <h2 class="text-2xl font-extrabold tracking-tight">Xin chào, <span id="greet-name">--</span> 👋</h2>
               <span id="greet-badge"
                 class="px-3 py-0.5 rounded-full text-xs font-bold bg-blue-500/25 text-blue-300 border border-blue-400/40">--</span>
             </div>
-            <p class="text-slate-300 text-sm mt-1.5 font-medium">Chúc bạn một ngày làm việc tràn đầy năng lượng tại VinTech Solutions!</p>
+            <p class="text-slate-300 text-sm mt-1.5 font-medium">Chúc bạn một ngày làm việc tràn đầy năng lượng tại
+              VinTech Solutions!</p>
           </div>
           <div class="flex items-center space-x-3 shrink-0 relative z-10">
             <button onclick="openLeaveModal()"
@@ -213,57 +233,84 @@
         </div>
 
         <!-- Metric Cards -->
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md hover:border-slate-300 transition duration-150">
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5">
+          <div
+            class="bg-white p-4.5 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md hover:border-slate-300 transition duration-150">
             <div class="flex items-center justify-between">
-              <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Quân Số Nhân Sự</span>
-              <div class="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-sm shadow-sm"><i
-                  class="fa-solid fa-users"></i></div>
+              <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Quân Số Nhân Sự</span>
+              <div
+                class="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-xs shadow-xs">
+                <i class="fa-solid fa-users"></i>
+              </div>
             </div>
             <div id="kpi-total-emp" class="mt-2 text-2xl font-extrabold text-slate-900">5</div>
-            <p class="text-xs text-slate-500 font-medium mt-0.5">3 phòng ban chức năng</p>
+            <p class="text-[11px] text-slate-500 font-medium mt-0.5">3 phòng ban chức năng</p>
           </div>
 
-          <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md hover:border-slate-300 transition duration-150">
+          <div
+            class="bg-white p-4.5 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md hover:border-slate-300 transition duration-150">
             <div class="flex items-center justify-between">
-              <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Đi Làm Hôm Nay</span>
-              <div class="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-sm shadow-sm"><i
-                  class="fa-solid fa-user-check"></i></div>
+              <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Quỹ Lương Kỳ Này</span>
+              <div
+                class="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xs shadow-xs">
+                <i class="fa-solid fa-money-bill-wave"></i>
+              </div>
             </div>
-            <div class="mt-2 text-2xl font-extrabold text-emerald-600"><span id="kpi-working-today">4</span> / <span
-                id="kpi-total-emp-sub">5</span></div>
-            <p class="text-xs text-slate-500 font-medium mt-0.5">Tỷ lệ chuyên cần 92.4%</p>
+            <div id="kpi-payroll-total" class="mt-2 text-xl font-extrabold text-emerald-700 truncate">-- đ</div>
+            <p class="text-[11px] text-emerald-600 font-medium mt-0.5" id="kpi-payroll-status">Đã chốt lương kỳ này</p>
           </div>
 
-          <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md hover:border-slate-300 transition duration-150">
+          <div
+            class="bg-white p-4.5 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md hover:border-slate-300 transition duration-150">
             <div class="flex items-center justify-between">
-              <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Đơn Chờ Xử Lý</span>
-              <div class="w-9 h-9 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-sm shadow-sm"><i
-                  class="fa-solid fa-clock-rotate-left"></i></div>
+              <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Đi Làm Hôm Nay</span>
+              <div
+                class="w-8 h-8 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center text-xs shadow-xs">
+                <i class="fa-solid fa-user-check"></i>
+              </div>
+            </div>
+            <div class="mt-2 text-2xl font-extrabold text-teal-600"><span id="kpi-working-today">4</span> / <span
+                id="kpi-total-emp-sub">5</span></div>
+            <p class="text-[11px] text-slate-500 font-medium mt-0.5">Tỷ lệ chuyên cần 92%</p>
+          </div>
+
+          <div
+            class="bg-white p-4.5 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md hover:border-slate-300 transition duration-150">
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Đơn & Hồ Sơ Chờ</span>
+              <div
+                class="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-xs shadow-xs">
+                <i class="fa-solid fa-clock-rotate-left"></i>
+              </div>
             </div>
             <div id="kpi-pending-total" class="mt-2 text-2xl font-extrabold text-amber-600">0</div>
-            <p class="text-xs text-slate-500 font-medium mt-0.5">Nghỉ phép & chế độ BHXH</p>
+            <p class="text-[11px] text-slate-500 font-medium mt-0.5">Phép & Chế độ BHXH</p>
           </div>
 
-          <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md hover:border-slate-300 transition duration-150">
+          <div
+            class="bg-white p-4.5 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md hover:border-slate-300 transition duration-150 col-span-2 sm:col-span-1">
             <div class="flex items-center justify-between">
-              <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Nhiệm Vụ Đang Chạy</span>
-              <div class="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-sm shadow-sm"><i
-                  class="fa-solid fa-list-check"></i></div>
+              <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Nhiệm Vụ Đang Chạy</span>
+              <div
+                class="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-xs shadow-xs">
+                <i class="fa-solid fa-list-check"></i>
+              </div>
             </div>
             <div id="kpi-active-tasks" class="mt-2 text-2xl font-extrabold text-indigo-600">3</div>
-            <p class="text-xs text-slate-500 font-medium mt-0.5">Kỳ đánh giá Q4/2026</p>
+            <p class="text-[11px] text-slate-500 font-medium mt-0.5">Gắn văn bản chỉ đạo</p>
           </div>
         </div>
 
         <!-- Workflow Review Box -->
         <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm">
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4 pb-3 border-b border-slate-100">
+          <div
+            class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4 pb-3 border-b border-slate-100">
             <h3 class="text-base font-bold text-slate-900 flex items-center space-x-2.5">
               <i class="fa-solid fa-bell text-amber-500 text-base"></i>
               <span>Danh Sách Đơn Cần Phê Duyệt & Xử Lý</span>
             </h3>
-            <span id="role-notice" class="text-xs font-semibold px-3 py-1 rounded-full bg-slate-100 text-slate-600 border border-slate-200/80 w-fit"></span>
+            <span id="role-notice"
+              class="text-xs font-semibold px-3 py-1 rounded-full bg-slate-100 text-slate-600 border border-slate-200/80 w-fit"></span>
           </div>
           <div id="dash-pending-list" class="space-y-3">
             <!-- Rendered by JS -->
@@ -352,42 +399,60 @@
         <div
           class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div class="flex flex-wrap items-center gap-3">
-            <span class="text-xs font-bold text-slate-500 uppercase">Kỳ Chấm Công: Tháng 10/2026</span>
-            <div class="flex items-center space-x-2 text-[11px] font-semibold text-slate-600">
+            <!-- Bộ chọn kỳ chấm công Đa kỳ (Tháng/Năm) -->
+            <div class="flex items-center space-x-1.5 bg-slate-100 p-1 rounded-xl border border-slate-200">
+              <button onclick="prevTimesheetPeriod()" title="Kỳ trước"
+                class="w-7 h-7 flex items-center justify-center rounded-lg bg-white shadow-xs text-slate-700 hover:text-blue-600 transition">
+                <i class="fa-solid fa-chevron-left text-xs"></i>
+              </button>
+              <div class="flex items-center space-x-1.5 px-2">
+                <i class="fa-solid fa-calendar-days text-blue-600 text-xs"></i>
+                <select id="timesheet-period-select" onchange="changeTimesheetPeriod(this.value)"
+                  class="bg-transparent text-xs font-bold text-slate-800 focus:outline-none cursor-pointer py-0.5">
+                  <option value="09/2026">Tháng 09/2026</option>
+                  <option value="10/2026" selected>Tháng 10/2026</option>
+                  <option value="11/2026">Tháng 11/2026</option>
+                  <option value="12/2026">Tháng 12/2026</option>
+                  <option value="01/2027">Tháng 01/2027</option>
+                  <option value="02/2027">Tháng 02/2027 (28 ngày)</option>
+                  <option value="03/2027">Tháng 03/2027</option>
+                </select>
+              </div>
+              <button onclick="nextTimesheetPeriod()" title="Kỳ kế tiếp"
+                class="w-7 h-7 flex items-center justify-center rounded-lg bg-white shadow-xs text-slate-700 hover:text-blue-600 transition">
+                <i class="fa-solid fa-chevron-right text-xs"></i>
+              </button>
+            </div>
+
+            <span id="timesheet-days-badge"
+              class="px-2 py-1 rounded-lg bg-blue-50 text-blue-700 font-bold text-[11px] border border-blue-200/60">
+              31 ngày (22 công chuẩn)
+            </span>
+
+            <div class="flex items-center space-x-1.5 text-[11px] font-semibold text-slate-600">
               <span class="px-1.5 py-0.5 rounded cell-x">X: Đi làm</span>
+              <span
+                class="px-1.5 py-0.5 rounded cell-ot bg-purple-100 text-purple-800 font-bold border border-purple-200">OT:
+                Làm thêm</span>
               <span class="px-1.5 py-0.5 rounded cell-p">P: Nghỉ phép</span>
               <span class="px-1.5 py-0.5 rounded cell-o">O: Nghỉ ốm</span>
               <span class="px-1.5 py-0.5 rounded cell-cn">CN: Chủ nhật</span>
+              <span class="px-1.5 py-0.5 rounded cell-t7">T7: Thứ bảy</span>
             </div>
           </div>
-          <button onclick="showToast('Dữ liệu chấm công đang được đồng bộ trực tiếp với Google Sheets!', 'success')"
+          <button onclick="exportTimesheetExcel()"
             class="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm flex items-center space-x-1.5 transition">
             <i class="fa-solid fa-file-excel"></i>
-            <span>Xuất Báo Cáo Google Sheet / Excel</span>
+            <span>Xuất Báo Cáo Excel (.xls)</span>
           </button>
         </div>
 
         <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
           <div class="overflow-x-auto max-h-[600px]">
             <table class="w-full border-collapse text-xs text-left" id="timesheet-table">
-              <thead class="bg-slate-900 text-white sticky top-0 z-20">
-                <tr>
-                  <th
-                    class="py-3 px-3 font-semibold sticky left-0 bg-slate-900 z-30 min-w-[70px] text-center border-r border-slate-800">
-                    Mã NV</th>
-                  <th
-                    class="py-3 px-3 font-semibold sticky left-[70px] bg-slate-900 z-30 min-w-[170px] border-r border-slate-800">
-                    Họ và Tên</th>
-                  <th class="py-3 px-2 font-semibold min-w-[90px] border-r border-slate-800 text-center">Phòng Ban</th>
-                  <script>
-                    for (let d = 1; d <= 31; d++) {
-                      const isSunday = (d % 7 === 4);
-                      document.write(`<th class="p-1 font-semibold text-center border-r border-slate-800 matrix-cell ${isSunday ? 'bg-rose-950 text-rose-300' : ''}">${d}</th>`);
-                    }
-                  </script>
-                  <th class="py-3 px-2 font-bold text-center bg-blue-900 text-white min-w-[65px]">Công Thực</th>
-                  <th class="py-3 px-2 font-bold text-center bg-indigo-900 text-white min-w-[55px]">Phép (P)</th>
-                  <th class="py-3 px-2 font-bold text-center bg-amber-900 text-white min-w-[55px]">Ốm (O)</th>
+              <thead class="bg-slate-900 text-white sticky top-0 z-20" id="timesheet-thead">
+                <tr id="timesheet-header-tr">
+                  <!-- Header cột ngày được sinh động theo số ngày của kỳ (28, 30 hoặc 31 ngày) -->
                 </tr>
               </thead>
               <tbody id="timesheet-tbody" class="divide-y divide-slate-100">
@@ -460,6 +525,7 @@
                 <th class="py-3 px-3 text-center">Số Ngày</th>
                 <th class="py-3 px-4 text-center">Chứng Từ Viện Phí</th>
                 <th class="py-3 px-4 text-center">Trạng Thái</th>
+                <th class="py-3 px-4">Ghi Chú / Phản Hồi</th>
                 <th class="py-3 px-4 text-right">Thao Tác</th>
               </tr>
             </thead>
@@ -474,7 +540,8 @@
       <section id="pane-payroll" class="tab-pane hidden space-y-4">
         <div class="flex items-center justify-between">
           <div>
-            <h2 class="text-lg font-bold text-slate-900">Bảng Lương Doanh Nghiệp (Tháng 10/2026)</h2>
+            <h2 class="text-lg font-bold text-slate-900" id="payroll-period-title">Bảng Lương Doanh Nghiệp (Kỳ 10/2026)
+            </h2>
             <p class="text-xs text-slate-500" id="payroll-desc">Tự động kết xuất từ dữ liệu chấm công thực tế</p>
           </div>
           <div class="flex items-center space-x-2">
@@ -501,6 +568,7 @@
                 <th class="py-3 px-4 text-right">Lương Cơ Bản</th>
                 <th class="py-3 px-3 text-center">Công Chuẩn</th>
                 <th class="py-3 px-3 text-center">Công Thực</th>
+                <th class="py-3 px-3 text-center text-purple-700 font-bold">Làm Thêm (OT)</th>
                 <th class="py-3 px-4 text-right">Phụ Cấp</th>
                 <th class="py-3 px-4 text-right font-bold text-blue-700">Thực Lĩnh (VND)</th>
                 <th class="py-3 px-4 text-center">Thao Tác</th>
@@ -572,6 +640,41 @@
           </button>
         </div>
 
+        <!-- Search & Filter Controls -->
+        <div
+          class="bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col md:flex-row items-stretch md:items-center gap-3">
+          <div class="relative flex-grow">
+            <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-400 text-xs"></i>
+            <input type="text" id="doc-search-input" oninput="filterDocuments()"
+              placeholder="Tìm kiếm văn bản theo số hiệu, trích yếu, cơ quan ban hành..."
+              class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-3.5 py-2 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-500">
+          </div>
+          <div class="flex flex-wrap sm:flex-nowrap items-center gap-2 shrink-0">
+            <select id="doc-type-filter" onchange="filterDocuments()"
+              class="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-700 cursor-pointer focus:outline-none focus:ring-2 focus:ring-amber-500">
+              <option value="all">Tất cả loại văn bản</option>
+              <option value="salary_docs"> Văn bản tiền lương (3 loại)</option>
+              <option value="Quy chế nội bộ">Quy chế nội bộ</option>
+              <option value="Quy chế lương">Quy chế lương</option>
+              <option value="Thông báo trả lương">Thông báo trả lương</option>
+              <option value="Quyết định điều chỉnh lương">Quyết định điều chỉnh lương</option>
+              <option value="Văn bản pháp luật">Văn bản pháp luật</option>
+              <option value="Thông báo">Thông báo</option>
+              <option value="Quyết định">Quyết định</option>
+            </select>
+            <select id="doc-category-filter" onchange="filterDocuments()"
+              class="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-700 cursor-pointer focus:outline-none focus:ring-2 focus:ring-amber-500">
+              <option value="all">Tất cả lĩnh vực tra cứu</option>
+              <option value="Chính sách Lao động & Việc làm">Lao động & Việc làm</option>
+              <option value="Tiền lương & Chế độ BHXH">Tiền lương & BHXH</option>
+              <option value="Thuế & Kế toán Doanh nghiệp">Thuế & Kế toán</option>
+              <option value="Quản trị & Quy chế Nội bộ">Quản trị & Quy chế</option>
+              <option value="An toàn Vệ sinh Lao động">An toàn vệ sinh LĐ</option>
+              <option value="Công nghệ & Bảo mật">Công nghệ & Bảo mật</option>
+            </select>
+          </div>
+        </div>
+
         <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
           <table class="w-full text-xs text-left">
             <thead class="bg-slate-100/80 text-slate-700 uppercase font-semibold text-[11px] border-b border-slate-200">
@@ -579,6 +682,7 @@
                 <th class="py-3 px-4">Số Hiệu</th>
                 <th class="py-3 px-4">Trích Yếu / Tiêu Đề</th>
                 <th class="py-3 px-4">Loại Văn Bản</th>
+                <th class="py-3 px-4">Lĩnh Vực</th>
                 <th class="py-3 px-4">Cơ Quan Ban Hành</th>
                 <th class="py-3 px-4">Ngày Ban Hành</th>
                 <th class="py-3 px-4 text-center">Tài Liệu</th>

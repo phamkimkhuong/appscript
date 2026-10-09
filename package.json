@@ -5,6 +5,7 @@
   "main": "Attendance.js",
   "scripts": {
     "type-check": "tsc -p jsconfig.json --noEmit",
+    "build:preview": "node build_preview.cjs",
     "push": "clasp push -f",
     "watch": "clasp push --watch"
   },

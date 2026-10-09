@@ -163,47 +163,114 @@
   </div>
 </div>
 
-<!-- MODAL 3: THÊM VĂN BẢN (DOCUMENT MODAL) -->
+<!-- MODAL 3: THÊM / SỬA VĂN BẢN (DOCUMENT MODAL) -->
 <div id="modal-doc"
   class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
-  <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200">
+  <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 max-h-[92vh] overflow-y-auto">
     <div class="flex items-center justify-between pb-3 border-b border-slate-100">
-      <h3 class="text-base font-bold text-slate-900">Lưu Trữ Văn Bản & Quy Chế Mới</h3>
+      <h3 id="modal-doc-title" class="text-base font-bold text-slate-900">Lưu Trữ Văn Bản & Quy Chế Mới</h3>
       <button onclick="closeModal('modal-doc')" class="text-slate-400 hover:text-slate-600"><i
           class="fa-solid fa-xmark"></i></button>
     </div>
-    <form onsubmit="handleSaveDoc(event)" class="mt-4 space-y-3.5 text-xs">
+    <form id="form-doc" onsubmit="handleSaveDoc(event)" class="mt-4 space-y-3.5 text-xs">
+      <input type="hidden" id="doc-form-mode" value="add">
+      <input type="hidden" id="doc-form-orig-id" value="">
+
       <div class="grid grid-cols-2 gap-3">
-        <div><label class="block font-semibold text-slate-700 mb-1">Số hiệu</label><input type="text" id="doc-form-id"
-            placeholder="05/2026/QĐ-VT" required class="w-full border border-slate-300 rounded-lg px-3 py-2"></div>
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Số hiệu văn bản</label>
+          <input type="text" id="doc-form-id" placeholder="05/2026/QĐ-VT" required
+            class="w-full border border-slate-300 rounded-lg px-3 py-2">
+        </div>
         <div>
           <label class="block font-semibold text-slate-700 mb-1">Loại văn bản</label>
           <select id="doc-form-type" class="w-full border border-slate-300 rounded-lg px-3 py-2 bg-white">
             <option value="Quy chế nội bộ">Quy chế nội bộ</option>
+            <option value="Quy chế lương">Quy chế lương (Văn bản lương)</option>
+            <option value="Thông báo trả lương">Thông báo trả lương (Văn bản lương)</option>
+            <option value="Quyết định điều chỉnh lương">Quyết định điều chỉnh lương (Văn bản lương)</option>
             <option value="Văn bản pháp luật">Văn bản pháp luật</option>
             <option value="Thông báo">Thông báo</option>
             <option value="Quyết định">Quyết định</option>
           </select>
         </div>
       </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Lĩnh vực tra cứu</label>
+          <select id="doc-form-category" class="w-full border border-slate-300 rounded-lg px-3 py-2 bg-white font-medium">
+            <option value="Chính sách Lao động & Việc làm">Chính sách Lao động & Việc làm</option>
+            <option value="Tiền lương & Chế độ BHXH">Tiền lương & Chế độ BHXH</option>
+            <option value="Thuế & Kế toán Doanh nghiệp">Thuế & Kế toán Doanh nghiệp</option>
+            <option value="Quản trị & Quy chế Nội bộ" selected>Quản trị & Quy chế Nội bộ</option>
+            <option value="An toàn Vệ sinh Lao động">An toàn Vệ sinh Lao động</option>
+            <option value="Công nghệ & Bảo mật">Công nghệ & Bảo mật</option>
+          </select>
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Ngày ban hành</label>
+          <input type="date" id="doc-form-date" required class="w-full border border-slate-300 rounded-lg px-3 py-2">
+        </div>
+      </div>
+
       <div>
         <label class="block font-semibold text-slate-700 mb-1">Trích yếu / Tiêu đề văn bản</label>
         <input type="text" id="doc-form-title" placeholder="Quy định sử dụng tài sản doanh nghiệp..." required
           class="w-full border border-slate-300 rounded-lg px-3 py-2">
       </div>
+
       <div class="grid grid-cols-2 gap-3">
-        <div><label class="block font-semibold text-slate-700 mb-1">Cơ quan / Người ký</label><input type="text"
-            id="doc-form-issuer" placeholder="Tổng Giám Đốc" required
-            class="w-full border border-slate-300 rounded-lg px-3 py-2"></div>
-        <div><label class="block font-semibold text-slate-700 mb-1">Link tài liệu (Drive/Web)</label><input type="text"
-            id="doc-form-url" value="https://drive.google.com/sample.pdf"
-            class="w-full border border-slate-300 rounded-lg px-3 py-2"></div>
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Cơ quan ban hành / Ký</label>
+          <input type="text" id="doc-form-issuer" placeholder="Tổng Giám Đốc" required
+            class="w-full border border-slate-300 rounded-lg px-3 py-2">
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Trạng thái hiệu lực</label>
+          <select id="doc-form-status" class="w-full border border-slate-300 rounded-lg px-3 py-2 bg-white">
+            <option value="Hiệu lực">Hiệu lực</option>
+            <option value="Hết hiệu lực">Hết hiệu lực</option>
+            <option value="Dự thảo">Dự thảo</option>
+          </select>
+        </div>
       </div>
-      <div class="pt-3 flex justify-end space-x-2">
+
+      <div>
+        <label class="block font-semibold text-slate-700 mb-1">Đính kèm file tài liệu lên Google Drive (PDF, Word, Excel)</label>
+        <div class="border-2 border-dashed border-slate-300 hover:border-amber-500 rounded-xl bg-slate-50 p-3.5 text-center cursor-pointer transition"
+          onclick="document.getElementById('doc-file-input').click()">
+          <input type="file" id="doc-file-input" accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg" class="hidden"
+            onchange="handleDocFileSelected(event)">
+          <div id="doc-file-placeholder" class="space-y-1">
+            <i class="fa-solid fa-cloud-arrow-up text-amber-600 text-xl"></i>
+            <p class="text-xs font-semibold text-slate-700">Chọn tài liệu từ máy tính để tải lên Drive</p>
+            <p class="text-[11px] text-slate-400">PDF, DOCX, XLSX (tối đa 15MB)</p>
+          </div>
+          <div id="doc-file-preview" class="hidden items-center justify-center space-x-2 text-emerald-600 font-semibold text-xs">
+            <i class="fa-solid fa-file-circle-check text-base"></i>
+            <span id="doc-file-name" class="truncate max-w-[200px] text-slate-800"></span>
+            <span id="doc-file-size" class="text-slate-400 text-[10px]"></span>
+            <button type="button" onclick="event.stopPropagation(); clearDocFile();" class="text-rose-500 hover:text-rose-700 ml-1">
+              <i class="fa-solid fa-circle-xmark"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <label class="block font-semibold text-slate-700 mb-1">Hoặc đường dẫn liên kết ngoài (URL)</label>
+        <input type="text" id="doc-form-url" placeholder="https://drive.google.com/sample_doc.pdf"
+          class="w-full border border-slate-300 rounded-lg px-3 py-2 text-slate-600">
+      </div>
+
+      <div class="pt-3 flex justify-end space-x-2 border-t border-slate-100">
         <button type="button" onclick="closeModal('modal-doc')"
           class="px-4 py-2 border border-slate-300 rounded-xl text-slate-600 font-semibold">Hủy</button>
-        <button type="submit" class="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-xl font-semibold">Lưu
-          Văn Bản</button>
+        <button type="submit" id="btn-save-doc" class="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-xl font-semibold shadow-md flex items-center space-x-1.5">
+          <i class="fa-solid fa-floppy-disk"></i>
+          <span>Lưu Văn Bản</span>
+        </button>
       </div>
     </form>
   </div>
@@ -265,11 +332,19 @@
   <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200">
     <div class="flex items-center justify-between pb-3 border-b border-slate-200">
       <div>
-        <h3 class="text-base font-bold text-slate-900">PHIẾU LƯƠNG THÁNG 10/2026</h3>
-        <p class="text-xs text-slate-500">VinTech Solutions JSC</p>
+        <h3 id="payslip-modal-title" class="text-base font-bold text-slate-900">PHIẾU LƯƠNG ĐIỆN TỬ</h3>
+        <p class="text-xs text-slate-500">VinTech Solutions - Enterprise HRM</p>
       </div>
-      <button onclick="closeModal('modal-payslip')" class="text-slate-400 hover:text-slate-600"><i
-          class="fa-solid fa-xmark"></i></button>
+      <div class="flex items-center space-x-2">
+        <select id="payslip-period-select" onchange="changePayslipPeriod(this.value)"
+          class="bg-slate-100 text-xs font-bold text-slate-800 rounded-lg px-2.5 py-1 border border-slate-200 cursor-pointer focus:outline-none">
+          <option value="10/2026">Kỳ 10/2026</option>
+          <option value="11/2026">Kỳ 11/2026</option>
+          <option value="12/2026">Kỳ 12/2026</option>
+        </select>
+        <button onclick="closeModal('modal-payslip')" class="text-slate-400 hover:text-slate-600"><i
+            class="fa-solid fa-xmark"></i></button>
+      </div>
     </div>
     <div id="payslip-content" class="py-4 text-xs space-y-3"></div>
     <div class="pt-3 border-t border-slate-200 flex justify-end">
@@ -332,6 +407,183 @@
         </button>
       </div>
     </form>
+  </div>
+</div>
+
+<!-- MODAL 7: YÊU CẦU BỔ SUNG HỒ SƠ ỐM ĐAU (NEED_MORE_INFO) -->
+<div id="modal-sick-more-info"
+  class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+  <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200">
+    <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+      <h3 class="text-base font-bold text-amber-700 flex items-center space-x-2">
+        <i class="fa-solid fa-triangle-exclamation text-amber-500"></i>
+        <span>Yêu Cầu Bổ Sung Hồ Sơ BHXH</span>
+      </h3>
+      <button onclick="closeModal('modal-sick-more-info')" class="text-slate-400 hover:text-slate-600"><i
+          class="fa-solid fa-xmark"></i></button>
+    </div>
+    <form onsubmit="handleSendSickMoreInfo(event)" class="mt-4 space-y-3.5 text-xs">
+      <input type="hidden" id="sick-more-info-id" value="">
+      <div class="bg-amber-50 p-3 rounded-xl border border-amber-200/60 text-amber-900 space-y-1">
+        <div class="font-bold" id="sick-more-info-title">Hồ sơ: SC-...</div>
+        <div class="text-[11px] text-amber-700" id="sick-more-info-sub">Nhân sự: --</div>
+      </div>
+      <div>
+        <label class="block font-semibold text-slate-700 mb-1">Chi tiết yêu cầu bổ sung chứng từ / giải trình</label>
+        <textarea id="sick-more-info-note" rows="3" required placeholder="Ví dụ: Cần bổ sung giấy ra viện hoặc giấy chứng nhận nghỉ việc hưởng BHXH có mộc tròn của bệnh viện..."
+          class="w-full border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-amber-500"></textarea>
+      </div>
+      <div class="pt-3 flex justify-end space-x-2 border-t border-slate-100">
+        <button type="button" onclick="closeModal('modal-sick-more-info')"
+          class="px-4 py-2 border border-slate-300 rounded-xl text-slate-600 font-semibold">Hủy</button>
+        <button type="submit"
+          class="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-xl font-semibold shadow-md flex items-center space-x-1.5">
+          <i class="fa-solid fa-paper-plane"></i>
+          <span>Gửi Yêu Cầu Cho Nhân Viên</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- MODAL 8: NỘP BỔ SUNG CHỨNG TỪ ỐM ĐAU -->
+<div id="modal-sick-resubmit"
+  class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+  <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto">
+    <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+      <h3 class="text-base font-bold text-slate-900 flex items-center space-x-2">
+        <i class="fa-solid fa-file-circle-plus text-blue-600"></i>
+        <span>Nộp Bổ Sung Chứng Từ Viện Phí / BHXH</span>
+      </h3>
+      <button onclick="closeModal('modal-sick-resubmit')" class="text-slate-400 hover:text-slate-600"><i
+          class="fa-solid fa-xmark"></i></button>
+    </div>
+    <form onsubmit="handleResubmitSick(event)" class="mt-4 space-y-3.5 text-xs">
+      <input type="hidden" id="sick-resubmit-id" value="">
+      <div class="bg-amber-50 p-3 rounded-xl border border-amber-200 text-amber-900 space-y-1">
+        <div class="font-bold text-[11px] uppercase text-amber-800">Yêu cầu từ HR / Quản lý:</div>
+        <div class="text-xs italic" id="sick-resubmit-hr-note">--</div>
+      </div>
+
+      <div>
+        <label class="block font-semibold text-slate-700 mb-1">Cơ sở khám bệnh / Bệnh viện</label>
+        <input type="text" id="sick-resubmit-hospital" required class="w-full border border-slate-300 rounded-lg px-3 py-2">
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <div><label class="block font-semibold text-slate-700 mb-1">Từ ngày</label><input type="date" id="sick-resubmit-from" required class="w-full border border-slate-300 rounded-lg px-3 py-2"></div>
+        <div><label class="block font-semibold text-slate-700 mb-1">Đến ngày</label><input type="date" id="sick-resubmit-to" required class="w-full border border-slate-300 rounded-lg px-3 py-2"></div>
+      </div>
+
+      <div>
+        <label class="block font-semibold text-slate-700 mb-1">Tải lên file chứng từ mới bổ sung (Google Drive)</label>
+        <div class="border-2 border-dashed border-slate-300 hover:border-blue-400 rounded-xl bg-slate-50 p-3.5 text-center cursor-pointer transition"
+          onclick="document.getElementById('sick-resubmit-file-input').click()">
+          <input type="file" id="sick-resubmit-file-input" accept=".pdf,.png,.jpg,.jpeg" class="hidden"
+            onchange="handleSickResubmitFileSelected(event)">
+          <div id="sick-resubmit-file-placeholder" class="space-y-1">
+            <i class="fa-solid fa-cloud-arrow-up text-blue-600 text-xl"></i>
+            <p class="text-xs font-semibold text-slate-700">Chọn tệp chứng từ mới (PDF, JPG, PNG)</p>
+            <p class="text-[11px] text-slate-400">Tự động tải lên thư mục Drive an toàn</p>
+          </div>
+          <div id="sick-resubmit-file-preview" class="hidden items-center justify-center space-x-2 text-emerald-600 font-semibold text-xs">
+            <i class="fa-solid fa-file-circle-check text-base"></i>
+            <span id="sick-resubmit-file-name" class="truncate max-w-[200px] text-slate-800"></span>
+            <span id="sick-resubmit-file-size" class="text-slate-400 text-[10px]"></span>
+            <button type="button" onclick="event.stopPropagation(); clearSickResubmitFile();" class="text-rose-500 hover:text-rose-700 ml-1">
+              <i class="fa-solid fa-circle-xmark"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <label class="block font-semibold text-slate-700 mb-1">Ghi chú giải trình bổ sung</label>
+        <textarea id="sick-resubmit-note" rows="2" placeholder="Đã bổ sung giấy ra viện có dấu đỏ theo yêu cầu..."
+          class="w-full border border-slate-300 rounded-lg p-2.5"></textarea>
+      </div>
+
+      <div class="pt-3 flex justify-end space-x-2 border-t border-slate-100">
+        <button type="button" onclick="closeModal('modal-sick-resubmit')"
+          class="px-4 py-2 border border-slate-300 rounded-xl text-slate-600 font-semibold">Hủy</button>
+        <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-semibold shadow-md flex items-center space-x-1.5">
+          <i class="fa-solid fa-arrow-up-from-bracket"></i>
+          <span>Nộp Bổ Sung & Chuyển Chờ Duyệt</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- MODAL 9: HƯỚNG DẪN SỬ DỤNG & KỊCH BẢN DEMO -->
+<div id="modal-guide"
+  class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+  <div class="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto">
+    <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+      <div class="flex items-center space-x-2.5">
+        <div class="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center font-bold">
+          <i class="fa-solid fa-book-open"></i>
+        </div>
+        <div>
+          <h3 class="text-base font-bold text-slate-900">Hướng Dẫn Vận Hành & Kịch Bản Demo</h3>
+          <p class="text-xs text-slate-500">VinTech Solutions - Enterprise HRM & E-Office</p>
+        </div>
+      </div>
+      <button onclick="closeModal('modal-guide')" class="text-slate-400 hover:text-slate-600"><i
+          class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="mt-4 space-y-4 text-xs text-slate-700 leading-relaxed">
+      <div class="p-3 bg-blue-50/70 rounded-xl border border-blue-200/60">
+        <h4 class="font-bold text-blue-900 mb-1 flex items-center space-x-1.5">
+          <i class="fa-solid fa-circle-info text-blue-600"></i>
+          <span>1. Các tài khoản và vai trò trong hệ thống:</span>
+        </h4>
+        <ul class="list-disc list-inside space-y-0.5 text-slate-700">
+          <li><strong>Nhân viên:</strong> Lê Thị Phương (<code class="bg-white px-1 py-0.5 rounded text-blue-700">phuong.le@vintech.vn</code>) - Nộp đơn, xem phiếu lương của chính mình, bảo mật tiền lương.</li>
+          <li><strong>Quản lý:</strong> Trần Minh Trí (<code class="bg-white px-1 py-0.5 rounded text-indigo-700">tri.tran@vintech.vn</code>) - Duyệt đơn nghỉ phép, giao việc theo văn bản, sửa bảng chấm công.</li>
+          <li><strong>HR / Kế toán:</strong> Nguyễn Thu Hương (<code class="bg-white px-1 py-0.5 rounded text-emerald-700">huong.nguyen@vintech.vn</code>) - Duyệt BHXH, yêu cầu bổ sung chứng từ, tính lương và chốt lương toàn công ty.</li>
+        </ul>
+      </div>
+
+      <div class="space-y-2">
+        <h4 class="font-bold text-slate-900 text-sm flex items-center space-x-1.5">
+          <i class="fa-solid fa-route text-indigo-600"></i>
+          <span>2. Kịch bản demo luồng nghiệp vụ khép kín (Khách & Hội đồng đánh giá):</span>
+        </h4>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+          <div class="p-3 rounded-xl border border-slate-200 bg-slate-50">
+            <span class="font-bold text-blue-700 block mb-1">Bước 1: Nộp đơn & Upload chứng từ</span>
+            <p class="text-slate-600">Nhân viên tạo đơn nghỉ phép hoặc hồ sơ ốm đau có tải file chứng từ viện phí thật lên Google Drive.</p>
+          </div>
+          <div class="p-3 rounded-xl border border-slate-200 bg-slate-50">
+            <span class="font-bold text-indigo-700 block mb-1">Bước 2: Phê duyệt / Yêu cầu bổ sung</span>
+            <p class="text-slate-600">Quản lý hoặc HR duyệt đơn, hoặc bấm "Yêu cầu bổ sung" để nhân viên nộp lại chứng từ hợp lệ.</p>
+          </div>
+          <div class="p-3 rounded-xl border border-slate-200 bg-slate-50">
+            <span class="font-bold text-emerald-700 block mb-1">Bước 3: Chấm công đa kỳ & OT</span>
+            <p class="text-slate-600">Bảng công tự động cập nhật ký hiệu P, O, OT xuyên tháng. Xem công 28/30/31 ngày và xuất file Excel thật.</p>
+          </div>
+          <div class="p-3 rounded-xl border border-slate-200 bg-slate-50">
+            <span class="font-bold text-amber-700 block mb-1">Bước 4: Tính lương & Xem phiếu lương</span>
+            <p class="text-slate-600">Tính lương tự động theo kỳ, đồng bộ Google Sheets, xem phiếu lương chi tiết từng kỳ với làm thêm OT.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="p-3 bg-amber-50 rounded-xl border border-amber-200 flex items-center justify-between">
+        <div>
+          <span class="font-bold text-amber-900 block">Khôi phục dữ liệu mẫu (Reset Database):</span>
+          <span class="text-amber-800 text-[11px]">Bấm nút này bất cứ lúc nào để reset toàn bộ 7 bảng về dữ liệu demo chuẩn ban đầu.</span>
+        </div>
+        <button onclick="closeModal('modal-guide'); handleResetDatabase();" class="px-3 py-1.5 bg-amber-600 hover:bg-amber-500 text-white rounded-lg font-bold shrink-0 shadow-sm ml-3">
+          Khôi Phục Ngay
+        </button>
+      </div>
+    </div>
+    <div class="pt-3 border-t border-slate-100 flex justify-end">
+      <button onclick="closeModal('modal-guide')"
+        class="px-4 py-2 bg-slate-900 text-white rounded-xl font-semibold text-xs">Đã hiểu</button>
+    </div>
   </div>
 </div>
 

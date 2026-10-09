@@ -96,13 +96,13 @@ function apiSaveEmployee(emp, callerEmail) {
         emp.phone || ""
       ]);
 
-      // Đồng thời thêm 1 dòng trống trên Sheet ChamCong cho nhân viên mới
+      // Đồng thời thêm dòng chấm công kỳ hiện tại trên Sheet ChamCong cho nhân viên mới
       const attSheet = ss.getSheetByName(CONFIG.SHEET_NAMES.ATTENDANCE);
       if (attSheet) {
-        const defaultDays = Array(31).fill("X");
-        [3, 10, 17, 24].forEach(idx => { defaultDays[idx] = "CN"; });
-        [2, 9, 16, 23, 30].forEach(idx => { defaultDays[idx] = "T7"; });
-        attSheet.appendRow([newId, emp.name, emp.dept, ...defaultDays, 22, 0, 0]);
+        ensureAttendancePeriodColumn(attSheet);
+        const currentPeriod = Utilities.formatDate(new Date(), CONFIG.TIMEZONE, "MM/yyyy");
+        const { days, standardWorkingDays } = generateDefaultDaysForMonth(currentPeriod);
+        attSheet.appendRow([currentPeriod, newId, emp.name, emp.dept, ...days, standardWorkingDays, 0, 0, 0]);
       }
 
       return { success: true, message: `Thêm mới thành công nhân sự [${newId}] ${emp.name}!`, newId: newId };
