@@ -8,7 +8,9 @@
     "build:preview": "node build_preview.cjs",
     "push": "clasp push -f",
     "watch": "clasp push --watch",
-    "test": "node dev/regression.cjs && node dev/frontend-regression.cjs"
+    "test": "node dev/regression.cjs && node dev/frontend-regression.cjs && node dev/htmlservice-regression.cjs && node dev/login-performance.cjs && node dev/payroll-period-regression.cjs && node dev/permissions-regression.cjs && node dev/attendance-cutoff-regression.cjs",
+    "test:htmlservice": "node dev/htmlservice-regression.cjs",
+    "test:login": "node dev/login-performance.cjs"
   },
   "repository": {
     "type": "git",

@@ -2,17 +2,9 @@
   //# sourceURL=scripts.js
   // Initial in-memory data store (hoạt động song song với Google Sheets)
   let USERS_DB = [];
-  const emptyAppData = () => ({ timesheet:{},timesheetByPeriod:{},leaveRequests:[],sickCases:[],tasks:[],documents:[],payroll:[] });
+  const emptyAppData = () => ({ timesheet: {}, timesheetByPeriod: {}, attendanceCutoff: 0, attendanceAsOf: '', plannedTimesheet: {}, leaveRequests: [], sickCases: [], tasks: [], documents: [], payroll: [] });
   let appData = emptyAppData();
   let authToken = '';
-  let workspaceKey = '';
-  try {
-    if (typeof sessionStorage !== 'undefined' && sessionStorage) {
-      workspaceKey = sessionStorage.getItem('vintech-workspace') || '';
-    }
-  } catch (err) {
-    workspaceKey = '';
-  }
   let loadingData = false;
   let requestVersion = 0;
   let authGeneration = 0;
@@ -20,6 +12,8 @@
   let busyActions = new Set();
   let currentUser = null;
   let currentTimesheetPeriod = '10/2026';
+  let currentPayrollPeriod = '';
+  let payrollPeriods = [];
 
   // --- XSS SANITIZER HELPER ---
   function escapeHtml(str) {
@@ -35,33 +29,32 @@
   // --- CALL BACKEND BRIDGE ---
   function callBackend(fnName, args, callback, errorCallback) {
     const generation = authGeneration;
-    const mutating = !['apiLogin','apiGetInitialAppData','apiGetAttendance','apiGetPayrollData','apiReadAttachment'].includes(fnName);
+    const mutating = !['apiLogin', 'apiGetInitialAppData', 'apiGetAttendance', 'apiGetPayrollData', 'apiReadAttachment'].includes(fnName);
     if (mutating && busyActions.has(fnName)) { showToast('Thao tác đang được xử lý.', 'info'); return; }
     if (mutating) busyActions.add(fnName);
     const done = res => {
       if (generation !== authGeneration) return;
       busyActions.delete(fnName);
       if (fnName === 'apiLogin' && res && res.success) {
-        authToken = res.token; workspaceKey = res.workspaceKey;
-        try { sessionStorage.setItem('vintech-workspace', workspaceKey); } catch(err) { showToast('Bộ nhớ trình duyệt đầy; lượt thực hành chỉ được giữ khi trang còn mở.','info'); }
+        authToken = res.token;
       }
       if (callback) callback(res);
       if (mutating && res && res.success) refreshAppData();
     };
-    const failed = err => { if(generation !== authGeneration)return; busyActions.delete(fnName); if(errorCallback) errorCallback(err); else showToast(err.message || String(err),'error'); };
+    const failed = err => { if (generation !== authGeneration) return; busyActions.delete(fnName); if (errorCallback) errorCallback(err); else showToast(err.message || String(err), 'error'); };
     if (typeof google !== 'undefined' && google.script && google.script.run) {
       const runner = google.script.run.withSuccessHandler(done).withFailureHandler(failed);
-      if (fnName === 'apiLogin') runner.apiLogin(args[0],args[1],workspaceKey);
-      else runner.apiRequest(authToken,fnName,args || []);
+      if (fnName === 'apiLogin') runner.apiLogin(args[0], args[1]);
+      else runner.apiRequest(authToken, fnName, args || []);
     } else if (typeof window.localDemoRequest === 'function') {
-      Promise.resolve().then(()=>window.localDemoRequest(fnName,args || [],authToken,workspaceKey)).then(done).catch(failed);
+      Promise.resolve().then(() => window.localDemoRequest(fnName, args || [], authToken)).then(done).catch(failed);
     } else failed(new Error('Hãy mở bản preview được tạo bởi npm run build:preview hoặc bản Apps Script.'));
   }
 
   // --- AUTH LOGIC ---
   function handleLoginSubmit(e) {
     if (e) e.preventDefault();
-    if(loginPending)return;
+    if (loginPending) return;
     const email = document.getElementById('login-username').value.trim();
     const password = document.getElementById('login-password').value;
 
@@ -74,16 +67,23 @@
     const originalText = submitBtn ? submitBtn.innerHTML : '';
     if (submitBtn) {
       submitBtn.disabled = true;
-      submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>Đang xác thực...';
+      submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>Đang đăng nhập...';
     }
 
-    loginPending=true;
+    const status = document.getElementById('login-status');
+    if (status) status.textContent = 'Đang kiểm tra tài khoản...';
+    const waitTimer = setTimeout(() => {
+      if (loginPending && status) status.textContent = 'Máy chủ đang xử lý, vui lòng đợi trong giây lát...';
+    }, 5000);
+    const finishLogin = () => {
+      clearTimeout(waitTimer);
+      loginPending = false;
+      if (status) status.textContent = '';
+      if (submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = originalText; }
+    };
+    loginPending = true;
     callBackend('apiLogin', [email, password], (res) => {
-      loginPending=false;
-      if (submitBtn) {
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = originalText;
-      }
+      finishLogin();
       if (res && res.success && res.profile) {
         loginAsUser(res.profile);
         showToast(`Đăng nhập thành công! Xin chào ${res.profile.name}.`, 'success');
@@ -92,11 +92,7 @@
         showToast(msg, 'error');
       }
     }, (err) => {
-      if (submitBtn) {
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = originalText;
-      }
-      loginPending=false;
+      finishLogin();
       showToast('Lỗi kết nối máy chủ xác thực: ' + err.message, 'error');
     });
   }
@@ -115,22 +111,24 @@
 
   function loginAsUser(user) {
     currentUser = user;
+    currentPayrollPeriod = ''; payrollPeriods = [];
     appData = emptyAppData(); USERS_DB = []; currentPayslipEmpId = null;
     initApp(); applyRoleControls();
+    switchTab('dashboard');
     document.getElementById('screen-login').classList.add('hidden');
     document.getElementById('screen-app').classList.remove('hidden');
 
     // Update Header
     document.getElementById('user-name').innerText = user.name;
     document.getElementById('user-role-label').innerText = `${user.title} (${user.dept})`;
-    document.getElementById('user-avatar').src = user.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=faces';
+    document.getElementById('user-avatar').src = user.avatar || 'https:\u002f\u002fimages.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=faces';
     document.getElementById('greet-name').innerText = user.name;
-    document.getElementById('greet-badge').innerText = user.role === 'employee' ? 'Nhân Viên' : user.role === 'manager' ? 'Quản Lý / Trưởng Phòng' : 'HR & Kế Toán';
+    document.getElementById('greet-badge').innerText = user.role === 'employee' ? 'Nhân Viên' : user.role === 'manager' ? 'Quản Lý / Trưởng Phòng' : 'Kế Toán';
 
     // Phân quyền hiển thị nút Thêm Nhân Viên
     const addEmpBtn = document.getElementById('btn-add-employee');
     if (addEmpBtn) {
-      if (user.role === 'employee') {
+      if (user.role !== 'manager') {
         addEmpBtn.classList.add('hidden');
       } else {
         addEmpBtn.classList.remove('hidden');
@@ -148,13 +146,17 @@
     const token = authToken;
     if (typeof google !== 'undefined' && google.script) google.script.run.apiLogout(token);
     else if (window.localDemoLogout) window.localDemoLogout(token);
-    authGeneration++; busyActions.clear(); loadingData=false;
+    authGeneration++; busyActions.clear(); loadingData = false;
     authToken = ''; currentUser = null; appData = emptyAppData(); USERS_DB = []; requestVersion++;
     document.getElementById('screen-app').classList.add('hidden');
     document.getElementById('screen-login').classList.remove('hidden');
-    document.getElementById('login-username').value = '';
-    document.querySelectorAll('[id^="modal-"]').forEach(el=>el.classList.add('hidden'));
-    showToast('Đã đăng xuất. Đăng nhập vai trò khác để tiếp tục cùng lượt thực hành.');
+    const uInput = document.getElementById('login-username');
+    if (uInput) uInput.value = '';
+    const pInput = document.getElementById('login-password');
+    if (pInput) pInput.value = '';
+    switchTab('dashboard');
+    document.querySelectorAll('[id^="modal-"]').forEach(el => el.classList.add('hidden'));
+    showToast('Đã đăng xuất thành công.');
   }
 
   // --- TAB NAVIGATION ---
@@ -170,6 +172,7 @@
     const btn = document.getElementById(`tab-btn-${tabId}`);
     if (btn) btn.className = 'nav-tab active px-3.5 py-2 rounded-lg text-sm font-semibold flex items-center space-x-2 text-blue-600 bg-blue-50 whitespace-nowrap shrink-0 transition';
 
+    if (!currentUser) return;
     if (tabId === 'dashboard') renderDashboard();
     if (tabId === 'employees') renderEmployees();
     if (tabId === 'timesheet') renderTimesheet();
@@ -194,21 +197,21 @@
 
     const kpiActiveTasks = document.getElementById('kpi-active-tasks');
 
-    const active=USERS_DB.filter(u=>u.status!=='Đã nghỉ việc');
-    kpiTotal.innerText=active.length;
-    const visible=currentUser.role==='employee'?active.filter(u=>u.id===currentUser.id):active;
-    kpiTotalSub.innerText=visible.length;
-    const now=new Date(), todayPeriod=String(now.getMonth()+1).padStart(2,'0')+'/'+now.getFullYear();
-    const map=appData.timesheetByPeriod[currentTimesheetPeriod]||{};
-    const working=visible.filter(u=>['X','OT'].includes((map[u.id]||[])[now.getDate()-1])).length;
-    document.getElementById('kpi-working-today').innerText=currentTimesheetPeriod===todayPeriod?working:'—';
-    document.getElementById('kpi-attendance-rate').innerText=currentTimesheetPeriod===todayPeriod&&visible.length?'Tỷ lệ đi làm: '+Math.round(working/visible.length*100)+'%':'Chọn kỳ hiện tại để xem hôm nay';
-    const periodPayroll=appData.payroll.filter(p=>p.period===currentTimesheetPeriod);
-    if(kpiPayroll)kpiPayroll.innerText=periodPayroll.length?money(periodPayroll.reduce((sum,p)=>sum+p.netSalary,0)):'Chưa tính';
-    document.getElementById('kpi-payroll-status').innerText='Kỳ '+currentTimesheetPeriod+(periodPayroll.some(p=>p.status==='Cần tính lại')?' • Cần tính lại':'');
-    document.getElementById('kpi-payroll-label').innerText=currentUser.role==='employee'?'Lương của tôi':'Quỹ lương';
-    kpiActiveTasks.innerText=appData.tasks.filter(t=>t.status!=='Hoàn thành').length;
-    document.getElementById('kpi-pending-docs').innerText=new Set(appData.tasks.filter(t=>t.docId&&t.status!=='Hoàn thành').map(t=>t.docId)).size;
+    const active = USERS_DB.filter(u => u.status !== 'Đã nghỉ việc');
+    kpiTotal.innerText = active.length;
+    const visible = currentUser.role === 'employee' ? active.filter(u => u.id === currentUser.id) : active;
+    kpiTotalSub.innerText = visible.length;
+    const now = new Date(), todayPeriod = String(now.getMonth() + 1).padStart(2, '0') + '/' + now.getFullYear();
+    const map = appData.timesheetByPeriod[currentTimesheetPeriod] || {};
+    const working = visible.filter(u => ['X', 'OT'].includes((map[u.id] || [])[now.getDate() - 1])).length;
+    document.getElementById('kpi-working-today').innerText = currentTimesheetPeriod === todayPeriod ? working : '—';
+    document.getElementById('kpi-attendance-rate').innerText = currentTimesheetPeriod === todayPeriod && visible.length ? 'Tỷ lệ đi làm: ' + Math.round(working / visible.length * 100) + '%' : 'Chọn kỳ hiện tại để xem hôm nay';
+    const periodPayroll = appData.payroll.filter(p => p.period === currentPayrollPeriod);
+    if (kpiPayroll) kpiPayroll.innerText = periodPayroll.length ? money(periodPayroll.reduce((sum, p) => sum + p.netSalary, 0)) : 'Chưa tính';
+    document.getElementById('kpi-payroll-status').innerText = (currentPayrollPeriod ? 'Kỳ ' + currentPayrollPeriod : 'Đang tải kỳ lương') + (periodPayroll.some(p => p.status === 'Cần tính lại') ? ' • Cần tính lại' : '');
+    document.getElementById('kpi-payroll-label').innerText = currentUser.role === 'employee' ? 'Lương của tôi' : 'Quỹ lương';
+    kpiActiveTasks.innerText = appData.tasks.filter(t => t.status !== 'Hoàn thành').length;
+    document.getElementById('kpi-pending-docs').innerText = new Set(appData.tasks.filter(t => t.docId && t.status !== 'Hoàn thành').map(t => t.docId)).size;
     let pendings = [];
 
     // Lọc đơn nghỉ phép theo quyền hạn bảo mật
@@ -221,8 +224,8 @@
         id: r.id,
         title: `Đơn xin nghỉ phép (${escapeHtml(r.type)} - ${r.days} ngày)`,
         sub: `${escapeHtml(r.empName)} • Từ ${escapeHtml(r.from)} đến ${escapeHtml(r.to)} • Lý do: "${escapeHtml(r.reason)}"`,
-        canApprove: (currentUser.role === 'manager' || currentUser.role === 'hr'),
-        roleReq: currentUser.role === 'employee' ? 'Đang chờ Quản lý duyệt' : 'Quản lý duyệt'
+        canApprove: (currentUser.role === 'manager'),
+        roleReq: currentUser.role !== 'manager' ? 'Đang chờ Quản lý duyệt' : 'Quản lý duyệt'
       });
     });
 
@@ -235,9 +238,9 @@
       let title = `Hồ sơ nghỉ ốm hưởng BHXH (${s.days} ngày)`;
       let sub = `${escapeHtml(s.empName)} • ${escapeHtml(s.hospital)} • Từ ${escapeHtml(s.from)} đến ${escapeHtml(s.to)}`;
       if (isNeedInfo) {
-        if (currentUser.role === 'employee') {
+        if (s.empId === currentUser.id) {
           title = `Hồ sơ cần bổ sung chứng từ y tế (${s.id})`;
-          sub = `HR yêu cầu bổ sung: "${escapeHtml(s.note || 'Cần nộp lại chứng từ/hóa đơn y tế hợp lệ')}"`;
+          sub = `Quản lý yêu cầu bổ sung: "${escapeHtml(s.note || 'Cần nộp lại chứng từ/hóa đơn y tế hợp lệ')}"`;
         } else {
           title = `Hồ sơ ốm đau [Yêu cầu bổ sung] (${s.id})`;
           sub = `${escapeHtml(s.empName)} • Đang chờ NV bổ sung chứng từ • Ghi chú: "${escapeHtml(s.note || '')}"`;
@@ -251,11 +254,11 @@
         title: title,
         sub: sub,
         isNeedInfo: isNeedInfo,
-        canApprove: (currentUser.role === 'hr'),
-        canResubmit: (currentUser.role === 'employee' && isNeedInfo),
+        canApprove: (currentUser.role === 'manager'),
+        canResubmit: (s.empId === currentUser.id && isNeedInfo),
         roleReq: isNeedInfo
-          ? (currentUser.role === 'employee' ? 'Cần bạn nộp lại' : 'Chờ nhân viên bổ sung')
-          : (currentUser.role === 'employee' ? 'Đang chờ HR duyệt BHXH' : 'HR & Kế toán duyệt')
+          ? (s.empId === currentUser.id ? 'Cần bạn nộp lại' : 'Chờ nhân viên bổ sung')
+          : (currentUser.role === 'employee' ? 'Đang chờ Quản lý duyệt hồ sơ' : 'Quản lý duyệt')
       });
     });
 
@@ -263,7 +266,7 @@
 
     // Cập nhật Badge trên thanh Menu Tab theo quyền
     const leavesPendingCount = appData.leaveRequests.filter(r => r.status === 'PENDING' && (currentUser.role !== 'employee' || r.empId === currentUser.id)).length;
-    const sickPendingCount = appData.sickCases.filter(s => (s.status === 'PENDING' || (currentUser.role === 'employee' && s.status === 'NEED_MORE_INFO')) && (currentUser.role !== 'employee' || s.empId === currentUser.id)).length;
+    const sickPendingCount = appData.sickCases.filter(s => (s.status === 'PENDING' || (s.empId === currentUser.id && s.status === 'NEED_MORE_INFO')) && (currentUser.role !== 'employee' || s.empId === currentUser.id)).length;
 
     if (leavesPendingCount > 0) {
       badgeLeave.innerText = leavesPendingCount;
@@ -282,9 +285,9 @@
     if (currentUser.role === 'employee') {
       roleNotice.innerText = 'Chế độ cá nhân: Theo dõi tiến độ phê duyệt hồ sơ của bạn';
     } else if (currentUser.role === 'manager') {
-      roleNotice.innerText = 'Quyền Trưởng phòng: Thẩm quyền phê duyệt Đơn xin nghỉ phép';
+      roleNotice.innerText = 'Quản lý: Quản lý nhân sự, duyệt nghỉ phép/ốm đau và giao việc';
     } else {
-      roleNotice.innerText = 'Quyền HR/Kế toán: Thẩm quyền duyệt hồ sơ BHXH & Bảng lương';
+      roleNotice.innerText = 'Kế toán: Đối chiếu bảng công, tính lương và quản lý văn bản lương';
     }
 
     if (pendings.length === 0) {
@@ -372,12 +375,12 @@
 
     let html = '';
     filtered.forEach(u => {
-      const canEdit = (currentUser.role === 'manager' || currentUser.role === 'hr');
-      const roleBadge = u.role === 'manager'
-        ? `<span class="px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 font-bold text-[10px]">Quản lý</span>`
-        : u.role === 'hr'
-          ? `<span class="px-2 py-0.5 rounded-full bg-purple-100 text-purple-800 font-bold text-[10px]">HR/Kế toán</span>`
-          : `<span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 font-medium text-[10px]">Nhân viên</span>`;
+      const canEdit = (currentUser.role === 'manager');
+      const titleBadge = u.title === 'Quản lý'
+        ? `<span class="px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 font-bold text-[10px]">Quản lý</span>`
+        : u.title === 'Kế toán'
+          ? `<span class="px-2.5 py-0.5 rounded-full bg-purple-100 text-purple-800 font-bold text-[10px]">Kế toán</span>`
+          : `<span class="px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 font-medium text-[10px]">Nhân viên</span>`;
 
       const statusBadge = u.status === 'Đang làm việc'
         ? `<span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-semibold text-[10px]">Đang làm việc</span>`
@@ -385,7 +388,7 @@
 
       // Bảo mật mức lương
       let salaryText = '•••••••• đ';
-      if (currentUser.role === 'manager' || currentUser.role === 'hr' || currentUser.id === u.id) {
+      if (currentUser.role === 'manager' || currentUser.id === u.id) {
         salaryText = (u.salary || 0).toLocaleString('vi-VN') + ' đ';
       }
 
@@ -399,7 +402,7 @@
         `;
       }
 
-      const defaultAvatar = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=faces';
+      const defaultAvatar = 'https:\u002f\u002fimages.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=faces';
       html += `
         <tr class="hover:bg-slate-50 transition">
           <td class="py-3 px-4 font-bold text-slate-800">${escapeHtml(u.id)}</td>
@@ -413,8 +416,7 @@
             </div>
           </td>
           <td class="py-3 px-4"><span class="px-2 py-0.5 rounded bg-blue-50 text-blue-700 font-medium">${escapeHtml(u.dept)}</span></td>
-          <td class="py-3 px-4 text-slate-700 font-medium">${escapeHtml(u.title)}</td>
-          <td class="py-3 px-4 text-center">${roleBadge}</td>
+          <td class="py-3 px-4">${titleBadge}</td>
           <td class="py-3 px-4 text-right font-semibold text-slate-900">${salaryText}</td>
           <td class="py-3 px-4 text-center">${statusBadge}</td>
           <td class="py-3 px-4 text-center text-slate-500">${escapeHtml(u.startDate || '--')}</td>
@@ -431,13 +433,14 @@
 
   function openEmployeeModal() {
     document.getElementById('emp-form-mode').value = 'add';
-    document.getElementById('emp-form-id').readOnly=false;
+    document.getElementById('emp-form-id').readOnly = false;
     document.getElementById('modal-employee-title').innerText = 'Thêm Nhân Sự Mới';
     document.getElementById('emp-form-id').value = 'VT-' + String(USERS_DB.length + 1).padStart(3, '0');
     document.getElementById('emp-form-name').value = '';
     document.getElementById('emp-form-email').value = '';
     document.getElementById('emp-form-phone').value = '';
-    document.getElementById('emp-form-title').value = '';
+    document.getElementById('emp-form-title').value = 'Nhân viên';
+    if (document.getElementById('emp-form-role')) document.getElementById('emp-form-role').value = 'employee';
     document.getElementById('emp-form-salary').value = 16000000;
     document.getElementById('emp-form-date').value = '08/10/2026';
     document.getElementById('modal-employee').classList.remove('hidden');
@@ -447,7 +450,7 @@
     const u = USERS_DB.find(x => x.id === empId);
     if (!u) return;
     document.getElementById('emp-form-mode').value = 'edit';
-    document.getElementById('emp-form-id').readOnly=true;
+    document.getElementById('emp-form-id').readOnly = true;
     document.getElementById('modal-employee-title').innerText = 'Chỉnh Sửa Nhân Sự: ' + u.name;
     document.getElementById('emp-form-id').value = u.id;
     document.getElementById('emp-form-name').value = u.name;
@@ -455,7 +458,7 @@
     document.getElementById('emp-form-phone').value = u.phone || '';
     document.getElementById('emp-form-dept').value = u.dept;
     document.getElementById('emp-form-title').value = u.title;
-    document.getElementById('emp-form-role').value = u.role;
+    if (document.getElementById('emp-form-role')) document.getElementById('emp-form-role').value = (u.title === 'Quản lý' ? 'manager' : (u.title === 'Kế toán' ? 'hr' : 'employee'));
     document.getElementById('emp-form-salary').value = u.salary;
     document.getElementById('emp-form-status').value = u.status;
     document.getElementById('emp-form-date').value = u.startDate || '08/10/2026';
@@ -465,6 +468,9 @@
   function handleSaveEmployee(e) {
     e.preventDefault();
     const mode = document.getElementById('emp-form-mode').value;
+    const title = document.getElementById('emp-form-title').value.trim();
+    const role = title === 'Quản lý' ? 'manager' : (title === 'Kế toán' ? 'hr' : 'employee');
+    if (document.getElementById('emp-form-role')) document.getElementById('emp-form-role').value = role;
     const empData = {
       mode: mode,
       id: document.getElementById('emp-form-id').value.trim(),
@@ -472,12 +478,12 @@
       email: document.getElementById('emp-form-email').value.trim(),
       phone: document.getElementById('emp-form-phone').value.trim(),
       dept: document.getElementById('emp-form-dept').value,
-      title: document.getElementById('emp-form-title').value.trim(),
-      role: document.getElementById('emp-form-role').value,
+      title: title,
+      role: role,
       salary: Number(document.getElementById('emp-form-salary').value) || 0,
       status: document.getElementById('emp-form-status').value,
       startDate: document.getElementById('emp-form-date').value.trim(),
-      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=faces'
+      avatar: 'https:\u002f\u002fimages.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=faces'
     };
 
     const submitBtn = e.target.querySelector('button[type="submit"]');
@@ -566,7 +572,7 @@
         } else if (dow === 6) {
           days[d - 1] = 'T7';
         } else {
-          days[d - 1] = 'X';
+          days[d - 1] = '';
           standardWorkingDays++;
         }
       } else {
@@ -589,12 +595,13 @@
     const badge = document.getElementById('timesheet-days-badge');
     if (badge) {
       badge.innerText = `${totalDays} ngày (${info.standardWorkingDays} công chuẩn)`;
+      document.getElementById("timesheet-cutoff-note").innerText = `Công ghi nhận đến ${appData.attendanceAsOf || "—"}. Ô mờ là ngày chưa đến; dấu * là lịch nghỉ dự kiến, chưa cộng vào tổng công.`;
     }
 
     let thHtml = `
-      <th class="py-3 px-3 font-semibold sticky left-0 bg-slate-900 z-30 min-w-[70px] text-center border-r border-slate-800">Mã NV</th>
-      <th class="py-3 px-3 font-semibold sticky left-[70px] bg-slate-900 z-30 min-w-[170px] border-r border-slate-800">Họ và Tên</th>
-      <th class="py-3 px-2 font-semibold min-w-[90px] border-r border-slate-800 text-center">Phòng Ban</th>
+      <th class="py-3 px-2 font-semibold sticky left-0 bg-slate-900 z-30 min-w-[65px] text-center border-r border-slate-800">Mã NV</th>
+      <th class="py-3 px-3 font-semibold sticky left-[65px] bg-slate-900 z-30 min-w-[150px] border-r border-slate-800">Họ và Tên</th>
+      <th class="py-3 px-2 font-semibold min-w-[80px] border-r border-slate-800 text-center">Phòng Ban</th>
     `;
 
     for (let d = 1; d <= totalDays; d++) {
@@ -624,6 +631,11 @@
     tr.innerHTML = thHtml;
   }
 
+  function recordedClientDays(empId) {
+    const calendar = generateDefaultDaysForMonth(currentTimesheetPeriod).days;
+    const raw = (appData.timesheetByPeriod[currentTimesheetPeriod] || {})[empId] || [];
+    return calendar.map((symbol, index) => index < appData.attendanceCutoff ? (raw[index] || '') : symbol);
+  }
   function renderTimesheet() {
     renderTimesheetHeader(currentTimesheetPeriod);
     const tbody = document.getElementById('timesheet-tbody');
@@ -641,7 +653,8 @@
     let rows = '';
 
     USERS_DB.filter(u => u.status !== 'Đã nghỉ việc' && (currentUser.role !== 'employee' || u.id === currentUser.id)).forEach(u => {
-      const rawDays = periodMap[u.id] || Array(31).fill('');
+      const rawDays = recordedClientDays(u.id);
+      const plans = (appData.plannedTimesheet || {})[u.id] || [];
       let cellsHtml = '';
       let totalX = 0, totalP = 0, totalO = 0, totalOT = 0, totalK = 0;
 
@@ -656,23 +669,26 @@
         else if (sym === 'T7') { cClass = 'cell-t7'; }
         else if (sym === 'X') { totalX++; }
 
-        const canEditAtt = (currentUser && (currentUser.role === 'hr' || currentUser.role === 'manager'));
+        const future = dIdx >= appData.attendanceCutoff;
+        const display = future && plans[dIdx] ? plans[dIdx] + '*' : sym;
+        if (future) cClass += ' opacity-50';
+        const canEditAtt = !future && currentUser && currentUser.role === 'manager';
         const clickAttr = canEditAtt
           ? `onclick="cycleAttendanceCell('${u.id}', ${dIdx + 1}, '${sym}')" title="Bấm để đổi ký hiệu công (X ➔ OT ➔ P ➔ K ➔ O ➔ CN ➔ X)" style="cursor: pointer;"`
-          : '';
+          : (future ? 'title="Chưa đến ngày; dấu * là lịch nghỉ dự kiến, chưa cộng công"' : '');
 
-        cellsHtml += `<td class="p-0 text-center border-r border-slate-100 matrix-cell ${cClass}" ${clickAttr}>${sym}</td>`;
+        cellsHtml += `<td class="p-0 text-center border-r border-slate-100 matrix-cell ${cClass}" ${clickAttr}>${display}</td>`;
       }
 
       const isMe = (currentUser && currentUser.id === u.id);
       rows += `
         <tr class="${isMe ? 'bg-blue-50/40 font-bold' : 'hover:bg-slate-50/80'} transition">
-          <td class="py-2.5 px-3 font-bold sticky left-0 bg-white z-10 text-center border-r border-slate-200 text-slate-700">${escapeHtml(u.id)}</td>
-          <td class="py-2.5 px-3 sticky left-[70px] bg-white z-10 border-r border-slate-200">
+          <td class="py-2.5 px-2 font-bold sticky left-0 bg-white z-10 text-center border-r border-slate-200 text-slate-700 min-w-[65px]">${escapeHtml(u.id)}</td>
+          <td class="py-2.5 px-3 sticky left-[65px] bg-white z-10 border-r border-slate-200 min-w-[150px]">
             <div class="font-bold text-slate-900">${escapeHtml(u.name)} ${isMe ? '<span class="text-[10px] text-blue-600">(Tôi)</span>' : ''}</div>
             <div class="text-[10px] text-slate-400">${escapeHtml(u.title)}</div>
           </td>
-          <td class="py-2.5 px-2 text-center border-r border-slate-200"><span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 font-semibold text-[10px]">${escapeHtml(u.dept)}</span></td>
+          <td class="py-2.5 px-2 text-center border-r border-slate-200 min-w-[80px]"><span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 font-semibold text-[10px]">${escapeHtml(u.dept)}</span></td>
           ${cellsHtml}
           <td class="py-2.5 px-2 text-center font-extrabold text-blue-700 bg-blue-50/50">${totalX}</td>
           <td class="py-2.5 px-2 text-center font-bold text-indigo-700 bg-indigo-50/50">${totalP}</td>
@@ -688,7 +704,7 @@
   function changeTimesheetPeriod(period) {
     if (!/^(0[1-9]|1[0-2])\/20\d{2}$/.test(period)) return;
     currentTimesheetPeriod = period;
-    ['timesheet-period-select','payroll-period-select'].forEach(id=>setPeriodSelect(id,period));
+    setPeriodSelect('timesheet-period-select', period);
     refreshAppData();
   }
 
@@ -713,8 +729,8 @@
   }
 
   function cycleAttendanceCell(empId, day, currentSym) {
-    if(loadingData||busyActions.has('apiUpdateAttendanceCell'))return;
-    if (currentUser.role !== 'hr' && currentUser.role !== 'manager') return;
+    if (loadingData || busyActions.has('apiUpdateAttendanceCell')) return;
+    if (currentUser.role !== 'manager' || day > appData.attendanceCutoff) return;
     const nextMap = { 'X': 'OT', 'OT': 'P', 'P': 'K', 'K': 'O', 'O': 'CN', 'CN': 'X', 'T7': 'OT' };
     const nextSym = nextMap[currentSym] || 'X';
 
@@ -751,41 +767,43 @@
 
   // Minimal OOXML workbook in an uncompressed ZIP; text uses inline strings, never formulas.
   function createExcelWorkbook(rows) {
-    const enc=new TextEncoder();
-    const xml=value=>String(value??'').replace(/[\x00-\x08\x0b\x0c\x0e-\x1f]/g,'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&apos;'}[c]));
-    const col=n=>{let out='';for(n++;n;n=Math.floor((n-1)/26))out=String.fromCharCode(65+(n-1)%26)+out;return out;};
-    const sheet=rows.map((row,y)=>'<row r="'+(y+1)+'">'+row.map((value,x)=>'<c r="'+col(x)+(y+1)+'"'+(typeof value==='number'?'':' t="inlineStr"')+'>'+(typeof value==='number'?'<v>'+value+'</v>':'<is><t xml:space="preserve">'+xml(value)+'</t></is>')+'</c>').join('')+'</row>').join('');
-    const files={
-      '[Content_Types].xml':'<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/></Types>',
-      '_rels/.rels':'<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>',
-      'xl/workbook.xml':'<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="ChamCong" sheetId="1" r:id="rId1"/></sheets></workbook>',
-      'xl/_rels/workbook.xml.rels':'<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/></Relationships>',
-      'xl/worksheets/sheet1.xml':'<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData>'+sheet+'</sheetData></worksheet>'
+    const enc = new TextEncoder();
+    const xml = value => String(value ?? '').replace(/[\x00-\x08\x0b\x0c\x0e-\x1f]/g, '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&apos;' }[c]));
+    const col = n => { let out = ''; for (n++; n; n = Math.floor((n - 1) / 26))out = String.fromCharCode(65 + (n - 1) % 26) + out; return out; };
+    const sheet = rows.map((row, y) => '<row r="' + (y + 1) + '">' + row.map((value, x) => '<c r="' + col(x) + (y + 1) + '"' + (typeof value === 'number' ? '' : ' t="inlineStr"') + '>' + (typeof value === 'number' ? '<v>' + value + '</v>' : '<is><t xml:space="preserve">' + xml(value) + '</t></is>') + '</c>').join('') + '</row>').join('');
+    const files = {
+      '[Content_Types].xml': '<Types xmlns="http:\u002f\u002fschemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/></Types>',
+      '_rels/.rels': '<Relationships xmlns="http:\u002f\u002fschemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http:\u002f\u002fschemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>',
+      'xl/workbook.xml': '<workbook xmlns="http:\u002f\u002fschemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http:\u002f\u002fschemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="ChamCong" sheetId="1" r:id="rId1"/></sheets></workbook>',
+      'xl/_rels/workbook.xml.rels': '<Relationships xmlns="http:\u002f\u002fschemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http:\u002f\u002fschemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/></Relationships>',
+      'xl/worksheets/sheet1.xml': '<worksheet xmlns="http:\u002f\u002fschemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData>' + sheet + '</sheetData></worksheet>'
     };
-    const crc=bytes=>{let c=0xffffffff;for(const b of bytes){c^=b;for(let k=0;k<8;k++)c=(c>>>1)^((c&1)?0xedb88320:0);}return (c^0xffffffff)>>>0;};
-    const locals=[],central=[];let offset=0;
-    for(const [path,value] of Object.entries(files)) {
-      const name=enc.encode(path),data=enc.encode('<'+'?xml version="1.0" encoding="UTF-8"?'+'>'+value),checksum=crc(data);
-      const local=new Uint8Array(30+name.length+data.length),v=new DataView(local.buffer);
-      v.setUint32(0,0x04034b50,true);v.setUint16(4,20,true);v.setUint16(12,33,true);v.setUint32(14,checksum,true);v.setUint32(18,data.length,true);v.setUint32(22,data.length,true);v.setUint16(26,name.length,true);local.set(name,30);local.set(data,30+name.length);locals.push(local);
-      const directory=new Uint8Array(46+name.length),d=new DataView(directory.buffer);
-      d.setUint32(0,0x02014b50,true);d.setUint16(4,20,true);d.setUint16(6,20,true);d.setUint16(14,33,true);d.setUint32(16,checksum,true);d.setUint32(20,data.length,true);d.setUint32(24,data.length,true);d.setUint16(28,name.length,true);d.setUint32(42,offset,true);directory.set(name,46);central.push(directory);offset+=local.length;
+    const crc = bytes => { let c = 0xffffffff; for (const b of bytes) { c ^= b; for (let k = 0; k < 8; k++)c = (c >>> 1) ^ ((c & 1) ? 0xedb88320 : 0); } return (c ^ 0xffffffff) >>> 0; };
+    const locals = [], central = []; let offset = 0;
+    for (const [path, value] of Object.entries(files)) {
+      const name = enc.encode(path), data = enc.encode('<' + '?xml version="1.0" encoding="UTF-8"?' + '>' + value), checksum = crc(data);
+      const local = new Uint8Array(30 + name.length + data.length), v = new DataView(local.buffer);
+      v.setUint32(0, 0x04034b50, true); v.setUint16(4, 20, true); v.setUint16(12, 33, true); v.setUint32(14, checksum, true); v.setUint32(18, data.length, true); v.setUint32(22, data.length, true); v.setUint16(26, name.length, true); local.set(name, 30); local.set(data, 30 + name.length); locals.push(local);
+      const directory = new Uint8Array(46 + name.length), d = new DataView(directory.buffer);
+      d.setUint32(0, 0x02014b50, true); d.setUint16(4, 20, true); d.setUint16(6, 20, true); d.setUint16(14, 33, true); d.setUint32(16, checksum, true); d.setUint32(20, data.length, true); d.setUint32(24, data.length, true); d.setUint16(28, name.length, true); d.setUint32(42, offset, true); directory.set(name, 46); central.push(directory); offset += local.length;
     }
-    const directorySize=central.reduce((n,p)=>n+p.length,0),end=new Uint8Array(22),e=new DataView(end.buffer);
-    e.setUint32(0,0x06054b50,true);e.setUint16(8,central.length,true);e.setUint16(10,central.length,true);e.setUint32(12,directorySize,true);e.setUint32(16,offset,true);
-    return new Blob([...locals,...central,end],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+    const directorySize = central.reduce((n, p) => n + p.length, 0), end = new Uint8Array(22), e = new DataView(end.buffer);
+    e.setUint32(0, 0x06054b50, true); e.setUint16(8, central.length, true); e.setUint16(10, central.length, true); e.setUint32(12, directorySize, true); e.setUint32(16, offset, true);
+    return new Blob([...locals, ...central, end], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
   }
   function exportTimesheetExcel() {
-    if(loadingData){showToast('Đợi bảng công tải xong rồi xuất Excel.','info');return;}
-    const period=currentTimesheetPeriod,info=generateDefaultDaysForMonth(period),map=appData.timesheetByPeriod[period]||{};
-    const rows=[['BẢNG CHẤM CÔNG — VINTECH SOLUTIONS'],['Kỳ',period],['Mã NV','Họ và tên','Phòng ban','Chức danh',...Array.from({length:info.daysInMonth},(_,i)=>i+1),'Công X','Phép P','Ốm O','Không lương K','OT']];
-    USERS_DB.filter(u=>u.status!=='Đã nghỉ việc'&&(currentUser.role!=='employee'||u.id===currentUser.id)).forEach(u=>{
-      const days=(map[u.id]||Array(31).fill('')).slice(0,info.daysInMonth);
-      rows.push([u.id,u.name,u.dept,u.title,...days,...['X','P','O','K','OT'].map(symbol=>days.filter(d=>d===symbol).length)]);
+    if (loadingData) { showToast('Đợi bảng công tải xong rồi xuất Excel.', 'info'); return; }
+    const period = currentTimesheetPeriod, info = generateDefaultDaysForMonth(period), map = appData.timesheetByPeriod[period] || {};
+    const rows = [['BẢNG CHẤM CÔNG — VINTECH SOLUTIONS'], ['Kỳ', period, 'Công ghi nhận đến', appData.attendanceAsOf, '*: Lịch nghỉ dự kiến, chưa cộng công'], ['Mã NV', 'Họ và tên', 'Phòng ban', 'Chức danh', ...Array.from({ length: info.daysInMonth }, (_, i) => i + 1), 'Công X', 'Phép P', 'Ốm O', 'Không lương K', 'OT']];
+    USERS_DB.filter(u => u.status !== 'Đã nghỉ việc' && (currentUser.role !== 'employee' || u.id === currentUser.id)).forEach(u => {
+      const days = recordedClientDays(u.id).slice(0, info.daysInMonth);
+      const plans = (appData.plannedTimesheet || {})[u.id] || [];
+      const display = days.map((symbol, index) => index >= appData.attendanceCutoff && plans[index] ? plans[index] + ' (dự kiến)' : symbol);
+      rows.push([u.id, u.name, u.dept, u.title, ...display, ...['X', 'P', 'O', 'K', 'OT'].map(symbol => days.filter(d => d === symbol).length)]);
     });
-    const url=URL.createObjectURL(createExcelWorkbook(rows)),link=document.createElement('a');
-    link.href=url;link.download='Bang_cong_'+period.replace('/','_')+'.xlsx';document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
-    showToast('Đã xuất bảng công kỳ '+period+'.');
+    const url = URL.createObjectURL(createExcelWorkbook(rows)), link = document.createElement('a');
+    link.href = url; link.download = 'Bang_cong_' + period.replace('/', '_') + '.xlsx'; document.body.appendChild(link); link.click(); link.remove(); setTimeout(() => URL.revokeObjectURL(url), 1000);
+    showToast('Đã xuất bảng công kỳ ' + period + '.');
   }
 
   // Cập nhật ma trận công cục bộ khi duyệt đơn nghỉ xuyên tháng (ví dụ 30/10 đến 02/11)
@@ -796,7 +814,7 @@
     const tbody = document.getElementById('leave-table-tbody');
     let html = '';
     appData.leaveRequests.forEach(r => {
-      const canApprove = (currentUser.role === 'manager' || currentUser.role === 'hr');
+      const canApprove = (currentUser.role === 'manager');
       let stBadge = '';
       if (r.status === 'APPROVED') {
         stBadge = `<span class="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 font-bold text-[10px]"><i class="fa-solid fa-check mr-1"></i>Đã duyệt</span>`;
@@ -837,30 +855,30 @@
     const tbody = document.getElementById('sick-table-tbody');
     let html = '';
     appData.sickCases.forEach(s => {
-      const canApproveSick = (currentUser.role === 'hr');
+      const canApproveSick = (currentUser.role === 'manager');
       let stBadge = '';
       if (s.status === 'APPROVED') {
-        stBadge = `<span class="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 font-bold text-[10px]"><i class="fa-solid fa-check mr-1"></i>Đã duyệt BHXH</span>`;
+        stBadge = `<span class="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 font-bold text-[10px]"><i class="fa-solid fa-check mr-1"></i>Đã duyệt</span>`;
       } else if (s.status === 'REJECTED') {
         stBadge = `<span class="px-2.5 py-1 rounded-full bg-rose-100 text-rose-800 font-bold text-[10px]"><i class="fa-solid fa-xmark mr-1"></i>Từ chối</span>`;
       } else if (s.status === 'NEED_MORE_INFO') {
         stBadge = `<span class="px-2.5 py-1 rounded-full bg-amber-100 text-amber-800 font-bold text-[10px]"><i class="fa-solid fa-triangle-exclamation mr-1"></i>Yêu cầu bổ sung</span>`;
       } else {
-        stBadge = `<span class="px-2.5 py-1 rounded-full bg-amber-100 text-amber-800 font-bold text-[10px]"><i class="fa-solid fa-clock mr-1"></i>Chờ HR duyệt</span>`;
+        stBadge = `<span class="px-2.5 py-1 rounded-full bg-amber-100 text-amber-800 font-bold text-[10px]"><i class="fa-solid fa-clock mr-1"></i>Chờ Quản lý duyệt</span>`;
       }
 
       let actions = '<span class="text-slate-400 text-xs">---</span>';
       if ((s.status === 'PENDING' || s.status === 'NEED_MORE_INFO') && canApproveSick) {
         actions = `
-          <div class="flex items-center justify-end space-x-1.5">
-            <button ${s.status !== 'PENDING' ? 'disabled' : ''} onclick="approveSick('${s.id}')" class="px-2 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded font-bold text-[11px] shadow-sm transition" title="Duyệt hồ sơ">Duyệt</button>
-            <button onclick="openSickMoreInfoModal('${s.id}')" class="px-2 py-1 bg-amber-500 hover:bg-amber-600 text-white rounded font-bold text-[11px] shadow-sm transition" title="Yêu cầu bổ sung chứng từ">Bổ sung</button>
-            <button onclick="rejectSick('${s.id}')" class="px-2 py-1 bg-rose-600 hover:bg-rose-500 text-white rounded font-bold text-[11px] shadow-sm transition" title="Từ chối hồ sơ">Từ chối</button>
+          <div class="sick-review-actions">
+            <button ${s.status !== 'PENDING' ? 'disabled' : ''} onclick="approveSick('${s.id}')" class="sick-review-button px-2 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded font-bold text-[11px] shadow-sm transition" title="Duyệt hồ sơ">Duyệt</button>
+            <button onclick="openSickMoreInfoModal('${s.id}')" class="sick-review-button px-2 py-1 bg-amber-500 hover:bg-amber-600 text-white rounded font-bold text-[11px] shadow-sm transition" title="Yêu cầu bổ sung chứng từ">Bổ sung</button>
+            <button onclick="rejectSick('${s.id}')" class="sick-review-button px-2 py-1 bg-rose-600 hover:bg-rose-500 text-white rounded font-bold text-[11px] shadow-sm transition" title="Từ chối hồ sơ">Từ chối</button>
           </div>
         `;
-      } else if (s.status === 'NEED_MORE_INFO' && currentUser.role === 'employee' && s.empId === currentUser.id) {
+      } else if (s.status === 'NEED_MORE_INFO' && s.empId === currentUser.id) {
         actions = `
-          <button onclick="openSickResubmitModal('${s.id}')" class="px-2.5 py-1 bg-amber-500 hover:bg-amber-600 text-white rounded font-bold text-[11px] shadow-sm transition flex items-center space-x-1 ml-auto">
+          <button onclick="openSickResubmitModal('${s.id}')" class="sick-resubmit-button px-2.5 py-1 bg-amber-500 hover:bg-amber-600 text-white rounded font-bold text-[11px] shadow-sm transition flex items-center space-x-1 ml-auto">
             <i class="fa-solid fa-upload"></i><span>Bổ sung hồ sơ</span>
           </button>
         `;
@@ -878,8 +896,8 @@
               <button data-attachment-kind="sick" data-attachment-id="${escapeHtml(s.id)}" class="text-blue-700">Xem chứng từ</button>
             ` : `<span class="text-slate-400 text-[11px]">Không có</span>`}
           </td>
-          <td class="py-3 px-4 text-xs text-slate-600 max-w-xs truncate" title="${escapeHtml(s.note || '')}">${escapeHtml(s.note || '---')}</td>
           <td class="py-3 px-4 text-center">${stBadge}</td>
+          <td class="py-3 px-4 text-xs text-slate-600"><div class="sick-note">${escapeHtml(s.note || '---')}</div></td>
           <td class="py-3 px-4 text-right">${actions}</td>
         </tr>
       `;
@@ -888,15 +906,26 @@
   }
 
   // --- RENDER 6: PAYROLL TABLE ---
+  function setPayrollPeriodSelect(id, period) {
+    const select = document.getElementById(id);
+    if (!select) return;
+    select.innerHTML = payrollPeriods.map(value => '<option value="' + value + '">Tháng ' + value + '</option>').join('');
+    select.value = payrollPeriods.includes(period) ? period : '';
+  }
+  function changePayrollPeriod(period) {
+    if (!payrollPeriods.includes(period)) return;
+    currentPayrollPeriod = period;
+    renderPayrollTable(); renderDashboard();
+  }
   function renderPayrollTable() {
-    const period=currentTimesheetPeriod;
-    document.getElementById('payroll-period-title').innerText='Bảng lương kỳ '+period;
-    setPeriodSelect('payroll-period-select',period);
-    document.getElementById('payroll-desc').innerText=currentUser.role==='employee'?'Phiếu lương cá nhân theo kỳ':'Bảng lương theo kỳ; công thay đổi cần tính lại';
-    document.getElementById('btn-calc-payroll').classList.toggle('hidden',currentUser.role==='employee');
-    const list=appData.payroll.filter(p=>p.period===period&&(currentUser.role!=='employee'||p.empId===currentUser.id));
-    document.getElementById('payroll-tbody').innerHTML=list.length?list.map(p=>      '<tr><td class="p-3">'+escapeHtml(p.empId)+'</td><td class="p-3">'+escapeHtml(p.empName)+'</td><td>'+escapeHtml(p.title)+'</td><td>'+money(p.baseSalary)+'</td><td>'+p.standardDays+'</td><td>'+p.actualDays+' + '+p.paidLeaveDays+' phép</td><td>'+p.otDays+'</td><td>'+money(p.allowance)+'</td><td>'+money(p.netSalary)+'<br><small>'+escapeHtml(p.status)+'</small></td><td><button class="text-blue-700" data-payslip="'+escapeHtml(p.empId)+'">Xem phiếu</button></td></tr>').join(''):'<tr><td colspan="10" class="p-6 text-center">Chưa có bảng lương kỳ này. HR/Quản lý cần tính lương.</td></tr>';
-    document.querySelectorAll('[data-payslip]').forEach(button=>button.onclick=()=>printPayslip(button.dataset.payslip,period));
+    const period = currentPayrollPeriod;
+    document.getElementById('payroll-period-title').innerText = period ? 'Bảng lương kỳ ' + period : 'Bảng lương';
+    setPayrollPeriodSelect('payroll-period-select', period);
+    document.getElementById('payroll-desc').innerText = currentUser.role === 'employee' ? 'Phiếu lương cá nhân theo kỳ' : 'Bảng lương kỳ đã chọn';
+    document.getElementById('btn-calc-payroll').classList.toggle('hidden', currentUser.role !== 'hr');
+    const list = appData.payroll.filter(p => p.period === period && (currentUser.role !== 'employee' || p.empId === currentUser.id));
+    document.getElementById('payroll-tbody').innerHTML = list.length ? list.map(p => '<tr><td class="p-3">' + escapeHtml(p.empId) + '</td><td class="p-3">' + escapeHtml(p.empName) + '</td><td>' + escapeHtml(p.title) + '</td><td>' + money(p.baseSalary) + '</td><td>' + p.standardDays + '</td><td>' + p.actualDays + ' + ' + p.paidLeaveDays + ' phép</td><td>' + p.otDays + '</td><td>' + money(p.allowance) + '</td><td>' + money(p.netSalary) + '<br><small>' + escapeHtml(p.status) + '</small></td><td><button class="text-blue-700" data-payslip="' + escapeHtml(p.empId) + '">Xem phiếu</button></td></tr>').join('') : '<tr><td colspan="10" class="p-6 text-center">Chưa có bảng lương kỳ này. Kế toán cần tính lương.</td></tr>';
+    document.querySelectorAll('[data-payslip]').forEach(button => button.onclick = () => printPayslip(button.dataset.payslip, period));
   }
 
   // --- RENDER 7: TASKS TABLE ---
@@ -1010,26 +1039,24 @@
       html += `
         <tr class="hover:bg-slate-50 transition">
           <td class="py-3 px-4 font-bold text-slate-800">${escapeHtml(d.id)}</td>
-          <td class="py-3 px-4 font-bold text-slate-900">${escapeHtml(d.title)}</td>
+          <td class="py-3 px-4 font-bold text-slate-900"><div class="doc-title">${escapeHtml(d.title)}</div></td>
           <td class="py-3 px-4"><span class="px-2 py-0.5 rounded bg-amber-50 text-amber-800 font-medium text-xs">${escapeHtml(d.type)}</span></td>
           <td class="py-3 px-4">${catBadge}</td>
           <td class="py-3 px-4 text-slate-600">${escapeHtml(d.issuer)}</td>
           <td class="py-3 px-4 text-slate-500">${escapeHtml(d.date)}</td>
           <td class="py-3 px-4 text-center">
-            <button data-attachment-kind="doc" data-attachment-id="${escapeHtml(d.id)}" class="text-blue-700">Xem</button> <button data-attachment-kind="doc" data-attachment-id="${escapeHtml(d.id)}" data-download="true" class="text-blue-700">Tải</button>
+            <div class="docs-file-actions"><button data-attachment-kind="doc" data-attachment-id="${escapeHtml(d.id)}" class="text-blue-700">Xem</button><button data-attachment-kind="doc" data-attachment-id="${escapeHtml(d.id)}" data-download="true" class="text-blue-700">Tải</button></div>
           </td>
           <td class="py-3 px-4 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">${escapeHtml(d.status || 'Hiệu lực')}</span></td>
           <td class="py-3 px-4 text-right">
             <div class="flex items-center justify-end space-x-1.5">
-              <button data-manager-only data-edit-doc="${escapeHtml(d.id)}"
+              <button data-edit-doc="${escapeHtml(d.id)}"
                 class="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded font-semibold text-[11px] inline-flex items-center space-x-1 border border-slate-300 transition" title="Chỉnh sửa văn bản">
                 <i class="fa-solid fa-pen-to-square"></i>
-                <span>Sửa</span>
               </button>
               <button data-manager-only data-assign-doc="${escapeHtml(d.id)}"
                 class="px-2 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 hover:text-indigo-900 rounded font-semibold text-[11px] inline-flex items-center space-x-1 border border-indigo-200 transition" title="Giao việc theo văn bản này">
                 <i class="fa-solid fa-list-check"></i>
-                <span>Giao Việc</span>
               </button>
             </div>
           </td>
@@ -1123,7 +1150,9 @@
   }
 
   function calculatePayroll() {
-    const targetPeriod = currentTimesheetPeriod || '10/2026';
+    if (currentUser.role !== 'hr') return;
+    const targetPeriod = currentPayrollPeriod;
+    if (!payrollPeriods.includes(targetPeriod)) return;
     if (!confirm(`Hệ thống sẽ tổng hợp số ngày công kỳ [${targetPeriod}] từ bảng Chấm Công và tính lại Lương thực lĩnh cho toàn bộ nhân sự rồi lưu vào Google Sheet. Tiếp tục?`)) return;
     showToast(`Đang tính lương kỳ ${targetPeriod} và đồng bộ Google Sheets...`, 'info');
 
@@ -1131,12 +1160,10 @@
     callBackend('apiCalculateMonthlyPayroll', [targetPeriod, callerEmail], (res) => {
       if (res && res.success) {
         showToast(res.message || `Đã tính toán và lưu Bảng Lương kỳ ${targetPeriod} vào Google Sheet thành công!`, 'success');
-        callBackend('apiGetPayrollData', [currentUser.email], (pRes) => {
-          if (pRes && pRes.success) {
-            appData.payroll = pRes.data;
-            renderPayrollTable();
-          }
-        });
+        if (res.payroll) {
+          appData.payroll = res.payroll;
+          renderPayrollTable();
+        }
       } else {
         showToast((res && res.message) || 'Tính lương thất bại!', 'error');
       }
@@ -1147,10 +1174,10 @@
 
   function handleCreateLeave(e) {
     e.preventDefault();
-    const type = document.getElementById('leave-type').value;
-    const days = workingDayCount(document.getElementById('leave-from').value,document.getElementById('leave-to').value);
     const from = document.getElementById('leave-from').value;
     const to = document.getElementById('leave-to').value;
+    const inputDays = parseInt(document.getElementById('leave-days').value, 10);
+    const days = (Number.isFinite(inputDays) && inputDays > 0) ? inputDays : workingDayCount(from, to);
     const reason = document.getElementById('leave-reason').value;
 
     const newId = 'LV-' + Math.floor(1000 + Math.random() * 9000);
@@ -1245,9 +1272,9 @@
     const from = document.getElementById('sick-from').value;
     const to = document.getElementById('sick-to').value;
 
-    const calcDays = workingDayCount(from,to);
-    if(!calcDays){showToast('Khoảng nghỉ phải có ngày làm việc hợp lệ.','error');return;}
-    if(!selectedSickFile){showToast('Vui lòng chọn chứng từ.','error');return;}
+    const calcDays = workingDayCount(from, to);
+    if (!calcDays) { showToast('Khoảng nghỉ phải có ngày làm việc hợp lệ.', 'error'); return; }
+    if (!selectedSickFile) { showToast('Vui lòng chọn chứng từ.', 'error'); return; }
 
     const newId = 'SC-' + Math.floor(1000 + Math.random() * 9000);
     const sickObj = {
@@ -1322,7 +1349,7 @@
     const title = document.getElementById('task-form-title').value.trim();
     const type = document.getElementById('task-form-type').value;
     const assigneeId = document.getElementById('task-form-assignee').value;
-    const assignee = (USERS_DB.find(u=>u.id===assigneeId)||{}).name || '';
+    const assignee = (USERS_DB.find(u => u.id === assigneeId) || {}).name || '';
     const deadline = document.getElementById('task-form-deadline').value;
     const note = document.getElementById('task-form-note').value;
     const docId = document.getElementById('task-form-doc') ? document.getElementById('task-form-doc').value : '';
@@ -1430,11 +1457,18 @@
     if (placeholder) placeholder.classList.remove('hidden');
   }
 
+  function canManageDocument(type) {
+    return currentUser.role === 'manager' || (currentUser.role === 'hr' && ['Quy chế lương', 'Thông báo trả lương', 'Quyết định điều chỉnh lương'].includes(type));
+  }
   function openDocModal(docId) {
+    if (currentUser.role === 'employee') return;
+    if (docId && !canManageDocument((appData.documents.find(d => d.id === docId) || {}).type)) return;
     currentEditingDocId = docId || null;
     const titleEl = document.getElementById('modal-doc-title');
     const idInput = document.getElementById('doc-form-id');
     const typeInput = document.getElementById('doc-form-type');
+    Array.from(typeInput.options).forEach(option => { option.disabled = !canManageDocument(option.value); option.hidden = option.disabled; });
+    if (currentUser.role === 'hr') typeInput.value = 'Quy chế lương';
     const catInput = document.getElementById('doc-form-category');
     const titleInput = document.getElementById('doc-form-title');
     const issuerInput = document.getElementById('doc-form-issuer');
@@ -1481,12 +1515,12 @@
   }
 
   function handleSaveDoc(e) {
-    if(e)e.preventDefault();
-    const val=id=>document.getElementById(id).value.trim();
-    const doc={id:val('doc-form-id'),title:val('doc-form-title'),type:val('doc-form-type'),category:val('doc-form-category'),issuer:val('doc-form-issuer'),date:val('doc-form-date'),status:val('doc-form-status'),fileUrl:val('doc-form-url'),fileData:selectedDocFile};
-    callBackend(currentEditingDocId?'apiUpdateDocument':'apiSaveDocument',[doc,currentUser.email],res=>{
-      if(res&&res.success){closeModal('modal-doc');showToast(res.message);}
-      else showToast(res&&res.message||'Lưu thất bại.','error');
+    if (e) e.preventDefault();
+    const val = id => document.getElementById(id).value.trim();
+    const doc = { id: val('doc-form-id'), title: val('doc-form-title'), type: val('doc-form-type'), category: val('doc-form-category'), issuer: val('doc-form-issuer'), date: val('doc-form-date'), status: val('doc-form-status'), fileUrl: val('doc-form-url'), fileData: selectedDocFile };
+    callBackend(currentEditingDocId ? 'apiUpdateDocument' : 'apiSaveDocument', [doc, currentUser.email], res => {
+      if (res && res.success) { closeModal('modal-doc'); showToast(res.message); }
+      else showToast(res && res.message || 'Lưu thất bại.', 'error');
     });
   }
 
@@ -1541,7 +1575,7 @@
     currentResubmitSickId = sickId;
     const sc = appData.sickCases.find(s => s.id === sickId);
     document.getElementById('sick-resubmit-id').value = sickId;
-    document.getElementById('sick-resubmit-hr-note').innerText = sc ? (sc.note || 'HR yêu cầu bổ sung chứng từ y tế') : '';
+    document.getElementById('sick-resubmit-hr-note').innerText = sc ? (sc.note || 'Quản lý yêu cầu bổ sung chứng từ y tế') : '';
     document.getElementById('sick-resubmit-note').value = '';
     document.getElementById('sick-resubmit-hospital').value = sc.hospital;
     document.getElementById('sick-resubmit-from').value = isoDate(sc.from);
@@ -1622,17 +1656,17 @@
 
   // --- PAYSLIP LOGIC ---
   let currentPayslipEmpId = null;
-  function printPayslip(empId,period) {
-    empId=empId||currentPayslipEmpId||currentUser.id;
-    if(currentUser.role==='employee'&&empId!==currentUser.id)return;
-    period=period||currentTimesheetPeriod; currentPayslipEmpId=empId;
-    setPeriodSelect('payslip-period-select',period);
-    const p=appData.payroll.find(item=>item.empId===empId&&item.period===period);
-    const target=document.getElementById('payslip-content');
-    if(!p) target.innerHTML='<p class="p-5">Chưa có phiếu lương kỳ '+escapeHtml(period)+'.</p>';
-    else target.innerHTML='<p><strong>'+escapeHtml(p.empName)+'</strong> — '+escapeHtml(period)+'</p><p>'+escapeHtml(p.status)+'</p><table class="w-full text-left">'+[
-      ['Lương cơ bản',money(p.baseSalary)],['Công chuẩn',p.standardDays],['Công đi làm',p.actualDays],['Phép hưởng lương',p.paidLeaveDays],['Nghỉ không lương',p.unpaidDays],['Nghỉ ốm',p.sickDays],['Lương theo công + phép',money(p.salaryByDays)],['OT ('+p.otDays+' ngày quy đổi, hệ số demo 1,5)',money(p.otPay)],['Phụ cấp',money(p.allowance)],['Khấu trừ BHXH (quy tắc demo)',money(p.bhxh)],['Thực lĩnh',money(p.netSalary)]
-    ].map(row=>'<tr><td class="p-2">'+row[0]+'</td><td class="p-2 text-right">'+row[1]+'</td></tr>').join('')+'</table><p class="text-xs mt-3">Số liệu giả lập phục vụ thực hành. Cần tính lại lương sau khi đổi bảng công.</p>';
+  function printPayslip(empId, period) {
+    empId = empId || currentPayslipEmpId || currentUser.id;
+    if (currentUser.role === 'employee' && empId !== currentUser.id) return;
+    period = period || currentPayrollPeriod; currentPayslipEmpId = empId;
+    setPayrollPeriodSelect('payslip-period-select', period);
+    const p = payrollPeriods.includes(period) && appData.payroll.find(item => item.empId === empId && item.period === period);
+    const target = document.getElementById('payslip-content');
+    if (!p) target.innerHTML = '<p class="p-5">Chưa có phiếu lương kỳ ' + escapeHtml(period) + '.</p>';
+    else target.innerHTML = '<p><strong>' + escapeHtml(p.empName) + '</strong> — ' + escapeHtml(period) + '</p><p>' + escapeHtml(p.status) + '</p><table class="w-full text-left">' + [
+      ['Lương cơ bản', money(p.baseSalary)], ['Công chuẩn', p.standardDays], ['Công đi làm', p.actualDays], ['Phép hưởng lương', p.paidLeaveDays], ['Nghỉ không lương', p.unpaidDays], ['Nghỉ ốm', p.sickDays], ['Lương theo công + phép', money(p.salaryByDays)], ['OT (' + p.otDays + ' ngày quy đổi, hệ số demo 1,5)', money(p.otPay)], ['Phụ cấp', money(p.allowance)], ['Khấu trừ BHXH', money(p.bhxh)], ['Thực lĩnh', money(p.netSalary)]
+    ].map(row => '<tr><td class="p-2">' + row[0] + '</td><td class="p-2 text-right">' + row[1] + '</td></tr>').join('') + '</table>';
     document.getElementById('modal-payslip').classList.remove('hidden');
   }
 
@@ -1654,6 +1688,7 @@
     document.getElementById('modal-sick').classList.remove('hidden');
   }
   function openTaskModal(preselectedDocId) {
+    if (currentUser.role !== 'manager') return;
     // Nạp danh sách nhân sự phụ trách
     const assigneeSel = document.getElementById('task-form-assignee');
     if (assigneeSel) {
@@ -1690,18 +1725,12 @@
   function closeModal(id) {
     document.getElementById(id).classList.add('hidden');
   }
-
-  // --- DEMO & PRACTICE GUIDE WORKFLOW ---
-  function openGuideModal() {
-    const modal = document.getElementById('modal-guide');
-    if (modal) modal.classList.remove('hidden');
-  }
-
   function handleResetDatabase() {
-    if(!confirm('Khôi phục dữ liệu mẫu trong lượt trải nghiệm của bạn? Người khác không bị ảnh hưởng.'))return;
-    callBackend('apiResetDatabase',[],res=>{
-      if(res&&res.success){appData=emptyAppData();showToast(res.message);}
-      else showToast(res&&res.message||'Khôi phục thất bại.','error');
+    if (currentUser.role !== 'manager') return;
+    if (!confirm('Khôi phục dữ liệu mẫu ban đầu về Google Sheet trung tâm? Toàn bộ 7 bảng sẽ được làm mới.')) return;
+    callBackend('apiResetDatabase', [], res => {
+      if (res && res.success) { appData = emptyAppData(); showToast(res.message); }
+      else showToast(res && res.message || 'Khôi phục thất bại.', 'error');
     });
   }
 
@@ -1727,63 +1756,74 @@
     renderDocsTable();
   }
 
-  function money(value) { return (Number(value)||0).toLocaleString('vi-VN')+' đ'; }
-  function safeUrl(value) { return /^https:\/\//i.test(value||'') ? escapeHtml(value) : '#'; }
-  function isoDate(value) { return value&&value.includes('/')?value.split('/').reverse().join('-'):value||''; }
-  function setPeriodSelect(id,period) {
-    const select=document.getElementById(id); if(!select)return;
-    if(!Array.from(select.options).some(o=>o.value===period))select.add(new Option('Tháng '+period,period));
-    select.value=period;
+  function money(value) { return (Number(value) || 0).toLocaleString('vi-VN') + ' đ'; }
+  function safeUrl(value) { return /^https:\/\//i.test(value || '') ? escapeHtml(value) : '#'; }
+  function isoDate(value) { return value && value.includes('/') ? value.split('/').reverse().join('-') : value || ''; }
+  function setPeriodSelect(id, period) {
+    const select = document.getElementById(id); if (!select) return;
+    if (!Array.from(select.options).some(o => o.value === period)) select.add(new Option('Tháng ' + period, period));
+    select.value = period;
   }
-  function workingDayCount(from,to) {
-    const start=new Date(from+'T00:00:00Z'),end=new Date(to+'T00:00:00Z');
-    if(!Number.isFinite(start.getTime())||!Number.isFinite(end.getTime())||end<start||(end-start)/86400000>365)return 0;
-    let count=0; for(let d=new Date(start);d<=end;d.setUTCDate(d.getUTCDate()+1))if(![0,6].includes(d.getUTCDay()))count++;
-    return count;
+  function workingDayCount(from, to) {
+    const start = new Date(from + 'T00:00:00Z'), end = new Date(to + 'T00:00:00Z');
+    if (!Number.isFinite(start.getTime()) || !Number.isFinite(end.getTime()) || end < start || (end - start) / 86400000 > 365) return 0;
+    let count = 0; for (let d = new Date(start); d <= end; d.setUTCDate(d.getUTCDate() + 1))if (![0, 6].includes(d.getUTCDay())) count++;
+    return count > 0 ? count : (Math.round((end.getTime() - start.getTime()) / 86400000) + 1);
   }
   function refreshAppData() {
-    if(!currentUser)return;
-    const version=++requestVersion,period=currentTimesheetPeriod;
-    loadingData=true;
-    callBackend('apiGetInitialAppData',[currentUser.email,period],res=>{
-      if(version!==requestVersion)return; loadingData=false;
-      if(!res||!res.success){showToast(res&&res.message||'Không tải được dữ liệu.','error');return;}
-      const data=res.data; USERS_DB=data.users;
-      appData={timesheet:data.timesheet,timesheetByPeriod:{[period]:data.timesheet},leaveRequests:data.leaves,sickCases:data.sickCases,payroll:data.payroll,tasks:data.tasks,documents:data.documents};
+    if (!currentUser) return;
+    const version = ++requestVersion, period = currentTimesheetPeriod;
+    loadingData = true;
+    callBackend('apiGetInitialAppData', [currentUser.email, period], res => {
+      if (version !== requestVersion) return; loadingData = false;
+      if (!res || !res.success) { showToast(res && res.message || 'Không tải được dữ liệu.', 'error'); return; }
+      const data = res.data; USERS_DB = data.users;
+      payrollPeriods = data.payrollPeriods || [];
+      if (!payrollPeriods.includes(currentPayrollPeriod)) currentPayrollPeriod = data.defaultPayrollPeriod || '';
+      appData = { attendanceCutoff: data.attendanceCutoff, attendanceAsOf: data.attendanceAsOf, plannedTimesheet: data.plannedTimesheet || {}, timesheet: data.timesheet, timesheetByPeriod: { [period]: data.timesheet }, leaveRequests: data.leaves, sickCases: data.sickCases, payroll: data.payroll, tasks: data.tasks, documents: data.documents };
       document.getElementById('sync-status').classList.remove('hidden');
       initApp(); populateAssigneeSelect(); applyRoleControls();
-    },err=>{loadingData=false;showToast(err.message,'error');});
+    }, err => { loadingData = false; showToast(err.message, 'error'); });
   }
   function applyRoleControls() {
-    if(!currentUser)return;
-    document.querySelectorAll('[data-manager-only]').forEach(el=>el.classList.toggle('hidden',currentUser.role==='employee'));
-    document.querySelectorAll('[data-attachment-kind]').forEach(el=>el.onclick=()=>viewAttachment(el.dataset.attachmentKind,el.dataset.attachmentId,el.dataset.download==='true'));
+    if (!currentUser) return;
+    const manager = currentUser.role === 'manager';
+    document.getElementById('nav-leave-label').innerText = manager ? 'Duyệt Nghỉ Phép' : 'Nghỉ Phép Của Tôi';
+    document.getElementById('nav-sick-label').innerText = manager ? 'Duyệt Hồ Sơ Ốm' : 'Hồ Sơ Ốm Của Tôi';
+    document.getElementById('nav-tasks-label').innerText = manager ? 'Quản Lý Công Việc' : 'Công Việc Của Tôi';
+    document.querySelectorAll('[data-manager-only]').forEach(el => el.classList.toggle('hidden', currentUser.role !== 'manager'));
+    document.querySelectorAll('[data-document-create]').forEach(el => el.classList.toggle('hidden', currentUser.role === 'employee'));
+    document.querySelectorAll('[data-edit-doc]').forEach(el => {
+      const doc = appData.documents.find(d => d.id === el.dataset.editDoc);
+      el.classList.toggle('hidden', !doc || !canManageDocument(doc.type));
+    });
+    document.querySelectorAll('[data-attachment-kind]').forEach(el => el.onclick = () => viewAttachment(el.dataset.attachmentKind, el.dataset.attachmentId, el.dataset.download === 'true'));
   }
-  function viewAttachment(kind,id,download) {
-    const tab=download?null:window.open('about:blank','_blank');
-    callBackend('apiReadAttachment',[kind,id],res=>{
-      if(!res||!res.success){if(tab)tab.close();showToast(res&&res.message||'Không mở được tài liệu.','error');return;}
-      if(res.url){if(tab)tab.location.href=res.url;else window.open(res.url,'_blank','noopener');return;}
-      const bytes=Uint8Array.from(atob(res.content),c=>c.charCodeAt(0));
-      const url=URL.createObjectURL(new Blob([bytes],{type:res.mimeType}));
-      if(tab)tab.location.href=url;
-      else {const a=document.createElement('a');a.href=url;a.download=res.fileName;document.body.appendChild(a);a.click();a.remove();}
-      setTimeout(()=>URL.revokeObjectURL(url),60000);
-    },err=>{if(tab)tab.close();showToast(err.message,'error');});
+  function viewAttachment(kind, id, download) {
+    const tab = download ? null : window.open('about:blank', '_blank');
+    callBackend('apiReadAttachment', [kind, id], res => {
+      if (!res || !res.success) { if (tab) tab.close(); showToast(res && res.message || 'Không mở được tài liệu.', 'error'); return; }
+      if (res.url) { if (tab) tab.location.href = res.url; else window.open(res.url, '_blank', 'noopener'); return; }
+      const bytes = Uint8Array.from(atob(res.content), c => c.charCodeAt(0));
+      const url = URL.createObjectURL(new Blob([bytes], { type: res.mimeType }));
+      if (tab) tab.location.href = url;
+      else { const a = document.createElement('a'); a.href = url; a.download = res.fileName; document.body.appendChild(a); a.click(); a.remove(); }
+      setTimeout(() => URL.revokeObjectURL(url), 60000);
+    }, err => { if (tab) tab.close(); showToast(err.message, 'error'); });
   }
-  document.addEventListener('click',event=>{
-    const edit=event.target.closest('[data-edit-doc]'),assign=event.target.closest('[data-assign-doc]');
-    if(edit)editDoc(edit.dataset.editDoc);
-    if(assign)assignTaskFromDoc(assign.dataset.assignDoc);
-    const target=event.target.closest('[data-attachment-kind]');
-    if(target&&!target.onclick)viewAttachment(target.dataset.attachmentKind,target.dataset.attachmentId,target.dataset.download==='true');
+  document.addEventListener('click', event => {
+    const edit = event.target.closest('[data-edit-doc]'), assign = event.target.closest('[data-assign-doc]');
+    if (edit) editDoc(edit.dataset.editDoc);
+    if (assign) assignTaskFromDoc(assign.dataset.assignDoc);
+    const target = event.target.closest('[data-attachment-kind]');
+    if (target && !target.onclick) viewAttachment(target.dataset.attachmentKind, target.dataset.attachmentId, target.dataset.download === 'true');
   });
-  ['leave-from','leave-to'].forEach(id=>{
+  ['leave-from', 'leave-to'].forEach(id => {
     const el = document.getElementById(id);
     if (el) {
-      el.addEventListener('change',()=>{
+      el.addEventListener('change', () => {
         const target = document.getElementById('leave-days');
-        if (target) target.value=workingDayCount(document.getElementById('leave-from').value,document.getElementById('leave-to').value);
+        if (target) target.value = workingDayCount(document.getElementById('leave-from').value, document.getElementById('leave-to').value);
       });
     }
   });

@@ -6,6 +6,7 @@
  */
 
 const CONFIG = {
+  DEFAULT_SPREADSHEET_ID: "1XPliJmBsxg2-tlxqZWricZv3VCntgUVv2etVZIvmoxA",
   SHEET_NAMES: {
     USERS: "Users",
     ATTENDANCE: "ChamCong",

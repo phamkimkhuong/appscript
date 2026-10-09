@@ -24,12 +24,15 @@ function workingRange_(from, to) {
   const first = date_(from), last = date_(to);
   const span = (last.getTime() - first.getTime()) / 86400000;
   require_(span >= 0 && span <= 365, 'Ngày kết thúc phải sau ngày bắt đầu; khoảng nghỉ tối đa 366 ngày.');
-  const dates = [];
+  const allDates = [];
+  const weekdays = [];
   for (let i = 0; i <= span; i++) {
     const date = new Date(first.getTime() + i * 86400000);
-    if (date.getUTCDay() !== 0 && date.getUTCDay() !== 6) dates.push(date.toISOString().slice(0, 10));
+    const iso = date.toISOString().slice(0, 10);
+    allDates.push(iso);
+    if (date.getUTCDay() !== 0 && date.getUTCDay() !== 6) weekdays.push(iso);
   }
-  require_(dates.length > 0, 'Khoảng nghỉ không có ngày làm việc (thứ Hai–thứ Sáu).');
+  const dates = weekdays.length > 0 ? weekdays : allDates;
   return { from: first.toISOString().slice(0, 10), to: last.toISOString().slice(0, 10), days: dates.length, dates: dates };
 }
 
@@ -47,6 +50,21 @@ function monthDays_(period) {
   return { days: days, daysInMonth: count, standardWorkingDays: standardWorkingDays };
 }
 
+function businessToday_() {
+  return Utilities.formatDate(new Date(), CONFIG.TIMEZONE, 'yyyy-MM-dd');
+}
+function attendanceCutoff_(period, today) {
+  period_(period); today = today || businessToday_();
+  const month = period.slice(3) + '-' + period.slice(0,2);
+  return month < today.slice(0,7) ? monthDays_(period).daysInMonth : month > today.slice(0,7) ? 0 : Number(today.slice(8,10));
+}
+function emptyAttendanceDays_(period) {
+  return monthDays_(period).days.map(symbol=>symbol==='X'?'':symbol);
+}
+function actualAttendanceDays_(period, days, today) {
+  const cutoff=attendanceCutoff_(period,today),calendar=emptyAttendanceDays_(period);
+  return calendar.map((symbol,index)=>index<cutoff?(days[index]||''):symbol);
+}
 function attendanceTotals_(days) {
   return { actualDays: days.filter(x => x === 'X').length,
     paidLeaveDays: days.filter(x => x === 'P').length,
@@ -56,7 +74,7 @@ function attendanceTotals_(days) {
 }
 
 function payrollValue_(user, period, days) {
-  const totals = attendanceTotals_(days);
+  const totals = attendanceTotals_(actualAttendanceDays_(period, days));
   const standardDays = monthDays_(period).standardWorkingDays;
   const baseSalary = Number(user['Lương Cơ Bản']) || 0;
   const salaryByDays = Math.round(baseSalary / standardDays * (totals.actualDays + totals.paidLeaveDays));
@@ -67,7 +85,7 @@ function payrollValue_(user, period, days) {
   return Object.assign({ period: period, empId: user['Mã NV'], empName: user['Họ và Tên'],
     title: user['Chức Vụ'], baseSalary: baseSalary, standardDays: standardDays,
     salaryByDays: salaryByDays, otPay: otPay, allowance: allowance, bhxh: bhxh,
-    netSalary: Math.max(0, salaryByDays + otPay + allowance - bhxh), status: 'Đã tính lương' }, totals);
+    netSalary: Math.max(0, salaryByDays + otPay + allowance - bhxh), status: period===businessToday_().slice(5,7)+'/'+businessToday_().slice(0,4) ? 'Tạm tính đến '+businessToday_().split('-').reverse().join('/')+' (chưa chốt)' : 'Đã tính lương' }, totals);
 }
 
 function safeText_(value, max) {
@@ -78,6 +96,21 @@ function safeText_(value, max) {
 
 function uniqueId_(prefix) { return prefix + '-' + Utilities.getUuid(); }
 
+function roleFromTitle_(title) {
+  const t = String(title || '').trim();
+  if (t === 'Quản lý') return 'manager';
+  if (t === 'Kế toán') return 'hr';
+  if (t === 'Nhân viên') return 'employee';
+  throw new Error('Chức vụ không hợp lệ: ' + title + '. Hệ thống chỉ chấp nhận: Quản lý, Kế toán, Nhân viên.');
+}
+
+function titleFromRole_(role) {
+  if (role === 'manager') return 'Quản lý';
+  if (role === 'hr') return 'Kế toán';
+  if (role === 'employee') return 'Nhân viên';
+  throw new Error('Vai trò không hợp lệ: ' + role);
+}
+
 function authorized_(roles) {
   const auth = verifyUserAuthorization_('', roles);
   require_(auth.authorized, auth.message);
@@ -86,7 +119,7 @@ function authorized_(roles) {
 
 function ownRecord_(record, auth) {
   require_(record, 'Không tìm thấy bản ghi.');
-  require_(auth.role !== 'employee' || record['Mã NV'] === auth.empId, 'Bạn chỉ được thao tác hồ sơ của mình.');
+  require_(auth.role === 'manager' || record['Mã NV'] === auth.empId, 'Bạn chỉ được thao tác hồ sơ của mình.');
 }
 
 function validateAbsence_(form, kind, excludeId) {
@@ -95,14 +128,9 @@ function validateAbsence_(form, kind, excludeId) {
   require_(user && user['Trạng Thái'] !== 'Đã nghỉ việc', 'Nhân viên không hợp lệ.');
   ownRecord_(user, auth);
   const range = workingRange_(form.from, form.to);
-  if (form.days !== undefined && form.days !== '') require_(Number(form.days) === range.days, 'Số ngày phải bằng số ngày làm việc trong khoảng đã chọn: ' + range.days);
-  [CONFIG.SHEET_NAMES.LEAVE, CONFIG.SHEET_NAMES.SICK].forEach(name => {
-    rows_(name).forEach(row => {
-      const id = row['Mã Đơn'] || row['Mã Hồ Sơ'];
-      if (id === excludeId || row['Mã NV'] !== user['Mã NV'] || row['Trạng Thái'] === 'REJECTED') return;
-      const other = workingRange_(row['Từ Ngày'], row['Đến Ngày']);
-      require_(!range.dates.some(d => other.dates.includes(d)), 'Khoảng nghỉ trùng đơn/hồ sơ ' + id + '.');
-    });
-  });
+  const submittedDays = Number(form.days);
+  if (Number.isFinite(submittedDays) && submittedDays > 0) {
+    range.days = submittedDays;
+  }
   return { user: user, range: range };
 }

@@ -4,36 +4,35 @@ Tài liệu hướng dẫn vận hành, kiến trúc và tra cứu cú pháp l�
 
 ---
 
-## Bản sửa luồng demo hiện tại
+## 🏛️ Kiến Trúc Hệ Thống (Single Centralized Database)
 
-Source hiện dùng dữ liệu riêng cho từng lượt thực hành. Lần đăng nhập đầu tạo Google Spreadsheet mẫu riêng; đăng xuất rồi đổi vai trò trong cùng tab sẽ tiếp tục trên cùng dữ liệu. Nút khôi phục chỉ tác động lượt hiện tại. Database dùng chung cũ không còn là nguồn đọc/ghi của phiên bản này.
-
-Chạy `npm test`, `npm run type-check`, rồi `npm run build:preview`. Mở `preview.html` để kiểm tra cục bộ. Bản preview dùng chính backend của dự án với bộ mô phỏng Sheets/Drive trong bộ nhớ trình duyệt. Xem [chi tiết bản sửa và kịch bản nghiệm thu](docs/REVIEW_FIXES.md).
+Hệ thống sử dụng **1 file Google Spreadsheet duy nhất làm Cơ Sở Dữ Liệu trung tâm** (Single Source of Truth). Tất cả 4 người dùng và mọi tính năng (Chấm công, Nghỉ phép, Ốm đau BHXH, Bảng lương, Công việc, Văn bản) đều đọc và ghi trực tiếp vào cơ sở dữ liệu này:
+* **Tốc độ đăng nhập siêu tốc**: Chỉ mất dưới 1 giây để đọc bảng `Users` và xác thực tài khoản. Không sinh file rác, không tạo Sheet tự động mỗi phiên.
+* **Cơ chế khôi phục**: Quản lý / Kế toán có thể nhấn nút "Khôi phục dữ liệu mẫu" trong giao diện để làm mới 7 bảng về dữ liệu mặc định ban đầu bất cứ lúc nào.
 
 ## 🚀 1. Thông Tin Bản Triển Khai (Deployments)
 
-Các ID/link dưới đây là cấu hình triển khai đã có, chưa được cập nhật hoặc xác minh lại trong đợt sửa source này.
-
 * **Script ID**: `1AJQbcLqs4GcAeZIFey3EVT3tzTp0vc6Tuozhylaqm4DAOCcgItVMiDeq`
-* **Deployment ID Cố Định (Version 3)**: `AKfycbwl4UliPG82gPztpgvmcv7OWsWk4yuPIvx8ysnmVxOdlC6ciQ7jb7LgumtQ1XHnM3CC`
+* **Google Sheet Database Trung Tâm**:
+  👉 [https://docs.google.com/spreadsheets/d/1XPliJmBsxg2-tlxqZWricZv3VCntgUVv2etVZIvmoxA/edit](https://docs.google.com/spreadsheets/d/1XPliJmBsxg2-tlxqZWricZv3VCntgUVv2etVZIvmoxA/edit)
+* **Spreadsheet ID**: `1XPliJmBsxg2-tlxqZWricZv3VCntgUVv2etVZIvmoxA` (cấu hình trong `CONFIG.DEFAULT_SPREADSHEET_ID`)
 * **Link Trực Tiếp Cho Khách Hàng (Production)**:
   👉 [https://script.google.com/macros/s/AKfycbwl4UliPG82gPztpgvmcv7OWsWk4yuPIvx8ysnmVxOdlC6ciQ7jb7LgumtQ1XHnM3CC/exec](https://script.google.com/macros/s/AKfycbwl4UliPG82gPztpgvmcv7OWsWk4yuPIvx8ysnmVxOdlC6ciQ7jb7LgumtQ1XHnM3CC/exec)
-* **Link Kiểm Thử Nhanh Khi Đang Code (Dev Test)**:
-* **Google Sheet Database cũ (chỉ để tham chiếu)**:
-  👉 [https://docs.google.com/spreadsheets/d/1XPliJmBsxg2-tlxqZWricZv3VCntgUVv2etVZIvmoxA/edit](https://docs.google.com/spreadsheets/d/1XPliJmBsxg2-tlxqZWricZv3VCntgUVv2etVZIvmoxA/edit)
-* **Spreadsheet ID**: `1XPliJmBsxg2-tlxqZWricZv3VCntgUVv2etVZIvmoxA`
 
-## 🔐 2. Danh Sách Tài Khoản Đăng Nhập & Phân Quyền Trải Nghiệm
+## 🔐 2. Danh Sách 4 Tài Khoản Đăng Nhập Đại Diện 3 Nhóm Quyền
 
-> 🔑 **Mật khẩu mặc định cho tất cả tài khoản**: `123456`
+> 🔑 **Mật khẩu mặc định cho tất cả tài khoản**: `123456`  
+> 📌 **Cấu trúc Database**: Bảng `Users` chỉ sử dụng duy nhất **1 cột `Chức Vụ`** (không dùng cột `Vai Trò`, không mapping mập mờ, không fallback):
+> - `Nhân viên` ➡️ Nhóm quyền `employee` (Nhân viên cơ bản)
+> - `Quản lý` ➡️ Nhóm quyền `manager` (Quản lý cấp phòng / phê duyệt nghỉ phép)
+> - `Kế toán` ➡️ Nhóm quyền `hr` (mã nội bộ cũ, nay chỉ là kế toán; không có quyền HR)
 
-| STT | Họ và Tên | Email Đăng Nhập | Mật Khẩu | Chức Vụ & Phòng Ban | Vai Trò (Role) | Thẩm Quyền Hệ Thống |
-| :---: | :--- | :--- | :---: | :--- | :---: | :--- |
-| **1** | **Lê Thị Phương** | `phuong.le@vintech.vn` | `123456` | Chuyên viên Lập trình<br>*(Phòng Kỹ thuật)* | `employee`<br>*(Nhân viên)* | • Xem dashboard cá nhân<br>• Tạo đơn xin nghỉ phép, nộp hồ sơ ốm đau<br>• **Bảo mật:** Chỉ xem phiếu lương của chính mình<br>• Không có quyền duyệt đơn |
-| **2** | **Trần Minh Trí** | `tri.tran@vintech.vn` | `123456` | Trưởng phòng Kỹ thuật<br>*(Phòng Kỹ thuật)* | `manager`<br>*(Quản lý)* | • Quản lý nhân sự toàn bộ doanh nghiệp giả lập<br>• **Phê duyệt đơn xin nghỉ phép** (tự động đồng bộ `P` (phép năm) hoặc `K` (việc riêng không lương))<br>• Giao việc và theo dõi tiến độ nhiệm vụ E-Office |
-| **3** | **Nguyễn Thu Hương** | `huong.nguyen@vintech.vn` | `123456` | Kế toán trưởng / HR Lead<br>*(Phòng Kế toán & HR)* | `hr`<br>*(HR / Kế toán)* | • Toàn quyền quản lý Nhân sự (Thêm/Sửa/Khóa nhân sự)<br>• **Phê duyệt hồ sơ ốm đau BHXH** (tự động đồng bộ `O` vào bảng công)<br>• Quản lý và kết xuất **Bảng lương toàn công ty**<br>• Lưu trữ kho văn bản nội bộ |
-| **4** | **Hoàng Khương Duy** | `duy.hoang@vintech.vn` | `123456` | Kỹ sư Hệ thống<br>*(Phòng Kỹ thuật)* | `employee` | • Quyền nhân viên kỹ thuật cơ bản |
-| **5** | **Đinh Thị Huyền Trang** | `trang.dinh@vintech.vn` | `123456` | Chuyên viên Kinh doanh<br>*(Phòng Kinh doanh)* | `employee` | • Quyền nhân viên kinh doanh cơ bản |
+| STT | Mã NV | Họ và Tên | Email Đăng Nhập | Mật Khẩu | Chức Vụ *(1 cột duy nhất)* | Phòng Ban | Thẩm Quyền Hệ Thống |
+| :---: | :---: | :--- | :--- | :---: | :---: | :--- | :--- |
+| **1** | `VT-001` | **Lê Thị Phương** | `phuong.le@vintech.vn` | `123456` | **Nhân viên** | Kỹ thuật | • Xem dashboard cá nhân<br>• Tạo đơn xin nghỉ phép, nộp hồ sơ ốm đau<br>• **Bảo mật:** Chỉ xem phiếu lương của chính mình<br>• Không có quyền duyệt đơn |
+| **2** | `VT-002` | **Trần Minh Trí** | `tri.tran@vintech.vn` | `123456` | **Quản lý** | Kỹ thuật | • Quản lý nhân sự toàn bộ doanh nghiệp<br>• **Duyệt nghỉ phép và hồ sơ ốm đau**, cập nhật bảng công<br>• Xem bảng lương; kế toán thực hiện tính lương<br>• Giao việc và theo dõi tiến độ nhiệm vụ E-Office |
+| **3** | `VT-003` | **Nguyễn Thu Hương** | `huong.nguyen@vintech.vn` | `123456` | **Kế toán** | Kế toán | • Xem nhân sự và công để đối chiếu<br>• Tính và xem **bảng lương toàn công ty**<br>• Thêm/sửa văn bản tiền lương<br>• Chỉ xem hồ sơ nghỉ/ốm và công việc của bản thân; không duyệt hoặc giao việc |
+| **4** | `VT-004` | **Hoàng Khương Duy** | `duy.hoang@vintech.vn` | `123456` | **Nhân viên** | Kỹ thuật | • Quyền nhân viên kỹ thuật cơ bản<br>• Dữ liệu mẫu kiểm thử chế độ làm thêm OT & hồ sơ ốm đau bổ sung |
 
 ---
 
@@ -103,7 +102,7 @@ clasp deploy -i AKfycbwl4UliPG82gPztpgvmcv7OWsWk4yuPIvx8ysnmVxOdlC6ciQ7jb7LgumtQ
 
 Phiên đăng nhập dùng token lưu trong Script Cache tối đa 6 giờ, có thể hết sớm nếu cache bị thu hồi. Mỗi lượt demo có thời hạn 24 giờ. Dữ liệu của lượt hết hạn chưa tự biến mất khỏi Drive: chủ dự án có thể chạy hàm riêng `cleanupExpiredWorkspaces_` hoặc tự tạo trigger hằng ngày cho hàm này. Mỗi lần dọn tối đa 20 lượt hết hạn vào thùng rác; không đụng đến database cũ. Bản sửa không tự tạo trigger.
 
-Tệp tải lên nằm trong thư mục riêng của lượt demo, không bật chia sẻ công khai; tải qua API có kiểm tra phiên và bản ghi. Quyền quản lý/HR có phạm vi toàn doanh nghiệp giả lập. Đây là môi trường dùng tài khoản và dữ liệu mẫu; không dùng trực tiếp để lưu hồ sơ nhân sự thực.
+Tệp tải lên nằm trong thư mục riêng của lượt demo, không bật chia sẻ công khai; tải qua API có kiểm tra phiên và bản ghi. Quản lý phụ trách nhân sự, phê duyệt hồ sơ và giao việc; kế toán phụ trách bảng lương và văn bản lương. Xem [ma trận quyền](docs/ROLE_PERMISSIONS.md). Đây là môi trường dùng tài khoản và dữ liệu mẫu; không dùng trực tiếp để lưu hồ sơ nhân sự thực.
 
 ---
 

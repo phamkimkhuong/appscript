@@ -20,7 +20,7 @@ function createRuntime(options = {}) {
     };
   }
   function spreadsheet(id) {
-    if(!state.sheets[id])throw Error('Spreadsheet unavailable');
+    if(!state.sheets[id]) state.sheets[id]={};
     return {getId:()=>id,getUrl:()=>('https://example.invalid/'+id),getSheetByName:name=>state.sheets[id][name]?sheetObject(state.sheets[id][name]):null,insertSheet(name){state.sheets[id][name]=[];return sheetObject(state.sheets[id][name]);}};
   }
   const SpreadsheetApp={create(){const id=uuid();state.sheets[id]={};return spreadsheet(id);},openById:spreadsheet};

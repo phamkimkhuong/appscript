@@ -1,5 +1,5 @@
 function saveTask_(task) {
-  const auth=authorized_(['manager','hr']);
+  const auth=authorized_(['manager']);
   require_(safeText_(task.title,300),'Vui lòng nhập tiêu đề.');
   const candidates=rows_(CONFIG.SHEET_NAMES.USERS).filter(u=>(task.assigneeId?u['Mã NV']===task.assigneeId:u['Họ và Tên']===task.assignee)&&u['Trạng Thái']!=='Đã nghỉ việc');
   require_(candidates.length===1,'Chọn chính xác mã nhân viên phụ trách.');
@@ -16,12 +16,15 @@ function updateTaskStatus_(id,status,evaluation) {
   const auth=authorized_();
   const row=rows_(CONFIG.SHEET_NAMES.TASKS).find(r=>r['Mã CV']===id);
   require_(row,'Không tìm thấy công việc.');
-  require_(auth.role!=='employee'||row['Mã NV Phụ Trách']===auth.empId,'Bạn chỉ được cập nhật công việc được giao.');
+  require_(auth.role==='manager'||row['Mã NV Phụ Trách']===auth.empId,'Bạn chỉ được cập nhật công việc được giao.');
   require_(['Đang xử lý','Hoàn thành'].includes(status),'Trạng thái không hợp lệ.');
-  saveRow_(CONFIG.SHEET_NAMES.TASKS,{'Trạng Thái':status,'Ngày Hoàn Thành':status==='Hoàn thành'?Utilities.formatDate(new Date(),CONFIG.TIMEZONE,'yyyy-MM-dd'):'','Đánh Giá':auth.role==='employee'?row['Đánh Giá']:safeText_(evaluation)},row._rowIndex);
+  saveRow_(CONFIG.SHEET_NAMES.TASKS,{'Trạng Thái':status,'Ngày Hoàn Thành':status==='Hoàn thành'?Utilities.formatDate(new Date(),CONFIG.TIMEZONE,'yyyy-MM-dd'):'','Đánh Giá':auth.role!=='manager'?row['Đánh Giá']:safeText_(evaluation)},row._rowIndex);
   return {success:true,message:'Đã cập nhật trạng thái công việc.'};
 }
 function documentFields_(doc,old) {
+  const auth=authorized_(['manager','hr']);
+  const salaryTypes=['Quy chế lương','Thông báo trả lương','Quyết định điều chỉnh lương'];
+  require_(auth.role==='manager' || (salaryTypes.includes(doc.type) && (!old || salaryTypes.includes(old['Loại Văn Bản']))), 'Kế toán chỉ quản lý văn bản tiền lương.');
   require_(safeText_(doc.id,120)&&safeText_(doc.title,300),'Nhập số hiệu và tiêu đề văn bản.');
   require_(['Hiệu lực','Hết hiệu lực','Dự thảo','Tài liệu tham khảo'].includes(doc.status),'Trạng thái không hợp lệ.');
   const date=date_(doc.date).toISOString().slice(0,10);
@@ -51,12 +54,16 @@ function uploadAttachment_(file,kind,id) {
   require_(raw.length<=14*1024*1024&&/^[A-Za-z0-9+/]*={0,2}$/.test(raw),'Tệp quá lớn hoặc dữ liệu không hợp lệ.');
   const bytes=Utilities.base64Decode(raw);
   require_(bytes.length>0&&bytes.length<=10*1024*1024,'Tệp phải từ 1 byte đến 10 MB.');
-  const workspace=REQUEST_CONTEXT_.workspace;
-  if(!workspace.folderId) {
-    workspace.folderId=DriveApp.createFolder('VinTech Demo Files - '+REQUEST_CONTEXT_.workspaceKey.slice(0,8)).getId();
-    PropertiesService.getScriptProperties().setProperty('DEMO_'+REQUEST_CONTEXT_.workspaceKey,JSON.stringify(workspace));
+  const props = PropertiesService.getScriptProperties();
+  let folderId = props.getProperty('UPLOAD_FOLDER_ID');
+  let folder;
+  if (folderId) {
+    try { folder = DriveApp.getFolderById(folderId); } catch(e) { folder = null; }
   }
-  const folder=DriveApp.getFolderById(workspace.folderId);
+  if (!folder) {
+    folder = DriveApp.createFolder('VinTech Upload Files');
+    props.setProperty('UPLOAD_FOLDER_ID', folder.getId());
+  }
   const mime={pdf:'application/pdf',png:'image/png',jpg:'image/jpeg',jpeg:'image/jpeg',doc:'application/msword',docx:'application/vnd.openxmlformats-officedocument.wordprocessingml.document',xls:'application/vnd.ms-excel',xlsx:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}[ext];
   const created=folder.createFile(Utilities.newBlob(bytes,mime,safeText_(file.name,180)));
   // Files stay private; the authorized RPC supplies their bytes.

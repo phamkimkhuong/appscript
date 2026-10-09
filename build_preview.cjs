@@ -12,7 +12,7 @@ const runtime=`<script>
   const names=Object.keys(services).filter(k=>k!=='state');
   const api=new Function(...names,${JSON.stringify(backend+'\nreturn {apiLogin,apiRequest,apiLogout};').replace(/<\//g,'<\\/')})(...names.map(k=>services[k]));
   function persist(){try{sessionStorage.setItem('vintech-local-runtime',JSON.stringify(services.state));}catch(e){if(window.showToast)window.showToast('Bộ nhớ preview đầy. Dữ liệu mới chỉ tồn tại khi trang còn mở.','info');}}
-  window.localDemoRequest=(fn,args,token,workspace)=>{const result=fn==='apiLogin'?api.apiLogin(args[0],args[1],workspace):api.apiRequest(token,fn,args);persist();return result;};
+  window.localDemoRequest=(fn,args,token)=>{const result=fn==='apiLogin'?api.apiLogin(args[0],args[1]):api.apiRequest(token,fn,args);persist();return result;};
   window.localDemoLogout=token=>{api.apiLogout(token);persist();};
 })();
 </script>`;

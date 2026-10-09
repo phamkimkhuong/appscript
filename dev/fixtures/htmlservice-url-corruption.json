@@ -1,0 +1,17 @@
+[
+  {
+    "line": 402,
+    "source": "const defaultAvatar = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=faces';",
+    "received": "const defaultAvatar = 'https:"
+  },
+  {
+    "line": 480,
+    "source": "avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=faces'",
+    "received": "avatar: 'https:"
+  },
+  {
+    "line": 760,
+    "source": "'_rels/.rels':'<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument\" Target=\"xl/workbook.xml\"/></Relationships>',",
+    "received": "'_rels/.rels':'<Relationships xmlns=\"http:"
+  }
+]

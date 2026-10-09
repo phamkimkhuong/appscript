@@ -50,29 +50,22 @@
           </select>
         </div>
         <div>
-          <label class="block font-semibold text-slate-700 mb-1">Chức vụ / Vị trí</label>
-          <input type="text" id="emp-form-title" placeholder="Kỹ sư phần mềm..." required
-            class="w-full border border-slate-300 rounded-lg px-3 py-2">
+          <label class="block font-semibold text-slate-700 mb-1">Chức Vụ</label>
+          <select id="emp-form-title" class="w-full border border-slate-300 rounded-lg px-3 py-2 bg-white">
+            <option value="Nhân viên">Nhân viên</option>
+            <option value="Quản lý">Quản lý</option>
+            <option value="Kế toán">Kế toán</option>
+          </select>
+          <input type="hidden" id="emp-form-role" value="employee">
         </div>
       </div>
 
       <div class="grid grid-cols-2 gap-3">
-        <div>
-          <label class="block font-semibold text-slate-700 mb-1">Vai trò hệ thống</label>
-          <select id="emp-form-role" class="w-full border border-slate-300 rounded-lg px-3 py-2 bg-white">
-            <option value="employee">Nhân viên (Quyền cơ bản)</option>
-            <option value="manager">Quản lý (Duyệt đơn nghỉ)</option>
-            <option value="hr">HR / Kế toán (Duyệt BHXH & Lương)</option>
-          </select>
-        </div>
         <div>
           <label class="block font-semibold text-slate-700 mb-1">Lương cơ bản (VND)</label>
           <input type="number" id="emp-form-salary" value="15000000" step="500000" required
             class="w-full border border-slate-300 rounded-lg px-3 py-2">
         </div>
-      </div>
-
-      <div class="grid grid-cols-2 gap-3">
         <div>
           <label class="block font-semibold text-slate-700 mb-1">Trạng thái</label>
           <select id="emp-form-status" class="w-full border border-slate-300 rounded-lg px-3 py-2 bg-white">
@@ -80,6 +73,9 @@
             <option value="Đã nghỉ việc">Đã nghỉ việc</option>
           </select>
         </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
         <div>
           <label class="block font-semibold text-slate-700 mb-1">Ngày vào làm</label>
           <input type="text" id="emp-form-date" value="08/10/2026"
@@ -199,7 +195,8 @@
       <div class="grid grid-cols-2 gap-3">
         <div>
           <label class="block font-semibold text-slate-700 mb-1">Lĩnh vực tra cứu</label>
-          <select id="doc-form-category" class="w-full border border-slate-300 rounded-lg px-3 py-2 bg-white font-medium">
+          <select id="doc-form-category"
+            class="w-full border border-slate-300 rounded-lg px-3 py-2 bg-white font-medium">
             <option value="Chính sách Lao động & Việc làm">Chính sách Lao động & Việc làm</option>
             <option value="Tiền lương & Chế độ BHXH">Tiền lương & Chế độ BHXH</option>
             <option value="Thuế & Kế toán Doanh nghiệp">Thuế & Kế toán Doanh nghiệp</option>
@@ -231,14 +228,17 @@
           <select id="doc-form-status" class="w-full border border-slate-300 rounded-lg px-3 py-2 bg-white">
             <option value="Hiệu lực">Hiệu lực</option>
             <option value="Hết hiệu lực">Hết hiệu lực</option>
-            <option value="Dự thảo">Dự thảo</option><option value="Tài liệu tham khảo">Tài liệu tham khảo</option>
+            <option value="Dự thảo">Dự thảo</option>
+            <option value="Tài liệu tham khảo">Tài liệu tham khảo</option>
           </select>
         </div>
       </div>
 
       <div>
-        <label class="block font-semibold text-slate-700 mb-1">Đính kèm file tài liệu lên Google Drive (PDF, Word, Excel)</label>
-        <div class="border-2 border-dashed border-slate-300 hover:border-amber-500 rounded-xl bg-slate-50 p-3.5 text-center cursor-pointer transition"
+        <label class="block font-semibold text-slate-700 mb-1">Đính kèm file tài liệu lên Google Drive (PDF, Word,
+          Excel)</label>
+        <div
+          class="border-2 border-dashed border-slate-300 hover:border-amber-500 rounded-xl bg-slate-50 p-3.5 text-center cursor-pointer transition"
           onclick="document.getElementById('doc-file-input').click()">
           <input type="file" id="doc-file-input" accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg" class="hidden"
             onchange="handleDocFileSelected(event)">
@@ -247,11 +247,13 @@
             <p class="text-xs font-semibold text-slate-700">Chọn tài liệu từ máy tính để tải lên Drive</p>
             <p class="text-[11px] text-slate-400">PDF, DOCX, XLSX (tối đa 10MB)</p>
           </div>
-          <div id="doc-file-preview" class="hidden items-center justify-center space-x-2 text-emerald-600 font-semibold text-xs">
+          <div id="doc-file-preview"
+            class="hidden items-center justify-center space-x-2 text-emerald-600 font-semibold text-xs">
             <i class="fa-solid fa-file-circle-check text-base"></i>
             <span id="doc-file-name" class="truncate max-w-[200px] text-slate-800"></span>
             <span id="doc-file-size" class="text-slate-400 text-[10px]"></span>
-            <button type="button" onclick="event.stopPropagation(); clearDocFile();" class="text-rose-500 hover:text-rose-700 ml-1">
+            <button type="button" onclick="event.stopPropagation(); clearDocFile();"
+              class="text-rose-500 hover:text-rose-700 ml-1">
               <i class="fa-solid fa-circle-xmark"></i>
             </button>
           </div>
@@ -267,7 +269,8 @@
       <div class="pt-3 flex justify-end space-x-2 border-t border-slate-100">
         <button type="button" onclick="closeModal('modal-doc')"
           class="px-4 py-2 border border-slate-300 rounded-xl text-slate-600 font-semibold">Hủy</button>
-        <button type="submit" id="btn-save-doc" class="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-xl font-semibold shadow-md flex items-center space-x-1.5">
+        <button type="submit" id="btn-save-doc"
+          class="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-xl font-semibold shadow-md flex items-center space-x-1.5">
           <i class="fa-solid fa-floppy-disk"></i>
           <span>Lưu Văn Bản</span>
         </button>
@@ -337,11 +340,7 @@
       </div>
       <div class="flex items-center space-x-2">
         <select id="payslip-period-select" onchange="changePayslipPeriod(this.value)"
-          class="bg-slate-100 text-xs font-bold text-slate-800 rounded-lg px-2.5 py-1 border border-slate-200 cursor-pointer focus:outline-none">
-          <option value="10/2026">Kỳ 10/2026</option>
-          <option value="11/2026">Kỳ 11/2026</option>
-          <option value="12/2026">Kỳ 12/2026</option>
-        </select>
+          class="bg-slate-100 text-xs font-bold text-slate-800 rounded-lg px-2.5 py-1 border border-slate-200 cursor-pointer focus:outline-none"></select>
         <button onclick="closeModal('modal-payslip')" class="text-slate-400 hover:text-slate-600"><i
             class="fa-solid fa-xmark"></i></button>
       </div>
@@ -430,7 +429,8 @@
       </div>
       <div>
         <label class="block font-semibold text-slate-700 mb-1">Chi tiết yêu cầu bổ sung chứng từ / giải trình</label>
-        <textarea id="sick-more-info-note" rows="3" required placeholder="Ví dụ: Cần bổ sung giấy ra viện hoặc giấy chứng nhận nghỉ việc hưởng BHXH có mộc tròn của bệnh viện..."
+        <textarea id="sick-more-info-note" rows="3" required
+          placeholder="Ví dụ: Cần bổ sung giấy ra viện hoặc giấy chứng nhận nghỉ việc hưởng BHXH có mộc tròn của bệnh viện..."
           class="w-full border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-amber-500"></textarea>
       </div>
       <div class="pt-3 flex justify-end space-x-2 border-t border-slate-100">
@@ -461,23 +461,27 @@
     <form onsubmit="handleResubmitSick(event)" class="mt-4 space-y-3.5 text-xs">
       <input type="hidden" id="sick-resubmit-id" value="">
       <div class="bg-amber-50 p-3 rounded-xl border border-amber-200 text-amber-900 space-y-1">
-        <div class="font-bold text-[11px] uppercase text-amber-800">Yêu cầu từ HR / Quản lý:</div>
+        <div class="font-bold text-[11px] uppercase text-amber-800">Yêu cầu từ Quản lý:</div>
         <div class="text-xs italic" id="sick-resubmit-hr-note">--</div>
       </div>
 
       <div>
         <label class="block font-semibold text-slate-700 mb-1">Cơ sở khám bệnh / Bệnh viện</label>
-        <input type="text" id="sick-resubmit-hospital" required class="w-full border border-slate-300 rounded-lg px-3 py-2">
+        <input type="text" id="sick-resubmit-hospital" required
+          class="w-full border border-slate-300 rounded-lg px-3 py-2">
       </div>
 
       <div class="grid grid-cols-2 gap-3">
-        <div><label class="block font-semibold text-slate-700 mb-1">Từ ngày</label><input type="date" id="sick-resubmit-from" required class="w-full border border-slate-300 rounded-lg px-3 py-2"></div>
-        <div><label class="block font-semibold text-slate-700 mb-1">Đến ngày</label><input type="date" id="sick-resubmit-to" required class="w-full border border-slate-300 rounded-lg px-3 py-2"></div>
+        <div><label class="block font-semibold text-slate-700 mb-1">Từ ngày</label><input type="date"
+            id="sick-resubmit-from" required class="w-full border border-slate-300 rounded-lg px-3 py-2"></div>
+        <div><label class="block font-semibold text-slate-700 mb-1">Đến ngày</label><input type="date"
+            id="sick-resubmit-to" required class="w-full border border-slate-300 rounded-lg px-3 py-2"></div>
       </div>
 
       <div>
         <label class="block font-semibold text-slate-700 mb-1">Tải lên file chứng từ mới bổ sung (Google Drive)</label>
-        <div class="border-2 border-dashed border-slate-300 hover:border-blue-400 rounded-xl bg-slate-50 p-3.5 text-center cursor-pointer transition"
+        <div
+          class="border-2 border-dashed border-slate-300 hover:border-blue-400 rounded-xl bg-slate-50 p-3.5 text-center cursor-pointer transition"
           onclick="document.getElementById('sick-resubmit-file-input').click()">
           <input type="file" id="sick-resubmit-file-input" accept=".pdf,.png,.jpg,.jpeg" class="hidden"
             onchange="handleSickResubmitFileSelected(event)">
@@ -486,11 +490,13 @@
             <p class="text-xs font-semibold text-slate-700">Chọn tệp chứng từ mới (PDF, JPG, PNG)</p>
             <p class="text-[11px] text-slate-400">Tự động tải lên thư mục Drive an toàn</p>
           </div>
-          <div id="sick-resubmit-file-preview" class="hidden items-center justify-center space-x-2 text-emerald-600 font-semibold text-xs">
+          <div id="sick-resubmit-file-preview"
+            class="hidden items-center justify-center space-x-2 text-emerald-600 font-semibold text-xs">
             <i class="fa-solid fa-file-circle-check text-base"></i>
             <span id="sick-resubmit-file-name" class="truncate max-w-[200px] text-slate-800"></span>
             <span id="sick-resubmit-file-size" class="text-slate-400 text-[10px]"></span>
-            <button type="button" onclick="event.stopPropagation(); clearSickResubmitFile();" class="text-rose-500 hover:text-rose-700 ml-1">
+            <button type="button" onclick="event.stopPropagation(); clearSickResubmitFile();"
+              class="text-rose-500 hover:text-rose-700 ml-1">
               <i class="fa-solid fa-circle-xmark"></i>
             </button>
           </div>
@@ -506,84 +512,13 @@
       <div class="pt-3 flex justify-end space-x-2 border-t border-slate-100">
         <button type="button" onclick="closeModal('modal-sick-resubmit')"
           class="px-4 py-2 border border-slate-300 rounded-xl text-slate-600 font-semibold">Hủy</button>
-        <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-semibold shadow-md flex items-center space-x-1.5">
+        <button type="submit"
+          class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-semibold shadow-md flex items-center space-x-1.5">
           <i class="fa-solid fa-arrow-up-from-bracket"></i>
           <span>Nộp Bổ Sung & Chuyển Chờ Duyệt</span>
         </button>
       </div>
     </form>
-  </div>
-</div>
-
-<!-- MODAL 9: HƯỚNG DẪN SỬ DỤNG & KỊCH BẢN DEMO -->
-<div id="modal-guide"
-  class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
-  <div class="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto">
-    <div class="flex items-center justify-between pb-3 border-b border-slate-100">
-      <div class="flex items-center space-x-2.5">
-        <div class="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center font-bold">
-          <i class="fa-solid fa-book-open"></i>
-        </div>
-        <div>
-          <h3 class="text-base font-bold text-slate-900">Hướng Dẫn Vận Hành & Kịch Bản Demo</h3>
-          <p class="text-xs text-slate-500">VinTech Solutions - Enterprise HRM & E-Office</p>
-        </div>
-      </div>
-      <button onclick="closeModal('modal-guide')" class="text-slate-400 hover:text-slate-600"><i
-          class="fa-solid fa-xmark"></i></button>
-    </div>
-    <div class="mt-4 space-y-4 text-xs text-slate-700 leading-relaxed">
-      <div class="p-3 bg-blue-50/70 rounded-xl border border-blue-200/60">
-        <h4 class="font-bold text-blue-900 mb-1 flex items-center space-x-1.5">
-          <i class="fa-solid fa-circle-info text-blue-600"></i>
-          <span>1. Các tài khoản và vai trò trong hệ thống:</span>
-        </h4>
-        <ul class="list-disc list-inside space-y-0.5 text-slate-700">
-          <li><strong>Nhân viên:</strong> Lê Thị Phương (<code class="bg-white px-1 py-0.5 rounded text-blue-700">phuong.le@vintech.vn</code>) - Nộp đơn, xem phiếu lương của chính mình, bảo mật tiền lương.</li>
-          <li><strong>Quản lý:</strong> Trần Minh Trí (<code class="bg-white px-1 py-0.5 rounded text-indigo-700">tri.tran@vintech.vn</code>) - Duyệt đơn nghỉ phép, giao việc theo văn bản, sửa bảng chấm công.</li>
-          <li><strong>HR / Kế toán:</strong> Nguyễn Thu Hương (<code class="bg-white px-1 py-0.5 rounded text-emerald-700">huong.nguyen@vintech.vn</code>) - Duyệt BHXH, yêu cầu bổ sung chứng từ, tính lương và tổng hợp lương toàn công ty.</li>
-        </ul>
-      </div>
-
-      <div class="space-y-2">
-        <h4 class="font-bold text-slate-900 text-sm flex items-center space-x-1.5">
-          <i class="fa-solid fa-route text-indigo-600"></i>
-          <span>2. Kịch bản demo luồng nghiệp vụ khép kín (Khách & Hội đồng đánh giá):</span>
-        </h4>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-          <div class="p-3 rounded-xl border border-slate-200 bg-slate-50">
-            <span class="font-bold text-blue-700 block mb-1">Bước 1: Nộp đơn & Upload chứng từ</span>
-            <p class="text-slate-600">Nhân viên tạo đơn nghỉ phép hoặc hồ sơ ốm đau có tải tệp chứng từ giả lập lên Google Drive.</p>
-          </div>
-          <div class="p-3 rounded-xl border border-slate-200 bg-slate-50">
-            <span class="font-bold text-indigo-700 block mb-1">Bước 2: Phê duyệt / Yêu cầu bổ sung</span>
-            <p class="text-slate-600">Quản lý hoặc HR duyệt đơn, hoặc bấm "Yêu cầu bổ sung" để nhân viên nộp lại chứng từ hợp lệ.</p>
-          </div>
-          <div class="p-3 rounded-xl border border-slate-200 bg-slate-50">
-            <span class="font-bold text-emerald-700 block mb-1">Bước 3: Chấm công đa kỳ & OT</span>
-            <p class="text-slate-600">Bảng công tự động cập nhật P (hưởng lương), K (không lương), O theo ngày làm việc. Mỗi ô OT là một ngày quy đổi hệ số 1,5; ô này thay thế X, không đồng thời tính cả hai. Xem công 28/30/31 ngày và xuất file Excel thật.</p>
-          </div>
-          <div class="p-3 rounded-xl border border-slate-200 bg-slate-50">
-            <span class="font-bold text-amber-700 block mb-1">Bước 4: Tính lương & Xem phiếu lương</span>
-            <p class="text-slate-600">Tính lương tự động theo kỳ, đồng bộ Google Sheets, xem phiếu lương chi tiết từng kỳ với làm thêm OT.</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="p-3 bg-amber-50 rounded-xl border border-amber-200 flex items-center justify-between">
-        <div>
-          <span class="font-bold text-amber-900 block">Khôi phục dữ liệu mẫu (Reset Database):</span>
-          <span class="text-amber-800 text-[11px]">Bấm nút này bất cứ lúc nào để reset 7 bảng trong lượt trải nghiệm của bạn về dữ liệu demo chuẩn ban đầu.</span>
-        </div>
-        <button onclick="closeModal('modal-guide'); handleResetDatabase();" class="px-3 py-1.5 bg-amber-600 hover:bg-amber-500 text-white rounded-lg font-bold shrink-0 shadow-sm ml-3">
-          Khôi Phục Ngay
-        </button>
-      </div>
-    </div>
-    <div class="pt-3 border-t border-slate-100 flex justify-end">
-      <button onclick="closeModal('modal-guide')"
-        class="px-4 py-2 bg-slate-900 text-white rounded-xl font-semibold text-xs">Đã hiểu</button>
-    </div>
   </div>
 </div>
 

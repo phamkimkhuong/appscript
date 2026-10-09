@@ -74,6 +74,7 @@
           class="w-full py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold shadow-lg shadow-blue-600/30 transition duration-150 flex items-center justify-center space-x-2">
           <span>Đăng Nhập Hệ Thống</span>
         </button>
+        <p id="login-status" role="status" aria-live="polite" class="text-xs text-slate-400 leading-relaxed"></p>
       </form>
     </div>
   </div>
@@ -112,15 +113,8 @@
               <span class="font-medium">Google Sheets Live</span>
             </div>
 
-            <!-- Nút Hướng Dẫn Demo -->
-            <button onclick="openGuideModal()" title="Xem hướng dẫn các luồng & kịch bản demo chấm thi"
-              class="text-xs bg-slate-800 hover:bg-indigo-900/40 text-slate-300 hover:text-indigo-300 border border-slate-700 hover:border-indigo-500/50 px-2.5 py-1.5 rounded-xl flex items-center space-x-1.5 transition">
-              <i class="fa-solid fa-circle-question text-indigo-400"></i>
-              <span class="hidden md:inline font-semibold">Hướng Dẫn Demo</span>
-            </button>
-
             <!-- Nút Khôi Phục Dữ Liệu Demo -->
-            <button onclick="handleResetDatabase()" title="Khôi phục toàn bộ 7 bảng dữ liệu mẫu chuẩn"
+            <button data-manager-only onclick="handleResetDatabase()" title="Khôi phục toàn bộ 7 bảng dữ liệu mẫu chuẩn"
               class="text-xs bg-slate-800 hover:bg-amber-900/40 text-slate-300 hover:text-amber-300 border border-slate-700 hover:border-amber-500/50 px-2.5 py-1.5 rounded-xl flex items-center space-x-1.5 transition">
               <i class="fa-solid fa-arrows-rotate text-amber-400"></i>
               <span class="hidden md:inline font-semibold">Khôi Phục Demo</span>
@@ -169,14 +163,14 @@
             <button onclick="switchTab('leave')" id="tab-btn-leave"
               class="nav-tab px-3.5 py-2 rounded-lg text-sm font-semibold flex items-center space-x-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 whitespace-nowrap shrink-0 transition">
               <i class="fa-solid fa-file-signature text-sm"></i>
-              <span>Xin Nghỉ Phép</span>
+              <span id="nav-leave-label">Xin Nghỉ Phép</span>
               <span id="leave-pending-badge"
                 class="ml-1 text-[11px] px-2 py-0.5 rounded-full bg-amber-500 text-white font-bold hidden">0</span>
             </button>
             <button onclick="switchTab('sick')" id="tab-btn-sick"
               class="nav-tab px-3.5 py-2 rounded-lg text-sm font-semibold flex items-center space-x-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 whitespace-nowrap shrink-0 transition">
               <i class="fa-solid fa-briefcase-medical text-sm"></i>
-              <span>Hồ Sơ Ốm Đau (BHXH)</span>
+              <span id="nav-sick-label">Hồ Sơ Ốm Đau (BHXH)</span>
               <span id="sick-pending-badge"
                 class="ml-1 text-[11px] px-2 py-0.5 rounded-full bg-rose-500 text-white font-bold hidden">0</span>
             </button>
@@ -188,7 +182,7 @@
             <button onclick="switchTab('tasks')" id="tab-btn-tasks"
               class="nav-tab px-3.5 py-2 rounded-lg text-sm font-semibold flex items-center space-x-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 whitespace-nowrap shrink-0 transition">
               <i class="fa-solid fa-list-check text-sm"></i>
-              <span>Công Việc</span>
+              <span id="nav-tasks-label">Công Việc</span>
             </button>
             <button onclick="switchTab('docs')" id="tab-btn-docs"
               class="nav-tab px-3.5 py-2 rounded-lg text-sm font-semibold flex items-center space-x-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 whitespace-nowrap shrink-0 transition">
@@ -246,8 +240,8 @@
                   <i class="fa-solid fa-users"></i>
                 </div>
               </div>
-              <div id="kpi-total-emp" class="mt-2 text-2xl font-extrabold text-slate-900">5</div>
-              <p class="text-[11px] text-slate-500 font-medium mt-0.5">3 phòng ban chức năng</p>
+              <div id="kpi-total-emp" class="mt-2 text-2xl font-extrabold text-slate-900">4</div>
+              <p class="text-[11px] text-slate-500 font-medium mt-0.5">2 phòng ban chức năng</p>
             </div>
 
             <div
@@ -275,7 +269,7 @@
                 </div>
               </div>
               <div class="mt-2 text-2xl font-extrabold text-teal-600"><span id="kpi-working-today">4</span> / <span
-                  id="kpi-total-emp-sub">5</span></div>
+                  id="kpi-total-emp-sub">4</span></div>
               <p class="text-[11px] text-slate-500 font-medium mt-0.5"><span id="kpi-attendance-rate">—</span></p>
             </div>
 
@@ -382,7 +376,6 @@
                     <th class="py-3 px-4">Họ và Tên</th>
                     <th class="py-3 px-4">Phòng Ban</th>
                     <th class="py-3 px-4">Chức Vụ</th>
-                    <th class="py-3 px-4 text-center">Vai Trò</th>
                     <th class="py-3 px-4 text-right">Lương Cơ Bản</th>
                     <th class="py-3 px-4 text-center">Trạng Thái</th>
                     <th class="py-3 px-4 text-center">Ngày Vào Làm</th>
@@ -452,6 +445,7 @@
             </button>
           </div>
 
+          <p id="timesheet-cutoff-note" class="text-xs text-slate-500 leading-relaxed"></p>
           <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
             <div class="overflow-x-auto max-h-[600px]">
               <table class="w-full border-collapse text-xs text-left" id="timesheet-table">
@@ -520,8 +514,8 @@
             </button>
           </div>
 
-          <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
-            <table class="w-full text-xs text-left">
+          <div class="sick-table-scroll bg-white rounded-2xl border border-slate-200/80 shadow-sm" role="region" aria-label="Danh sách hồ sơ ốm đau, cuộn ngang để xem đầy đủ" tabindex="0">
+            <table class="sick-table w-full text-xs text-left">
               <thead
                 class="bg-slate-100/80 text-slate-700 uppercase font-semibold text-[11px] border-b border-slate-200">
                 <tr>
@@ -547,16 +541,12 @@
         <section id="pane-payroll" class="tab-pane hidden space-y-4">
           <div class="flex items-center justify-between">
             <div>
-              <h2 class="text-lg font-bold text-slate-900" id="payroll-period-title">Bảng Lương Doanh Nghiệp (Kỳ
-                10/2026)
+              <h2 class="text-lg font-bold text-slate-900" id="payroll-period-title">Bảng Lương Doanh Nghiệp
               </h2>
               <p class="text-xs text-slate-500" id="payroll-desc">Tự động kết xuất từ dữ liệu chấm công thực tế</p>
             </div>
             <div class="flex flex-wrap items-center gap-2"><select id="payroll-period-select"
-                onchange="changeTimesheetPeriod(this.value)" class="border rounded p-2 text-xs">
-                <option value="10/2026">Tháng 10/2026</option>
-                <option value="11/2026">Tháng 11/2026</option>
-              </select>
+                onchange="changePayrollPeriod(this.value)" class="border rounded p-2 text-xs"></select>
               <button id="btn-calc-payroll" onclick="calculatePayroll()"
                 class="hidden px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-blue-600 hover:bg-blue-500 text-white shadow-sm flex items-center space-x-1.5 transition">
                 <i class="fa-solid fa-calculator"></i>
@@ -648,7 +638,7 @@
                 luật
               </p>
             </div>
-            <button data-manager-only onclick="openDocModal()"
+            <button data-document-create onclick="openDocModal()"
               class="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-xl text-xs font-semibold shadow-md flex items-center space-x-1.5 transition">
               <i class="fa-solid fa-upload"></i>
               <span>Thêm Văn Bản Mới</span>
@@ -690,8 +680,10 @@
             </div>
           </div>
 
-          <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
-            <table class="w-full text-xs text-left">
+          <div class="docs-table-card bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+            <p id="docs-scroll-hint" class="px-4 py-2 text-xs text-slate-500 border-b border-slate-200">Cuộn ngang để xem đầy đủ các cột.</p>
+            <div class="docs-table-scroll" role="region" aria-label="Danh sách văn bản" aria-describedby="docs-scroll-hint" tabindex="0">
+            <table id="documents-table" class="docs-table text-xs text-left">
               <thead
                 class="bg-slate-100/80 text-slate-700 uppercase font-semibold text-[11px] border-b border-slate-200">
                 <tr>
@@ -708,6 +700,7 @@
               </thead>
               <tbody id="docs-tbody" class="divide-y divide-slate-100"></tbody>
             </table>
+            </div>
           </div>
         </section>
 
