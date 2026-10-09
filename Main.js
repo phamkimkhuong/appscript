@@ -9,8 +9,17 @@
  * Entry point phục vụ Web App trên Google Apps Script
  */
 function doGet(e) {
-  return HtmlService.createTemplateFromFile("Index")
-    .evaluate()
+  var index = HtmlService.createHtmlOutputFromFile("Index").getContent();
+  var styles = HtmlService.createHtmlOutputFromFile("Styles").getContent();
+  var modals = HtmlService.createHtmlOutputFromFile("Modals").getContent();
+  var scripts = HtmlService.createHtmlOutputFromFile("Scripts").getContent();
+
+  var html = index
+    .replace(/<\?!=\s*include\(['"]Styles['"]\);\s*\?>/g, styles)
+    .replace(/<\?!=\s*include\(['"]Modals['"]\);\s*\?>/g, modals)
+    .replace(/<\?!=\s*include\(['"]Scripts['"]\);\s*\?>/g, scripts);
+
+  return HtmlService.createHtmlOutput(html)
     .setTitle("VinTech Solutions - Cổng Quản Trị Nhân Sự & Văn Phòng Số Doanh Nghiệp")
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL)
     .addMetaTag("viewport", "width=device-width, initial-scale=1.0");
