@@ -1,10 +1,39 @@
+<!--
+  ====================================================================
+  WANZHONG CLEAN TECHNOLOGY (VIETNAM) - ENTERPRISE HRM & E-OFFICE
+  ====================================================================
+  FILE: Index.html
+  VAI TRÒ: GIAO DIỆN KHUNG CHÍNH & VỎ ỨNG DỤNG (MAIN LAYOUT & VIEWS CONTAINER)
+  --------------------------------------------------------------------
+  MÔ TẢ THÀNH PHẦN:
+  1. Cấu trúc Layout Đa tầng:
+     - Màn hình Đăng nhập (Screen Login) bảo mật có thông tin bản quyền Wanzhong.
+     - Thanh điều hướng bên (Sidebar Navigation): Chuyển đổi nhanh 7 phân hệ chính.
+     - Thanh công cụ trên (Topbar): Bộ chuyển đổi Đa ngôn ngữ (VI, EN, ZH), Nút 'Khôi Phục Demo',
+       thông tin nhân sự đang đăng nhập và Nút Đăng xuất.
+  
+  2. 7 Phân hệ màn hình làm việc (Application Views):
+     - screen-dashboard: Tổng quan KPI nhân sự, tỷ lệ đi làm, quỹ lương & biểu đồ Chart.js.
+     - screen-employees: Danh bạ nhân sự, lọc theo phòng ban/chức vụ, tìm kiếm tức thì.
+     - screen-timesheet: Bảng chấm công 31 ngày trực quan, tính toán công chuẩn & OT.
+     - screen-leave: Quản lý & xét duyệt đơn nghỉ phép năm, việc riêng, nghỉ bù.
+     - screen-sick: Quản lý hồ sơ ốm đau BHXH, đối chiếu chứng từ viện phí Google Drive.
+     - screen-payroll: Bảng lương kỳ, phiếu lương cá nhân, xuất báo cáo và in phiếu lương.
+     - screen-tasks: Văn phòng số, điều hành công việc và lưu trữ văn bản / quy chế pháp lý.
+  
+  3. Nhúng các Partial bổ trợ:
+     - <?!= include('Styles'); ?> : Tải bảng định kiểu CSS & tokens thiết kế giao diện.
+     - <?!= include('Modals'); ?> : Tải toàn bộ hộp thoại Popup biểu mẫu tương tác.
+     - <?!= include('Scripts'); ?>: Tải bộ điều khiển logic JavaScript, i18n & kết nối Backend.
+  ====================================================================
+-->
 <!DOCTYPE html>
 <html lang="vi">
 
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>VinTech Solutions - Cổng Quản Trị Doanh Nghiệp (HRM & E-Office)</title>
+  <title>Wanzhong Clean Technology - Cổng Quản Trị Doanh Nghiệp (HRM & E-Office)</title>
   <base target="_top">
   <!-- Google Fonts: Inter -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -27,695 +56,868 @@
   <!-- ============================================================= -->
   <!-- 1. MÀN HÌNH ĐĂNG NHẬP CHUẨN DOANH NGHIỆP (LOGIN SCREEN) -->
   <!-- ============================================================= -->
-  <div id="screen-login" class="fixed inset-0 z-50 bg-slate-950 flex items-center justify-center p-4">
+  <div id="screen-login"
+    class="fixed inset-0 z-50 bg-gradient-to-br from-slate-100 via-blue-50/50 to-indigo-50/60 flex items-center justify-center p-4 relative overflow-hidden">
+    <!-- Ambient Light Glow Orbs -->
+    <div class="absolute -top-32 -left-32 w-96 h-96 bg-blue-400/15 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="absolute -bottom-32 -right-32 w-96 h-96 bg-indigo-400/15 rounded-full blur-3xl pointer-events-none">
+    </div>
     <div
-      class="max-w-md w-full bg-slate-900 border border-slate-800 rounded-3xl p-8 shadow-2xl relative overflow-hidden">
+      class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[520px] h-[520px] bg-sky-200/20 rounded-full blur-[90px] pointer-events-none">
+    </div>
 
-      <!-- Glow Effects -->
-      <div class="absolute -top-24 -left-24 w-48 h-48 bg-blue-600/20 rounded-full blur-3xl pointer-events-none"></div>
-      <div class="absolute -bottom-24 -right-24 w-48 h-48 bg-indigo-600/20 rounded-full blur-3xl pointer-events-none">
+    <div
+      class="max-w-md w-full bg-white/95 backdrop-blur-xl border border-slate-200/90 rounded-3xl p-8 sm:p-9 shadow-2xl shadow-blue-900/5 relative overflow-hidden transition-all">
+
+      <!-- Subtle Card Accent Glows -->
+      <div class="absolute -top-20 -left-20 w-44 h-44 bg-blue-500/10 rounded-full blur-2xl pointer-events-none"></div>
+      <div class="absolute -bottom-20 -right-20 w-44 h-44 bg-indigo-500/10 rounded-full blur-2xl pointer-events-none">
+      </div>
+
+      <!-- Language Selector on Login Screen -->
+      <div class="flex justify-end mb-2 relative z-20">
+        <div
+          class="inline-flex items-center bg-slate-50 hover:bg-slate-100 border border-slate-200/90 rounded-xl px-2.5 py-1 text-xs transition shadow-sm">
+          <i class="fa-solid fa-globe text-blue-600 mr-2 text-xs"></i>
+          <select id="login-lang-select" onchange="changeLanguage(this.value)" aria-label="Ngôn ngữ / Language"
+            class="bg-transparent text-slate-700 text-xs font-semibold focus:outline-none cursor-pointer pr-1">
+            <option value="vi" class="bg-white text-slate-800">🇻🇳 Tiếng Việt</option>
+            <option value="en" class="bg-white text-slate-800">🇬🇧 English</option>
+            <option value="zh" class="bg-white text-slate-800">🇨🇳 简体中文</option>
+          </select>
+        </div>
       </div>
 
       <!-- Brand Header -->
       <div class="text-center mb-8 relative">
         <div
-          class="h-14 w-14 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-500 mx-auto flex items-center justify-center shadow-lg shadow-blue-500/30 mb-3">
-          <i class="fa-solid fa-building-user text-white text-2xl"></i>
+          class="h-16 w-16 rounded-2xl bg-white border border-slate-200/90 shadow-md shadow-slate-200/50 mx-auto flex items-center justify-center mb-3.5 p-1.5 transform transition hover:scale-105">
+          <img id="login-brand-logo" src="https://lh3.googleusercontent.com/d/1XX_099cHe0Rd7kpRFUgrrR_fkuoNwRBb" alt="Wanzhong Logo" class="h-full w-full object-contain rounded-xl">
         </div>
-        <h1 class="text-xl font-bold text-white tracking-tight">VinTech Solutions</h1>
-        <p class="text-xs text-slate-400 mt-1">Cổng Quản Trị Nhân Sự & Văn Phòng Số Doanh Nghiệp</p>
+        <h1 class="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight" data-i18n="app_title">Wanzhong Clean Technology</h1>
+        <p class="text-xs text-slate-500 font-medium mt-1.5" data-i18n="company_legal_name">CÔNG TY TNHH CÔNG NGHỆ SẠCH WANZHONG VIỆT NAM</p>
       </div>
 
       <!-- Login Form -->
-      <form id="login-form" onsubmit="event.preventDefault(); (window.handleLoginSubmit || handleLoginSubmit)(event); return false;" class="space-y-4 relative">
+      <form id="login-form"
+        onsubmit="event.preventDefault(); (window.handleLoginSubmit || handleLoginSubmit)(event); return false;"
+        class="space-y-4 relative">
         <div>
-          <label for="login-username" class="block text-xs font-semibold text-slate-300 mb-1.5 cursor-pointer">Tài khoản
+          <label for="login-username" class="block text-xs font-bold text-slate-700 mb-1.5 cursor-pointer"
+            data-i18n="login_username_label">Tài khoản
             / Email nội bộ</label>
           <div class="relative">
-            <i class="fa-regular fa-envelope absolute left-3.5 top-3 text-slate-500 text-xs pointer-events-none"></i>
-            <input type="email" id="login-username" required placeholder="Nhập email (VD: phuong.le@vintech.vn)"
-              autocomplete="username"
-              class="w-full bg-slate-800/80 border border-slate-700 rounded-xl pl-9 pr-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-text">
+            <i class="fa-regular fa-envelope absolute left-3.5 top-3.5 text-slate-400 text-xs pointer-events-none"></i>
+            <input type="email" id="login-username" required placeholder="Nhập email (VD: linh.nguyen@wanzhong.vn)"
+              data-i18n-placeholder="login_username_placeholder" autocomplete="username"
+              class="w-full bg-slate-50/80 hover:bg-slate-50 focus:bg-white border border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 rounded-xl pl-9 pr-3.5 py-2.5 text-xs text-slate-900 placeholder-slate-400 focus:outline-none transition cursor-text">
           </div>
         </div>
 
         <div>
-          <label for="login-password" class="block text-xs font-semibold text-slate-300 mb-1.5 cursor-pointer">Mật
+          <label for="login-password" class="block text-xs font-bold text-slate-700 mb-1.5 cursor-pointer"
+            data-i18n="login_password_label">Mật
             khẩu</label>
           <div class="relative">
-            <i class="fa-solid fa-lock absolute left-3.5 top-3 text-slate-500 text-xs pointer-events-none"></i>
+            <i class="fa-solid fa-lock absolute left-3.5 top-3.5 text-slate-400 text-xs pointer-events-none"></i>
             <input type="password" id="login-password" required value="" placeholder="Nhập mật khẩu..."
-              autocomplete="current-password"
-              class="w-full bg-slate-800/80 border border-slate-700 rounded-xl pl-9 pr-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-text">
+              data-i18n-placeholder="login_password_placeholder" autocomplete="current-password"
+              class="w-full bg-slate-50/80 hover:bg-slate-50 focus:bg-white border border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 rounded-xl pl-9 pr-3.5 py-2.5 text-xs text-slate-900 placeholder-slate-400 focus:outline-none transition cursor-text">
           </div>
         </div>
 
         <button type="submit" id="btn-login-submit"
-          class="w-full py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold shadow-lg shadow-blue-600/30 transition duration-150 flex items-center justify-center space-x-2">
-          <span>Đăng Nhập Hệ Thống</span>
+          class="w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-xl text-xs font-bold shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/30 active:scale-[0.99] transition duration-150 flex items-center justify-center space-x-2">
+          <span data-i18n="login_btn_submit">Đăng Nhập Hệ Thống</span>
         </button>
-        <p id="login-status" role="status" aria-live="polite" class="text-xs text-slate-400 leading-relaxed"></p>
+        <p id="login-status" role="status" aria-live="polite"
+          class="text-xs text-slate-500 text-center font-medium leading-relaxed"></p>
       </form>
     </div>
   </div>
 
-    <!-- ============================================================= -->
-    <!-- 2. GIAO DIỆN CHÍNH DOANH NGHIỆP (MAIN APP SCREEN) -->
-    <!-- ============================================================= -->
-    <div id="screen-app" class="flex-col min-h-screen hidden">
+  <!-- ============================================================= -->
+  <!-- 2. GIAO DIỆN CHÍNH DOANH NGHIỆP (MAIN APP SCREEN) -->
+  <!-- ============================================================= -->
+  <div id="screen-app" class="flex-col min-h-screen hidden">
 
-      <!-- Topbar chuẩn Corporate SaaS -->
-      <header class="bg-slate-900 border-b border-slate-800 text-white sticky top-0 z-40 shadow-sm">
-        <div class="max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+    <!-- Topbar chuẩn Corporate SaaS -->
+    <header
+      class="bg-white/95 backdrop-blur-md border-b border-slate-200/90 text-slate-800 sticky top-0 z-40 shadow-xs">
+      <div class="max-w-[1536px] mx-auto px-2.5 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between gap-1.5 sm:gap-3">
 
-          <!-- Brand & Company -->
-          <div class="flex items-center space-x-3">
-            <div
-              class="h-9 w-9 rounded-lg bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center shadow-lg shadow-blue-500/30">
-              <i class="fa-solid fa-building-user text-white text-base"></i>
+        <!-- Brand & Company -->
+        <div class="flex items-center space-x-2 sm:space-x-3 min-w-0 flex-1">
+          <div
+            class="h-9 w-9 sm:h-10 sm:w-10 rounded-xl bg-white border border-slate-200/90 p-1 flex items-center justify-center shadow-xs shrink-0">
+            <img id="topbar-brand-logo" src="https://lh3.googleusercontent.com/d/1XX_099cHe0Rd7kpRFUgrrR_fkuoNwRBb" alt="Wanzhong Logo" class="h-full w-full object-contain rounded-lg">
+          </div>
+          <div class="min-w-0 flex-1">
+            <div class="flex items-center space-x-1.5 sm:space-x-2">
+              <span class="font-extrabold text-xs sm:text-base tracking-tight text-slate-900 truncate block" data-i18n="app_title">Wanzhong Clean Technology</span>
+              <span
+                class="hidden md:inline-block text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200/80 shrink-0">HRM
+                & E-Office</span>
             </div>
-            <div>
-              <div class="flex items-center space-x-2">
-                <span class="font-bold text-base tracking-tight text-white">VinTech Solutions</span>
-                <span
-                  class="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/30">HRM
-                  & E-Office</span>
-              </div>
-              <p class="text-xs text-slate-400">Hệ Thống Quản Trị Doanh Nghiệp Toàn Diện</p>
+            <p class="text-[9px] sm:text-[11px] text-slate-500 font-medium truncate block" data-i18n="company_legal_name">CÔNG TY TNHH CÔNG NGHỆ SẠCH WANZHONG VIỆT NAM</p>
+          </div>
+        </div>
+
+        <!-- Sync Indicator & Profile Menu -->
+        <div class="flex items-center space-x-1 sm:space-x-2 shrink-0">
+          <div id="sync-status"
+            class="hidden lg:flex items-center space-x-1.5 text-xs text-emerald-700 bg-emerald-50 border border-emerald-200/90 px-2 sm:px-3 py-1 rounded-full shadow-xs shrink-0" title="Google Sheets Live">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0"></span>
+            <span class="font-semibold" data-i18n="sync_live">Google Sheets Live</span>
+          </div>
+
+          <!-- Language Switcher in App Topbar -->
+          <div
+            class="flex items-center bg-slate-50 hover:bg-slate-100 border border-slate-200/90 rounded-xl px-1.5 sm:px-2.5 py-1 sm:py-1.5 text-xs text-slate-700 transition shadow-xs shrink-0">
+            <i class="fa-solid fa-globe text-blue-600 mr-1 sm:mr-1.5 text-xs"></i>
+            <select id="app-lang-select" onchange="changeLanguage(this.value)" aria-label="Ngôn ngữ / Language"
+              class="bg-transparent text-slate-700 text-xs font-semibold focus:outline-none cursor-pointer pr-0.5 sm:pr-1">
+              <option value="vi" class="bg-white text-slate-800">🇻🇳 Tiếng Việt</option>
+              <option value="en" class="bg-white text-slate-800">🇬🇧 English</option>
+              <option value="zh" class="bg-white text-slate-800">🇨🇳 简体中文</option>
+            </select>
+          </div>
+
+          <!-- Nút Khôi Phục Dữ Liệu Demo -->
+          <button data-manager-only onclick="handleResetDatabase()" title="Khôi phục toàn bộ 7 bảng dữ liệu mẫu chuẩn"
+            class="text-xs bg-amber-50 hover:bg-amber-100 text-amber-800 hover:text-amber-900 border border-amber-200/90 p-1.5 sm:px-2.5 sm:py-1.5 rounded-xl flex items-center space-x-1 sm:space-x-1.5 transition shadow-xs shrink-0">
+            <i class="fa-solid fa-arrows-rotate text-amber-600"></i>
+            <span class="hidden md:inline font-bold" data-i18n="btn_reset_demo">Khôi Phục Demo</span>
+          </button>
+
+          <!-- User info -->
+          <div class="flex items-center space-x-2.5 pl-1.5 sm:pl-2 border-l border-slate-200 hidden sm:flex">
+            <div class="text-left">
+              <div id="user-name" class="text-xs font-bold text-slate-900 leading-tight">--</div>
+              <div id="user-role-label" class="text-[11px] text-blue-600 font-semibold">--</div>
             </div>
           </div>
 
-          <!-- Sync Indicator & Profile Menu -->
-          <div class="flex items-center space-x-2 sm:space-x-3">
-            <div id="sync-status"
-              class="hidden lg:flex items-center space-x-1.5 text-xs text-emerald-400 bg-emerald-950/40 border border-emerald-800/40 px-3 py-1 rounded-full">
-              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-              <span class="font-medium">Google Sheets Live</span>
-            </div>
-
-            <!-- Nút Khôi Phục Dữ Liệu Demo -->
-            <button data-manager-only onclick="handleResetDatabase()" title="Khôi phục toàn bộ 7 bảng dữ liệu mẫu chuẩn"
-              class="text-xs bg-slate-800 hover:bg-amber-900/40 text-slate-300 hover:text-amber-300 border border-slate-700 hover:border-amber-500/50 px-2.5 py-1.5 rounded-xl flex items-center space-x-1.5 transition">
-              <i class="fa-solid fa-arrows-rotate text-amber-400"></i>
-              <span class="hidden md:inline font-semibold">Khôi Phục Demo</span>
-            </button>
-
-            <!-- User info -->
-            <div class="flex items-center space-x-2.5 pl-1 border-l border-slate-800">
-              <img id="user-avatar" src="" class="w-8 h-8 rounded-full border border-slate-700 object-cover"
-                alt="Avatar">
-              <div class="text-left hidden sm:block">
-                <div id="user-name" class="text-xs font-bold text-white leading-tight">--</div>
-                <div id="user-role-label" class="text-[11px] text-blue-400 font-medium">--</div>
-              </div>
-            </div>
-
-            <!-- Nút Đăng xuất -->
-            <button onclick="handleLogout()" title="Đăng xuất tài khoản"
-              class="text-xs bg-slate-800 hover:bg-rose-900/40 text-slate-300 hover:text-rose-300 border border-slate-700 hover:border-rose-500/50 px-3 py-1.5 rounded-xl flex items-center space-x-1.5 transition">
-              <i class="fa-solid fa-arrow-right-from-bracket"></i>
-              <span class="hidden sm:inline">Đăng Xuất</span>
-            </button>
-          </div>
-
+          <!-- Nút Đăng xuất -->
+          <button onclick="handleLogout()" title="Đăng xuất tài khoản"
+            class="text-xs bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 px-2 sm:px-3 py-1 sm:py-1.5 rounded-xl flex items-center space-x-1 sm:space-x-1.5 transition shadow-xs group shrink-0">
+            <i class="fa-solid fa-arrow-right-from-bracket text-rose-500"></i>
+            <span class="hidden sm:inline font-semibold" data-i18n="btn_logout">Đăng Xuất</span>
+          </button>
         </div>
-      </header>
 
-      <!-- Navigation Tabs -->
-      <div class="bg-white border-b border-slate-200 shadow-sm sticky top-16 z-30">
-        <div class="max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8">
-          <nav class="flex space-x-1 sm:space-x-2 overflow-x-auto py-2.5" id="nav-tabs">
-            <button onclick="switchTab('dashboard')" id="tab-btn-dashboard"
-              class="nav-tab active px-3.5 py-2 rounded-lg text-sm font-semibold flex items-center space-x-2 text-blue-600 bg-blue-50 whitespace-nowrap shrink-0 transition">
-              <i class="fa-solid fa-chart-pie text-sm"></i>
-              <span>Tổng Quan</span>
-            </button>
-            <button onclick="switchTab('employees')" id="tab-btn-employees"
-              class="nav-tab px-3.5 py-2 rounded-lg text-sm font-semibold flex items-center space-x-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 whitespace-nowrap shrink-0 transition">
-              <i class="fa-solid fa-users text-sm"></i>
-              <span>Nhân Sự</span>
-            </button>
-            <button onclick="switchTab('timesheet')" id="tab-btn-timesheet"
-              class="nav-tab px-3.5 py-2 rounded-lg text-sm font-semibold flex items-center space-x-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 whitespace-nowrap shrink-0 transition">
-              <i class="fa-solid fa-calendar-check text-sm"></i>
-              <span>Bảng Chấm Công</span>
-            </button>
-            <button onclick="switchTab('leave')" id="tab-btn-leave"
-              class="nav-tab px-3.5 py-2 rounded-lg text-sm font-semibold flex items-center space-x-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 whitespace-nowrap shrink-0 transition">
-              <i class="fa-solid fa-file-signature text-sm"></i>
-              <span id="nav-leave-label">Xin Nghỉ Phép</span>
-              <span id="leave-pending-badge"
-                class="ml-1 text-[11px] px-2 py-0.5 rounded-full bg-amber-500 text-white font-bold hidden">0</span>
-            </button>
-            <button onclick="switchTab('sick')" id="tab-btn-sick"
-              class="nav-tab px-3.5 py-2 rounded-lg text-sm font-semibold flex items-center space-x-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 whitespace-nowrap shrink-0 transition">
-              <i class="fa-solid fa-briefcase-medical text-sm"></i>
-              <span id="nav-sick-label">Hồ Sơ Ốm Đau (BHXH)</span>
-              <span id="sick-pending-badge"
-                class="ml-1 text-[11px] px-2 py-0.5 rounded-full bg-rose-500 text-white font-bold hidden">0</span>
-            </button>
-            <button onclick="switchTab('payroll')" id="tab-btn-payroll"
-              class="nav-tab px-3.5 py-2 rounded-lg text-sm font-semibold flex items-center space-x-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 whitespace-nowrap shrink-0 transition">
-              <i class="fa-solid fa-money-check-dollar text-sm"></i>
-              <span>Tiền Lương</span>
-            </button>
-            <button onclick="switchTab('tasks')" id="tab-btn-tasks"
-              class="nav-tab px-3.5 py-2 rounded-lg text-sm font-semibold flex items-center space-x-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 whitespace-nowrap shrink-0 transition">
-              <i class="fa-solid fa-list-check text-sm"></i>
-              <span id="nav-tasks-label">Công Việc</span>
-            </button>
-            <button onclick="switchTab('docs')" id="tab-btn-docs"
-              class="nav-tab px-3.5 py-2 rounded-lg text-sm font-semibold flex items-center space-x-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 whitespace-nowrap shrink-0 transition">
-              <i class="fa-solid fa-folder-tree text-sm"></i>
-              <span>Văn Bản & Quy Chế</span>
-            </button>
-          </nav>
-        </div>
       </div>
+    </header>
 
-      <!-- Main Content Area -->
-      <main class="max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-grow w-full">
+    <!-- Navigation Tabs -->
+    <div class="bg-white border-b border-slate-200 shadow-sm sticky top-16 z-30">
+      <div class="max-w-[1536px] mx-auto px-2 sm:px-6 lg:px-8">
+        <nav class="flex space-x-1 sm:space-x-2 overflow-x-auto py-2.5 no-scrollbar touch-pan-x" id="nav-tabs">
+          <button onclick="switchTab('dashboard')" id="tab-btn-dashboard"
+            class="nav-tab active px-3 sm:px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold flex items-center space-x-1.5 sm:space-x-2 text-blue-600 bg-blue-50 whitespace-nowrap shrink-0 transition">
+            <i class="fa-solid fa-chart-pie text-sm"></i>
+            <span data-i18n="nav_dashboard">Tổng Quan</span>
+          </button>
+          <button onclick="switchTab('employees')" id="tab-btn-employees"
+            class="nav-tab px-3 sm:px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold flex items-center space-x-1.5 sm:space-x-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 whitespace-nowrap shrink-0 transition">
+            <i class="fa-solid fa-users text-sm"></i>
+            <span data-i18n="nav_employees">Nhân Sự</span>
+          </button>
+          <button onclick="switchTab('timesheet')" id="tab-btn-timesheet"
+            class="nav-tab px-3 sm:px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold flex items-center space-x-1.5 sm:space-x-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 whitespace-nowrap shrink-0 transition">
+            <i class="fa-solid fa-calendar-check text-sm"></i>
+            <span data-i18n="nav_timesheet">Bảng Chấm Công</span>
+          </button>
+          <button onclick="switchTab('leave')" id="tab-btn-leave"
+            class="nav-tab px-3 sm:px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold flex items-center space-x-1.5 sm:space-x-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 whitespace-nowrap shrink-0 transition">
+            <i class="fa-solid fa-file-signature text-sm"></i>
+            <span id="nav-leave-label" data-i18n="nav_leave">Xin Nghỉ Phép</span>
+            <span id="leave-pending-badge"
+              class="ml-1 text-[11px] px-2 py-0.5 rounded-full bg-amber-500 text-white font-bold hidden">0</span>
+          </button>
+          <button onclick="switchTab('sick')" id="tab-btn-sick"
+            class="nav-tab px-3 sm:px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold flex items-center space-x-1.5 sm:space-x-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 whitespace-nowrap shrink-0 transition">
+            <i class="fa-solid fa-briefcase-medical text-sm"></i>
+            <span id="nav-sick-label" data-i18n="nav_sick">Hồ Sơ Ốm Đau (BHXH)</span>
+            <span id="sick-pending-badge"
+              class="ml-1 text-[11px] px-2 py-0.5 rounded-full bg-rose-500 text-white font-bold hidden">0</span>
+          </button>
+          <button onclick="switchTab('payroll')" id="tab-btn-payroll"
+            class="nav-tab px-3 sm:px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold flex items-center space-x-1.5 sm:space-x-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 whitespace-nowrap shrink-0 transition">
+            <i class="fa-solid fa-money-check-dollar text-sm"></i>
+            <span data-i18n="nav_payroll">Tiền Lương</span>
+          </button>
+          <button onclick="switchTab('tasks')" id="tab-btn-tasks"
+            class="nav-tab px-3 sm:px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold flex items-center space-x-1.5 sm:space-x-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 whitespace-nowrap shrink-0 transition">
+            <i class="fa-solid fa-list-check text-sm"></i>
+            <span id="nav-tasks-label" data-i18n="nav_tasks">Công Việc</span>
+          </button>
+          <button onclick="switchTab('docs')" id="tab-btn-docs"
+            class="nav-tab px-3 sm:px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold flex items-center space-x-1.5 sm:space-x-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 whitespace-nowrap shrink-0 transition">
+            <i class="fa-solid fa-folder-tree text-sm"></i>
+            <span data-i18n="nav_docs">Văn Bản & Quy Chế</span>
+          </button>
+        </nav>
+      </div>
+    </div>
 
-        <!-- ========================================== -->
-        <!-- TAB 1: DASHBOARD -->
-        <!-- ========================================== -->
-        <section id="pane-dashboard" class="tab-pane space-y-6">
-          <!-- Banner Greeting -->
-          <div
-            class="bg-gradient-to-r from-slate-950 via-slate-900 to-indigo-950 rounded-2xl p-6 text-white shadow-xl border border-slate-800 flex flex-col md:flex-row items-start md:items-center justify-between gap-5 relative overflow-hidden">
-            <div
-              class="absolute -right-10 -bottom-10 w-44 h-44 bg-blue-600/10 rounded-full blur-3xl pointer-events-none">
-            </div>
-            <div class="relative z-10">
-              <div class="flex items-center space-x-2.5">
-                <h2 class="text-2xl font-extrabold tracking-tight">Xin chào, <span id="greet-name">--</span> 👋</h2>
-                <span id="greet-badge"
-                  class="px-3 py-0.5 rounded-full text-xs font-bold bg-blue-500/25 text-blue-300 border border-blue-400/40">--</span>
-              </div>
-              <p class="text-slate-300 text-sm mt-1.5 font-medium">Chúc bạn một ngày làm việc tràn đầy năng lượng tại
-                VinTech Solutions!</p>
-            </div>
-            <div class="flex items-center space-x-3 shrink-0 relative z-10">
-              <button onclick="openLeaveModal()"
-                class="px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs sm:text-sm font-bold shadow-lg shadow-blue-600/30 flex items-center space-x-2 transition duration-150">
-                <i class="fa-solid fa-plus"></i>
-                <span>Tạo Đơn Nghỉ Phép</span>
-              </button>
-              <button onclick="openSickModal()"
-                class="px-4 py-2.5 bg-white/10 hover:bg-white/20 text-white border border-white/25 backdrop-blur-md rounded-xl text-xs sm:text-sm font-semibold shadow-sm flex items-center space-x-2 transition duration-150">
-                <i class="fa-solid fa-file-medical text-rose-300"></i>
-                <span>Gửi Hồ Sơ Ốm Đau</span>
-              </button>
-            </div>
+    <!-- Main Content Area -->
+    <main class="max-w-[1536px] mx-auto px-3 sm:px-6 lg:px-8 py-5 sm:py-6 flex-grow w-full">
+
+      <!-- ========================================== -->
+      <!-- TAB 1: DASHBOARD -->
+      <!-- ========================================== -->
+      <section id="pane-dashboard" class="tab-pane space-y-4 sm:space-y-6">
+        <!-- Banner Greeting -->
+        <div
+          class="bg-gradient-to-r from-blue-600 via-indigo-600 to-sky-600 rounded-2xl sm:rounded-3xl p-4 sm:p-7 text-white shadow-xl shadow-blue-500/15 border border-blue-400/30 flex flex-col md:flex-row items-start md:items-center justify-between gap-3 sm:gap-5 relative overflow-hidden">
+          <div class="absolute -right-12 -bottom-12 w-64 h-64 bg-white/10 rounded-full blur-3xl pointer-events-none">
           </div>
-
-          <!-- Metric Cards -->
-          <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5">
-            <div
-              class="bg-white p-4.5 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md hover:border-slate-300 transition duration-150">
-              <div class="flex items-center justify-between">
-                <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Quân Số Nhân Sự</span>
-                <div
-                  class="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-xs shadow-xs">
-                  <i class="fa-solid fa-users"></i>
-                </div>
-              </div>
-              <div id="kpi-total-emp" class="mt-2 text-2xl font-extrabold text-slate-900">4</div>
-              <p class="text-[11px] text-slate-500 font-medium mt-0.5">2 phòng ban chức năng</p>
-            </div>
-
-            <div
-              class="bg-white p-4.5 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md hover:border-slate-300 transition duration-150">
-              <div class="flex items-center justify-between">
-                <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500"><span
-                    id="kpi-payroll-label">Quỹ lương</span></span>
-                <div
-                  class="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xs shadow-xs">
-                  <i class="fa-solid fa-money-bill-wave"></i>
-                </div>
-              </div>
-              <div id="kpi-payroll-total" class="mt-2 text-xl font-extrabold text-emerald-700 truncate">-- đ</div>
-              <p class="text-[11px] text-emerald-600 font-medium mt-0.5" id="kpi-payroll-status">Đã chốt lương kỳ này
-              </p>
-            </div>
-
-            <div
-              class="bg-white p-4.5 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md hover:border-slate-300 transition duration-150">
-              <div class="flex items-center justify-between">
-                <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Đi Làm Hôm Nay</span>
-                <div
-                  class="w-8 h-8 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center text-xs shadow-xs">
-                  <i class="fa-solid fa-user-check"></i>
-                </div>
-              </div>
-              <div class="mt-2 text-2xl font-extrabold text-teal-600"><span id="kpi-working-today">4</span> / <span
-                  id="kpi-total-emp-sub">4</span></div>
-              <p class="text-[11px] text-slate-500 font-medium mt-0.5"><span id="kpi-attendance-rate">—</span></p>
-            </div>
-
-            <div
-              class="bg-white p-4.5 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md hover:border-slate-300 transition duration-150">
-              <div class="flex items-center justify-between">
-                <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Đơn & Hồ Sơ Chờ</span>
-                <div
-                  class="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-xs shadow-xs">
-                  <i class="fa-solid fa-clock-rotate-left"></i>
-                </div>
-              </div>
-              <div id="kpi-pending-total" class="mt-2 text-2xl font-extrabold text-amber-600">0</div>
-              <p class="text-[11px] text-slate-500 font-medium mt-0.5">Phép & Chế độ BHXH</p>
-            </div>
-
-            <div
-              class="bg-white p-4.5 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md hover:border-slate-300 transition duration-150 col-span-2 sm:col-span-1">
-              <div class="flex items-center justify-between">
-                <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Nhiệm Vụ Đang Chạy</span>
-                <div
-                  class="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-xs shadow-xs">
-                  <i class="fa-solid fa-list-check"></i>
-                </div>
-              </div>
-              <div id="kpi-active-tasks" class="mt-2 text-2xl font-extrabold text-indigo-600">3</div>
-              <p class="text-xs text-slate-500">Văn bản chờ xử lý: <span id="kpi-pending-docs">0</span></p>
-            </div>
+          <div class="absolute top-0 right-1/3 w-48 h-48 bg-sky-300/15 rounded-full blur-2xl pointer-events-none">
           </div>
-
-          <!-- Workflow Review Box -->
-          <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm">
-            <div
-              class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4 pb-3 border-b border-slate-100">
-              <h3 class="text-base font-bold text-slate-900 flex items-center space-x-2.5">
-                <i class="fa-solid fa-bell text-amber-500 text-base"></i>
-                <span>Danh Sách Đơn Cần Phê Duyệt & Xử Lý</span>
-              </h3>
-              <span id="role-notice"
-                class="text-xs font-semibold px-3 py-1 rounded-full bg-slate-100 text-slate-600 border border-slate-200/80 w-fit"></span>
-            </div>
-            <div id="dash-pending-list" class="space-y-3">
-              <!-- Rendered by JS -->
-            </div>
-          </div>
-        </section>
-
-        <!-- ========================================== -->
-        <!-- TAB 2: QUẢN LÝ NHÂN SỰ (EMPLOYEES) [NEW!] -->
-        <!-- ========================================== -->
-        <section id="pane-employees" class="tab-pane hidden space-y-4">
-          <div
-            class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div>
-              <h2 class="text-lg font-bold text-slate-900 flex items-center space-x-2">
-                <i class="fa-solid fa-users text-blue-600"></i>
-                <span>Danh Sách Nhân Sự Doanh Nghiệp</span>
-              </h2>
-              <p class="text-xs text-slate-500">Quản lý hồ sơ nhân viên, chức danh, phòng ban và phân quyền hệ thống</p>
-            </div>
+          <div class="relative z-10 w-full md:w-auto">
             <div class="flex items-center space-x-2">
-              <button id="btn-add-employee" onclick="openEmployeeModal()"
-                class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-semibold shadow-md flex items-center space-x-1.5 transition">
-                <i class="fa-solid fa-user-plus"></i>
-                <span>Thêm Nhân Viên Mới</span>
-              </button>
+              <h2 class="text-base sm:text-2xl md:text-3xl font-extrabold tracking-tight text-white truncate"><span
+                  data-i18n="greet_hello">Xin chào, </span><span id="greet-name">--</span></h2>
+              <span id="greet-badge"
+                class="px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-bold bg-white/20 text-white border border-white/30 backdrop-blur-md shrink-0">--</span>
             </div>
+            <p class="text-blue-50 text-xs sm:text-sm mt-1 font-medium leading-snug" data-i18n="greet_wish">Chúc bạn một ngày làm
+              việc tràn đầy năng lượng tại
+              Wanzhong Clean Technology!</p>
           </div>
-
-          <!-- Search & Filter Bar -->
-          <div
-            class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
-            <div class="relative w-full sm:w-80">
-              <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400"></i>
-              <input type="text" id="emp-search-input" oninput="filterEmployees()"
-                placeholder="Tìm kiếm theo tên, mã NV, email..."
-                class="w-full pl-9 pr-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500">
-            </div>
-            <div class="flex items-center space-x-3 w-full sm:w-auto">
-              <select id="emp-filter-dept" onchange="filterEmployees()"
-                class="border border-slate-300 rounded-xl px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <option value="all">Tất cả phòng ban</option>
-                <option value="Kỹ thuật">Kỹ thuật</option>
-                <option value="Kế toán">Kế toán</option>
-                <option value="Kinh doanh">Kinh doanh</option>
-              </select>
-              <select id="emp-filter-status" onchange="filterEmployees()"
-                class="border border-slate-300 rounded-xl px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <option value="all">Tất cả trạng thái</option>
-                <option value="Đang làm việc">Đang làm việc</option>
-                <option value="Đã nghỉ việc">Đã nghỉ việc</option>
-              </select>
-            </div>
-          </div>
-
-          <!-- Employees Table -->
-          <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
-            <div class="overflow-x-auto">
-              <table class="w-full text-xs text-left">
-                <thead
-                  class="bg-slate-100/80 text-slate-700 uppercase font-semibold text-[11px] border-b border-slate-200">
-                  <tr>
-                    <th class="py-3 px-4">Mã NV</th>
-                    <th class="py-3 px-4">Họ và Tên</th>
-                    <th class="py-3 px-4">Phòng Ban</th>
-                    <th class="py-3 px-4">Chức Vụ</th>
-                    <th class="py-3 px-4 text-right">Lương Cơ Bản</th>
-                    <th class="py-3 px-4 text-center">Trạng Thái</th>
-                    <th class="py-3 px-4 text-center">Ngày Vào Làm</th>
-                    <th class="py-3 px-4 text-right">Thao Tác</th>
-                  </tr>
-                </thead>
-                <tbody id="employees-tbody" class="divide-y divide-slate-100">
-                  <!-- Rendered by JS -->
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </section>
-
-        <!-- ========================================== -->
-        <!-- TAB 3: BẢNG CHẤM CÔNG (TIMESHEET) -->
-        <!-- ========================================== -->
-        <section id="pane-timesheet" class="tab-pane hidden space-y-4">
-          <div
-            class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div class="flex flex-wrap items-center gap-3">
-              <!-- Bộ chọn kỳ chấm công Đa kỳ (Tháng/Năm) -->
-              <div class="flex items-center space-x-1.5 bg-slate-100 p-1 rounded-xl border border-slate-200">
-                <button onclick="prevTimesheetPeriod()" title="Kỳ trước"
-                  class="w-7 h-7 flex items-center justify-center rounded-lg bg-white shadow-xs text-slate-700 hover:text-blue-600 transition">
-                  <i class="fa-solid fa-chevron-left text-xs"></i>
-                </button>
-                <div class="flex items-center space-x-1.5 px-2">
-                  <i class="fa-solid fa-calendar-days text-blue-600 text-xs"></i>
-                  <select id="timesheet-period-select" onchange="changeTimesheetPeriod(this.value)"
-                    class="bg-transparent text-xs font-bold text-slate-800 focus:outline-none cursor-pointer py-0.5">
-                    <option value="09/2026">Tháng 09/2026</option>
-                    <option value="10/2026" selected>Tháng 10/2026</option>
-                    <option value="11/2026">Tháng 11/2026</option>
-                    <option value="12/2026">Tháng 12/2026</option>
-                    <option value="01/2027">Tháng 01/2027</option>
-                    <option value="02/2027">Tháng 02/2027 (28 ngày)</option>
-                    <option value="03/2027">Tháng 03/2027</option>
-                  </select>
-                </div>
-                <button onclick="nextTimesheetPeriod()" title="Kỳ kế tiếp"
-                  class="w-7 h-7 flex items-center justify-center rounded-lg bg-white shadow-xs text-slate-700 hover:text-blue-600 transition">
-                  <i class="fa-solid fa-chevron-right text-xs"></i>
-                </button>
-              </div>
-
-              <span id="timesheet-days-badge"
-                class="px-2 py-1 rounded-lg bg-blue-50 text-blue-700 font-bold text-[11px] border border-blue-200/60">
-                31 ngày (22 công chuẩn)
-              </span>
-
-              <div class="flex items-center space-x-1.5 text-[11px] font-semibold text-slate-600">
-                <span class="px-1.5 py-0.5 rounded cell-x">X: Đi làm</span>
-                <span
-                  class="px-1.5 py-0.5 rounded cell-ot bg-purple-100 text-purple-800 font-bold border border-purple-200">OT:
-                  Làm thêm</span>
-                <span class="px-1.5 py-0.5 rounded cell-p">P: Phép hưởng lương</span>
-                <span class="px-1.5 py-0.5 rounded cell-o">K: Không lương • O: Nghỉ ốm</span>
-                <span class="px-1.5 py-0.5 rounded cell-cn">CN: Chủ nhật</span>
-                <span class="px-1.5 py-0.5 rounded cell-t7">T7: Thứ bảy</span>
-              </div>
-            </div>
-            <button onclick="exportTimesheetExcel()"
-              class="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm flex items-center space-x-1.5 transition">
-              <i class="fa-solid fa-file-excel"></i>
-              <span>Xuất Báo Cáo Excel (.xls)</span>
-            </button>
-          </div>
-
-          <p id="timesheet-cutoff-note" class="text-xs text-slate-500 leading-relaxed"></p>
-          <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
-            <div class="overflow-x-auto max-h-[600px]">
-              <table class="w-full border-collapse text-xs text-left" id="timesheet-table">
-                <thead class="bg-slate-900 text-white sticky top-0 z-20" id="timesheet-thead">
-                  <tr id="timesheet-header-tr">
-                    <!-- Header cột ngày được sinh động theo số ngày của kỳ (28, 30 hoặc 31 ngày) -->
-                  </tr>
-                </thead>
-                <tbody id="timesheet-tbody" class="divide-y divide-slate-100">
-                  <!-- Rendered by JS -->
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </section>
-
-        <!-- ========================================== -->
-        <!-- TAB 4: XIN NGHỈ PHÉP (LEAVE REQUESTS) -->
-        <!-- ========================================== -->
-        <section id="pane-leave" class="tab-pane hidden space-y-4">
-          <div class="flex items-center justify-between">
-            <div>
-              <h2 class="text-lg font-bold text-slate-900">Danh Sách Đơn Xin Nghỉ Phép</h2>
-              <p class="text-xs text-slate-500">Đơn được duyệt sẽ tự động cập nhật ký hiệu [P] vào Bảng chấm công</p>
-            </div>
+          <div class="grid grid-cols-2 gap-2 sm:flex sm:flex-row sm:items-center sm:gap-3 shrink-0 w-full md:w-auto relative z-10">
             <button onclick="openLeaveModal()"
-              class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-semibold shadow-md flex items-center space-x-1.5 transition">
-              <i class="fa-solid fa-plus"></i>
-              <span>Tạo Đơn Nghỉ Phép</span>
+              class="w-full sm:w-auto px-3 sm:px-4 py-2 sm:py-2.5 bg-white hover:bg-blue-50 text-blue-700 hover:text-blue-800 rounded-xl text-xs sm:text-sm font-bold shadow-md shadow-blue-900/10 flex items-center justify-center space-x-1.5 transition">
+              <i class="fa-solid fa-plus text-blue-600 text-xs"></i>
+              <span data-i18n="btn_create_leave" class="truncate">Tạo Đơn Nghỉ Phép</span>
+            </button>
+            <button onclick="openSickModal()"
+              class="w-full sm:w-auto px-3 sm:px-4 py-2 sm:py-2.5 bg-white/15 hover:bg-white/25 text-white border border-white/30 backdrop-blur-md rounded-xl text-xs sm:text-sm font-bold shadow-xs flex items-center justify-center space-x-1.5 transition">
+              <i class="fa-solid fa-file-medical text-rose-200 text-xs"></i>
+              <span data-i18n="btn_create_sick" class="truncate">Gửi Hồ Sơ Ốm Đau</span>
             </button>
           </div>
+        </div>
 
-          <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+        <!-- Metric Cards -->
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-3.5">
+          <div
+            class="bg-white p-3 sm:p-5 rounded-xl sm:rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md hover:border-slate-300 transition duration-150">
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-500 truncate" data-i18n="kpi_total_emp">Quân
+                Số Nhân Sự</span>
+              <div
+                class="w-6 h-6 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-[11px] sm:text-xs shadow-xs shrink-0">
+                <i class="fa-solid fa-users"></i>
+              </div>
+            </div>
+            <div id="kpi-total-emp" class="mt-1 sm:mt-2 text-lg sm:text-2xl font-extrabold text-slate-900">4</div>
+            <p class="text-[10px] sm:text-[11px] text-slate-500 font-medium mt-0.5 truncate" data-i18n="kpi_total_emp_sub">6 phòng ban chức năng
+            </p>
+          </div>
+
+          <div
+            class="bg-white p-3 sm:p-5 rounded-xl sm:rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md hover:border-slate-300 transition duration-150">
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-500 truncate"><span id="kpi-payroll-label"
+                  data-i18n="kpi_payroll_fund">Quỹ lương</span></span>
+              <div
+                class="w-6 h-6 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-[11px] sm:text-xs shadow-xs shrink-0">
+                <i class="fa-solid fa-money-bill-wave"></i>
+              </div>
+            </div>
+            <div id="kpi-payroll-total" class="mt-1 sm:mt-2 text-base sm:text-xl font-extrabold text-emerald-700 truncate">-- đ</div>
+            <p class="text-[10px] sm:text-[11px] text-emerald-600 font-medium mt-0.5 truncate" id="kpi-payroll-status"
+              data-i18n="kpi_payroll_settled">Đã chốt lương kỳ này
+            </p>
+          </div>
+
+          <div
+            class="bg-white p-3 sm:p-5 rounded-xl sm:rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md hover:border-slate-300 transition duration-150">
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-500 truncate"
+                data-i18n="kpi_working_today">Đi Làm Hôm Nay</span>
+              <div
+                class="w-6 h-6 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center text-[11px] sm:text-xs shadow-xs shrink-0">
+                <i class="fa-solid fa-user-check"></i>
+              </div>
+            </div>
+            <div class="mt-1 sm:mt-2 text-lg sm:text-2xl font-extrabold text-teal-600"><span id="kpi-working-today">4</span> / <span
+                id="kpi-total-emp-sub">4</span></div>
+            <p class="text-[10px] sm:text-[11px] text-slate-500 font-medium mt-0.5 truncate"><span id="kpi-attendance-rate">—</span></p>
+          </div>
+
+          <div
+            class="bg-white p-3 sm:p-5 rounded-xl sm:rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md hover:border-slate-300 transition duration-150">
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-500 truncate"
+                data-i18n="kpi_pending_total">Đơn & Hồ Sơ Chờ</span>
+              <div
+                class="w-6 h-6 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-[11px] sm:text-xs shadow-xs shrink-0">
+                <i class="fa-solid fa-clock-rotate-left"></i>
+              </div>
+            </div>
+            <div id="kpi-pending-total" class="mt-1 sm:mt-2 text-lg sm:text-2xl font-extrabold text-amber-600">0</div>
+            <p class="text-[10px] sm:text-[11px] text-slate-500 font-medium mt-0.5 truncate" data-i18n="kpi_pending_sub">Phép & Chế độ BHXH</p>
+          </div>
+
+          <div
+            class="bg-white p-3 sm:p-5 rounded-xl sm:rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md hover:border-slate-300 transition duration-150 col-span-2 sm:col-span-1">
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-500 truncate"
+                data-i18n="kpi_active_tasks">Nhiệm Vụ Đang Chạy</span>
+              <div
+                class="w-6 h-6 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-[11px] sm:text-xs shadow-xs shrink-0">
+                <i class="fa-solid fa-list-check"></i>
+              </div>
+            </div>
+            <div id="kpi-active-tasks" class="mt-1 sm:mt-2 text-lg sm:text-2xl font-extrabold text-indigo-600">3</div>
+            <p class="text-[10px] sm:text-[11px] text-slate-500 font-medium mt-0.5 truncate"><span data-i18n="kpi_pending_docs_prefix">Văn bản
+                chờ xử lý: </span><span id="kpi-pending-docs">0</span></p>
+          </div>
+        </div>
+
+        <!-- Workflow Review Box -->
+        <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm">
+          <div
+            class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4 pb-3 border-b border-slate-100">
+            <h3 class="text-base font-bold text-slate-900 flex items-center space-x-2.5">
+              <i class="fa-solid fa-bell text-amber-500 text-base"></i>
+              <span data-i18n="dash_pending_heading">Danh Sách Đơn Cần Phê Duyệt & Xử Lý</span>
+            </h3>
+            <span id="role-notice"
+              class="text-xs font-semibold px-3 py-1 rounded-full bg-slate-100 text-slate-600 border border-slate-200/80 w-fit"></span>
+          </div>
+          <div id="dash-pending-list" class="space-y-3">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================== -->
+      <!-- TAB 2: QUẢN LÝ NHÂN SỰ (EMPLOYEES) [NEW!] -->
+      <!-- ========================================== -->
+      <section id="pane-employees" class="tab-pane hidden space-y-4">
+        <div
+          class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h2 class="text-lg font-bold text-slate-900 flex items-center space-x-2">
+              <i class="fa-solid fa-users text-blue-600"></i>
+              <span data-i18n="emp_title">Danh Sách Nhân Sự Doanh Nghiệp</span>
+            </h2>
+            <p class="text-xs text-slate-500" data-i18n="emp_subtitle">Quản lý hồ sơ nhân viên, chức danh, phòng ban và
+              phân quyền hệ thống</p>
+          </div>
+          <div class="flex items-center space-x-2">
+            <button id="btn-add-employee" onclick="openEmployeeModal()"
+              class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-semibold shadow-md flex items-center space-x-1.5 transition">
+              <i class="fa-solid fa-user-plus"></i>
+              <span data-i18n="emp_btn_add">Thêm Nhân Viên Mới</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Search & Filter Bar -->
+        <div
+          class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+          <div class="relative w-full sm:w-80">
+            <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400"></i>
+            <input type="text" id="emp-search-input" oninput="filterEmployees()"
+              placeholder="Tìm kiếm theo tên, mã NV, email..." data-i18n-placeholder="emp_search_ph"
+              class="w-full pl-9 pr-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500">
+          </div>
+          <div class="flex items-center space-x-3 w-full sm:w-auto">
+            <select id="emp-filter-dept" onchange="filterEmployees()"
+              class="border border-slate-300 rounded-xl px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <option value="all" data-i18n="emp_all_depts">Tất cả phòng ban</option>
+              <option value="Ban Giám Đốc" data-i18n="emp_dept_bod">Ban Giám Đốc</option>
+              <option value="Hành chính" data-i18n="emp_dept_admin">Hành chính</option>
+              <option value="Kế toán" data-i18n="emp_dept_acc">Kế toán</option>
+              <option value="Kinh doanh" data-i18n="emp_dept_biz">Kinh doanh</option>
+              <option value="Kỹ thuật" data-i18n="emp_dept_tech">Kỹ thuật</option>
+              <option value="Sản xuất" data-i18n="emp_dept_prod">Sản xuất</option>
+            </select>
+            <select id="emp-filter-status" onchange="filterEmployees()"
+              class="border border-slate-300 rounded-xl px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <option value="all" data-i18n="emp_all_statuses">Tất cả trạng thái</option>
+              <option value="Đang làm việc" data-i18n="emp_status_working">Đang làm việc</option>
+              <option value="Đã nghỉ việc" data-i18n="emp_status_resigned">Đã nghỉ việc</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Employees Table -->
+        <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+          <div class="overflow-x-auto">
             <table class="w-full text-xs text-left">
               <thead
                 class="bg-slate-100/80 text-slate-700 uppercase font-semibold text-[11px] border-b border-slate-200">
                 <tr>
-                  <th class="py-3 px-4">Mã Đơn</th>
-                  <th class="py-3 px-4">Nhân Viên</th>
-                  <th class="py-3 px-4">Loại Nghỉ</th>
-                  <th class="py-3 px-4">Thời Gian</th>
-                  <th class="py-3 px-3 text-center">Số Ngày</th>
-                  <th class="py-3 px-4">Lý Do</th>
-                  <th class="py-3 px-4 text-center">Trạng Thái</th>
-                  <th class="py-3 px-4 text-right">Thao Tác</th>
+                  <th class="py-3 px-4" data-i18n="th_emp_id">Mã NV</th>
+                  <th class="py-3 px-4" data-i18n="th_emp_name">Họ và Tên</th>
+                  <th class="py-3 px-4" data-i18n="th_emp_dept">Phòng Ban</th>
+                  <th class="py-3 px-4" data-i18n="th_emp_title">Chức Vụ</th>
+                  <th class="py-3 px-4 text-right" data-i18n="th_emp_salary">Lương Cơ Bản</th>
+                  <th class="py-3 px-4 text-center" data-i18n="th_emp_status">Trạng Thái</th>
+                  <th class="py-3 px-4 text-center" data-i18n="th_emp_start_date">Ngày Vào Làm</th>
+                  <th class="py-3 px-4 text-right" data-i18n="th_actions">Thao Tác</th>
+                </tr>
+              </thead>
+              <tbody id="employees-tbody" class="divide-y divide-slate-100">
+                <!-- Rendered by JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================== -->
+      <!-- TAB 3: BẢNG CHẤM CÔNG (TIMESHEET) -->
+      <!-- ========================================== -->
+      <section id="pane-timesheet" class="tab-pane hidden space-y-4">
+        <div
+          class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div class="flex flex-wrap items-center gap-3">
+            <!-- Bộ chọn kỳ chấm công Đa kỳ (Tháng/Năm) -->
+            <div class="flex items-center space-x-1.5 bg-slate-100 p-1 rounded-xl border border-slate-200">
+              <button onclick="prevTimesheetPeriod()" title="Kỳ trước"
+                class="w-7 h-7 flex items-center justify-center rounded-lg bg-white shadow-xs text-slate-700 hover:text-blue-600 transition">
+                <i class="fa-solid fa-chevron-left text-xs"></i>
+              </button>
+              <div class="flex items-center space-x-1.5 px-2">
+                <i class="fa-solid fa-calendar-days text-blue-600 text-xs"></i>
+                <select id="timesheet-period-select" onchange="changeTimesheetPeriod(this.value)"
+                  class="bg-transparent text-xs font-bold text-slate-800 focus:outline-none cursor-pointer py-0.5">
+                  <option value="09/2026">Tháng 09/2026</option>
+                  <option value="10/2026" selected>Tháng 10/2026</option>
+                  <option value="11/2026">Tháng 11/2026</option>
+                  <option value="12/2026">Tháng 12/2026</option>
+                  <option value="01/2027">Tháng 01/2027</option>
+                  <option value="02/2027">Tháng 02/2027 (28 ngày)</option>
+                  <option value="03/2027">Tháng 03/2027</option>
+                </select>
+              </div>
+              <button onclick="nextTimesheetPeriod()" title="Kỳ kế tiếp"
+                class="w-7 h-7 flex items-center justify-center rounded-lg bg-white shadow-xs text-slate-700 hover:text-blue-600 transition">
+                <i class="fa-solid fa-chevron-right text-xs"></i>
+              </button>
+            </div>
+
+            <span id="timesheet-days-badge"
+              class="px-2 py-1 rounded-lg bg-blue-50 text-blue-700 font-bold text-[11px] border border-blue-200/60">
+              31 ngày (22 công chuẩn)
+            </span>
+
+            <div class="flex flex-wrap items-center gap-1.5 text-[10px] sm:text-[11px] font-semibold text-slate-600">
+              <span class="px-1.5 py-0.5 rounded cell-x" data-i18n="ts_legend_x">X: Đi làm</span>
+              <span
+                class="px-1.5 py-0.5 rounded cell-ot bg-purple-100 text-purple-800 font-bold border border-purple-200"
+                data-i18n="ts_legend_ot">OT:
+                Làm thêm</span>
+              <span class="px-1.5 py-0.5 rounded cell-p" data-i18n="ts_legend_p">P: Phép hưởng lương</span>
+              <span class="px-1.5 py-0.5 rounded cell-o" data-i18n="ts_legend_k_o">K: Không lương • O: Nghỉ ốm</span>
+              <span class="px-1.5 py-0.5 rounded cell-cn" data-i18n="ts_legend_cn">CN: Chủ nhật</span>
+              <span class="px-1.5 py-0.5 rounded cell-t7" data-i18n="ts_legend_t7">T7: Thứ bảy</span>
+            </div>
+          </div>
+          <div class="flex flex-wrap sm:flex-nowrap items-center gap-2 w-full md:w-auto">
+            <button id="btn-toggle-ts-edit" onclick="toggleTimesheetEditMode()" data-manager-only
+              class="flex-1 sm:flex-none justify-center px-3.5 py-2 sm:py-1.5 rounded-lg text-xs font-semibold bg-blue-600 hover:bg-blue-500 text-white shadow-sm flex items-center space-x-1.5 transition">
+              <i class="fa-solid fa-pen-to-square"></i>
+              <span id="btn-toggle-ts-edit-label" data-i18n="ts_btn_edit_mode">Chỉnh Sửa Công</span>
+            </button>
+            <button onclick="exportTimesheetExcel()"
+              class="flex-1 sm:flex-none justify-center px-3.5 py-2 sm:py-1.5 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm flex items-center space-x-1.5 transition">
+              <i class="fa-solid fa-file-excel"></i>
+              <span data-i18n="ts_export_btn">Xuất Báo Cáo Excel (.xls)</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Thanh điều khiển khi bật Chế Độ Chỉnh Sửa Công -->
+        <div id="timesheet-edit-bar"
+          class="hidden bg-amber-50 border border-amber-200/90 rounded-2xl p-3.5 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div class="flex items-center space-x-2.5">
+            <div
+              class="w-8 h-8 rounded-xl bg-amber-500 text-white flex items-center justify-center text-sm shadow-xs shrink-0">
+              <i class="fa-solid fa-pen-nib"></i>
+            </div>
+            <div>
+              <div class="text-xs font-bold text-amber-950 flex items-center space-x-2">
+                <span data-i18n="ts_edit_mode_active">Đang Bật Chế Độ Chỉnh Sửa Công</span>
+                <span id="ts-edit-count-badge"
+                  class="px-2 py-0.5 rounded-full bg-amber-200 text-amber-900 font-extrabold text-[11px]">0 thay đổi
+                  chưa lưu</span>
+              </div>
+              <p class="text-[11px] text-amber-800" data-i18n="ts_edit_mode_desc">Nhấp vào bất kỳ ô công nào để mở menu
+                chọn 1-chạm. Sau khi hoàn tất bấm Lưu thay đổi.</p>
+            </div>
+          </div>
+          <div class="flex items-center space-x-2 self-end sm:self-auto shrink-0">
+            <button id="btn-cancel-ts-edit" onclick="cancelTimesheetEdit()"
+              class="px-3 py-1.5 rounded-xl text-xs font-semibold bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 shadow-xs transition">
+              <i class="fa-solid fa-xmark mr-1"></i>
+              <span data-i18n="ts_btn_cancel_changes">Hủy Bỏ</span>
+            </button>
+            <button id="btn-save-ts-edit" onclick="saveTimesheetEdit()" disabled
+              class="px-4 py-1.5 rounded-xl text-xs font-bold bg-amber-600 hover:bg-amber-500 text-white shadow-md flex items-center space-x-1.5 transition disabled:opacity-40 disabled:cursor-not-allowed">
+              <i class="fa-solid fa-floppy-disk"></i>
+              <span id="btn-save-ts-edit-label" data-i18n="ts_btn_save_changes">Lưu Thay Đổi</span>
+            </button>
+          </div>
+        </div>
+
+        <p id="timesheet-cutoff-note" class="text-xs text-slate-500 leading-relaxed"></p>
+        <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+          <div class="overflow-x-auto max-h-[600px]">
+            <table class="w-full border-collapse text-xs text-left" id="timesheet-table">
+              <thead class="bg-slate-900 text-white sticky top-0 z-20" id="timesheet-thead">
+                <tr id="timesheet-header-tr">
+                  <!-- Header cột ngày được sinh động theo số ngày của kỳ (28, 30 hoặc 31 ngày) -->
+                </tr>
+              </thead>
+              <tbody id="timesheet-tbody" class="divide-y divide-slate-100">
+                <!-- Rendered by JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================== -->
+      <!-- TAB 4: XIN NGHỈ PHÉP (LEAVE REQUESTS) -->
+      <!-- ========================================== -->
+      <section id="pane-leave" class="tab-pane hidden space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <h2 class="text-lg font-bold text-slate-900" data-i18n="leave_heading">Danh Sách Đơn Xin Nghỉ Phép</h2>
+            <p class="text-xs text-slate-500" data-i18n="leave_sub">Đơn được duyệt sẽ tự động cập nhật ký hiệu [P] vào
+              Bảng chấm công</p>
+          </div>
+          <button onclick="openLeaveModal()"
+            class="w-full sm:w-auto px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-semibold shadow-md flex items-center justify-center space-x-1.5 transition">
+            <i class="fa-solid fa-plus"></i>
+            <span data-i18n="leave_btn_create">Tạo Đơn Nghỉ Phép</span>
+          </button>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-xs text-left">
+              <thead class="bg-slate-100/80 text-slate-700 uppercase font-semibold text-[11px] border-b border-slate-200">
+                <tr>
+                  <th class="py-3 px-4" data-i18n="th_leave_id">Mã Đơn</th>
+                  <th class="py-3 px-4" data-i18n="th_leave_emp">Nhân Viên</th>
+                  <th class="py-3 px-4" data-i18n="th_leave_type">Loại Nghỉ</th>
+                  <th class="py-3 px-4" data-i18n="th_leave_dates">Thời Gian</th>
+                  <th class="py-3 px-3 text-center" data-i18n="th_leave_days">Số Ngày</th>
+                  <th class="py-3 px-4" data-i18n="th_leave_reason">Lý Do</th>
+                  <th class="py-3 px-4 text-center" data-i18n="th_emp_status">Trạng Thái</th>
+                  <th class="py-3 px-4 text-right" data-i18n="th_actions">Thao Tác</th>
                 </tr>
               </thead>
               <tbody id="leave-table-tbody" class="divide-y divide-slate-100"></tbody>
             </table>
           </div>
-        </section>
+        </div>
+      </section>
 
-        <!-- ========================================== -->
-        <!-- TAB 5: HỒ SƠ ỐM ĐAU (SICK CASES) -->
-        <!-- ========================================== -->
-        <section id="pane-sick" class="tab-pane hidden space-y-4">
-          <div class="flex items-center justify-between">
-            <div>
-              <h2 class="text-lg font-bold text-slate-900">Hồ Sơ Nghỉ Ốm Hưởng Chế Độ BHXH</h2>
-              <p class="text-xs text-slate-500">Duyệt hồ sơ sẽ tự động xác nhận ngày ốm [O] trên Bảng chấm công</p>
-            </div>
-            <button onclick="openSickModal()"
-              class="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white rounded-xl text-xs font-semibold shadow-md flex items-center space-x-1.5 transition">
-              <i class="fa-solid fa-file-medical"></i>
-              <span>Nộp Hồ Sơ Ốm Đau</span>
+      <!-- ========================================== -->
+      <!-- TAB 5: HỒ SƠ ỐM ĐAU (SICK CASES) -->
+      <!-- ========================================== -->
+      <section id="pane-sick" class="tab-pane hidden space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <h2 class="text-lg font-bold text-slate-900" data-i18n="sick_heading">Hồ Sơ Nghỉ Ốm Hưởng Chế Độ BHXH</h2>
+            <p class="text-xs text-slate-500" data-i18n="sick_sub">Duyệt hồ sơ sẽ tự động xác nhận ngày ốm [O] trên Bảng
+              chấm công</p>
+          </div>
+          <button onclick="openSickModal()"
+            class="w-full sm:w-auto px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white rounded-xl text-xs font-semibold shadow-md flex items-center justify-center space-x-1.5 transition">
+            <i class="fa-solid fa-file-medical"></i>
+            <span data-i18n="sick_btn_submit">Nộp Hồ Sơ Ốm Đau</span>
+          </button>
+        </div>
+
+        <div class="sick-table-scroll bg-white rounded-2xl border border-slate-200/80 shadow-sm" role="region"
+          aria-label="Danh sách hồ sơ ốm đau, cuộn ngang để xem đầy đủ" tabindex="0">
+          <table class="sick-table w-full text-xs text-left">
+            <thead class="bg-slate-100/80 text-slate-700 uppercase font-semibold text-[11px] border-b border-slate-200">
+              <tr>
+                <th class="py-3 px-4" data-i18n="th_sick_id">Mã Hồ Sơ</th>
+                <th class="py-3 px-4" data-i18n="th_sick_emp">Nhân Viên</th>
+                <th class="py-3 px-4" data-i18n="th_sick_hosp">Cơ Sở Y Tế</th>
+                <th class="py-3 px-4" data-i18n="th_sick_dates">Thời Gian Nghỉ</th>
+                <th class="py-3 px-3 text-center" data-i18n="th_sick_days">Số Ngày</th>
+                <th class="py-3 px-4 text-center" data-i18n="th_sick_proof">Chứng Từ Viện Phí</th>
+                <th class="py-3 px-4 text-center" data-i18n="th_emp_status">Trạng Thái</th>
+                <th class="py-3 px-4" data-i18n="th_sick_note">Ghi Chú / Phản Hồi</th>
+                <th class="py-3 px-4 text-right" data-i18n="th_actions">Thao Tác</th>
+              </tr>
+            </thead>
+            <tbody id="sick-table-tbody" class="divide-y divide-slate-100"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ========================================== -->
+      <!-- TAB 6: TIỀN LƯƠNG (PAYROLL) -->
+      <!-- ========================================== -->
+      <section id="pane-payroll" class="tab-pane hidden space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <h2 class="text-lg font-bold text-slate-900" id="payroll-period-title" data-i18n="payroll_title">Bảng Lương
+              Doanh Nghiệp
+            </h2>
+            <p class="text-xs text-slate-500" id="payroll-desc" data-i18n="payroll_desc_auto">Tự động kết xuất từ dữ
+              liệu chấm công thực tế</p>
+          </div>
+          <div class="flex flex-wrap items-center gap-2">
+            <select id="payroll-period-select"
+              onchange="changePayrollPeriod(this.value)" class="border border-slate-300 rounded-xl px-2.5 py-1.5 text-xs bg-white"></select>
+            <button id="btn-calc-payroll" onclick="calculatePayroll()"
+              class="hidden px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-blue-600 hover:bg-blue-500 text-white shadow-sm flex items-center space-x-1.5 transition">
+              <i class="fa-solid fa-calculator"></i>
+              <span data-i18n="payroll_btn_calc">Tính Lương & Cập Nhật Sheet</span>
+            </button>
+            <button onclick="printPayslip(currentUser.id)"
+              class="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 shadow-xs flex items-center space-x-1.5 transition">
+              <i class="fa-solid fa-receipt text-slate-500"></i>
+              <span data-i18n="payroll_btn_view_my">Xem Phiếu Lương Của Tôi</span>
             </button>
           </div>
+        </div>
 
-          <div class="sick-table-scroll bg-white rounded-2xl border border-slate-200/80 shadow-sm" role="region" aria-label="Danh sách hồ sơ ốm đau, cuộn ngang để xem đầy đủ" tabindex="0">
-            <table class="sick-table w-full text-xs text-left">
-              <thead
-                class="bg-slate-100/80 text-slate-700 uppercase font-semibold text-[11px] border-b border-slate-200">
-                <tr>
-                  <th class="py-3 px-4">Mã Hồ Sơ</th>
-                  <th class="py-3 px-4">Nhân Viên</th>
-                  <th class="py-3 px-4">Cơ Sở Y Tế</th>
-                  <th class="py-3 px-4">Thời Gian Nghỉ</th>
-                  <th class="py-3 px-3 text-center">Số Ngày</th>
-                  <th class="py-3 px-4 text-center">Chứng Từ Viện Phí</th>
-                  <th class="py-3 px-4 text-center">Trạng Thái</th>
-                  <th class="py-3 px-4">Ghi Chú / Phản Hồi</th>
-                  <th class="py-3 px-4 text-right">Thao Tác</th>
-                </tr>
-              </thead>
-              <tbody id="sick-table-tbody" class="divide-y divide-slate-100"></tbody>
-            </table>
-          </div>
-        </section>
-
-        <!-- ========================================== -->
-        <!-- TAB 6: TIỀN LƯƠNG (PAYROLL) -->
-        <!-- ========================================== -->
-        <section id="pane-payroll" class="tab-pane hidden space-y-4">
-          <div class="flex items-center justify-between">
-            <div>
-              <h2 class="text-lg font-bold text-slate-900" id="payroll-period-title">Bảng Lương Doanh Nghiệp
-              </h2>
-              <p class="text-xs text-slate-500" id="payroll-desc">Tự động kết xuất từ dữ liệu chấm công thực tế</p>
-            </div>
-            <div class="flex flex-wrap items-center gap-2"><select id="payroll-period-select"
-                onchange="changePayrollPeriod(this.value)" class="border rounded p-2 text-xs"></select>
-              <button id="btn-calc-payroll" onclick="calculatePayroll()"
-                class="hidden px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-blue-600 hover:bg-blue-500 text-white shadow-sm flex items-center space-x-1.5 transition">
-                <i class="fa-solid fa-calculator"></i>
-                <span>Tính Lương & Cập Nhật Sheet</span>
-              </button>
-              <button onclick="printPayslip(currentUser.id)"
-                class="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-900 hover:bg-slate-800 text-white shadow-sm flex items-center space-x-1.5 transition">
-                <i class="fa-solid fa-receipt"></i>
-                <span>Xem Phiếu Lương Của Tôi</span>
-              </button>
-            </div>
-          </div>
-
-          <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden" id="payroll-box">
+        <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden" id="payroll-box">
+          <div class="overflow-x-auto">
             <table class="w-full text-xs text-left">
-              <thead
-                class="bg-slate-100/80 text-slate-700 uppercase font-semibold text-[11px] border-b border-slate-200">
+              <thead class="bg-slate-100/80 text-slate-700 uppercase font-semibold text-[11px] border-b border-slate-200">
                 <tr>
-                  <th class="py-3 px-4">Mã NV</th>
-                  <th class="py-3 px-4">Họ và Tên</th>
-                  <th class="py-3 px-4">Chức Vụ</th>
-                  <th class="py-3 px-4 text-right">Lương Cơ Bản</th>
-                  <th class="py-3 px-3 text-center">Công Chuẩn</th>
-                  <th class="py-3 px-3 text-center">Công Thực</th>
-                  <th class="py-3 px-3 text-center text-purple-700 font-bold">Làm Thêm (OT)</th>
-                  <th class="py-3 px-4 text-right">Phụ Cấp</th>
-                  <th class="py-3 px-4 text-right font-bold text-blue-700">Thực Lĩnh (VND)</th>
-                  <th class="py-3 px-4 text-center">Thao Tác</th>
+                  <th class="py-3 px-4" data-i18n="th_emp_id">Mã NV</th>
+                  <th class="py-3 px-4" data-i18n="th_emp_name">Họ và Tên</th>
+                  <th class="py-3 px-4" data-i18n="th_emp_title">Chức Vụ</th>
+                  <th class="py-3 px-4 text-right" data-i18n="th_pr_base">Lương Cơ Bản</th>
+                  <th class="py-3 px-3 text-center" data-i18n="th_pr_std">Công Chuẩn</th>
+                  <th class="py-3 px-3 text-center" data-i18n="th_pr_actual">Công Thực</th>
+                  <th class="py-3 px-3 text-center text-purple-700 font-bold" data-i18n="th_pr_ot">Làm Thêm (OT)</th>
+                  <th class="py-3 px-4 text-right" data-i18n="th_pr_allowance">Phụ Cấp</th>
+                  <th class="py-3 px-4 text-right font-bold text-blue-700" data-i18n="th_pr_net">Thực Lĩnh (VND)</th>
+                  <th class="py-3 px-4 text-center" data-i18n="th_actions">Thao Tác</th>
                 </tr>
               </thead>
               <tbody id="payroll-tbody" class="divide-y divide-slate-100"></tbody>
             </table>
           </div>
-        </section>
+        </div>
+      </section>
 
-        <!-- ========================================== -->
-        <!-- TAB 7: CÔNG VIỆC (TASKS) [NEW!] -->
-        <!-- ========================================== -->
-        <section id="pane-tasks" class="tab-pane hidden space-y-4">
-          <div
-            class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div>
-              <h2 class="text-lg font-bold text-slate-900 flex items-center space-x-2">
-                <i class="fa-solid fa-list-check text-indigo-600"></i>
-                <span>Giao Việc & Theo Dõi Tiến Độ (E-Office)</span>
-              </h2>
-              <p class="text-xs text-slate-500">Quản lý nhiệm vụ phòng ban, người phụ trách và hạn hoàn thành</p>
-            </div>
-            <button data-manager-only onclick="openTaskModal()"
-              class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-semibold shadow-md flex items-center space-x-1.5 transition">
-              <i class="fa-solid fa-plus"></i>
-              <span>Giao Việc Mới</span>
-            </button>
+      <!-- ========================================== -->
+      <!-- TAB 7: CÔNG VIỆC (TASKS) [NEW!] -->
+      <!-- ========================================== -->
+      <section id="pane-tasks" class="tab-pane hidden space-y-4">
+        <div
+          class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <h2 class="text-lg font-bold text-slate-900 flex items-center space-x-2">
+              <i class="fa-solid fa-list-check text-indigo-600"></i>
+              <span data-i18n="tasks_title">Giao Việc & Theo Dõi Tiến Độ (E-Office)</span>
+            </h2>
+            <p class="text-xs text-slate-500" data-i18n="tasks_sub">Quản lý nhiệm vụ phòng ban, người phụ trách và hạn
+              hoàn thành</p>
           </div>
+          <button data-manager-only onclick="openTaskModal()"
+            class="w-full sm:w-auto px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-semibold shadow-md flex items-center justify-center space-x-1.5 transition">
+            <i class="fa-solid fa-plus"></i>
+            <span data-i18n="tasks_btn_add">Giao Việc Mới</span>
+          </button>
+        </div>
 
-          <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+        <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+          <div class="overflow-x-auto">
             <table class="w-full text-xs text-left">
-              <thead
-                class="bg-slate-100/80 text-slate-700 uppercase font-semibold text-[11px] border-b border-slate-200">
+              <thead class="bg-slate-100/80 text-slate-700 uppercase font-semibold text-[11px] border-b border-slate-200">
                 <tr>
-                  <th class="py-3 px-4">Mã CV</th>
-                  <th class="py-3 px-4">Tiêu Đề Công Việc</th>
-                  <th class="py-3 px-4">Loại Việc</th>
-                  <th class="py-3 px-4">Văn Bản Căn Cứ</th>
-                  <th class="py-3 px-4">Người Giao</th>
-                  <th class="py-3 px-4 font-semibold text-blue-700">Người Phụ Trách</th>
-                  <th class="py-3 px-4 text-rose-600 font-semibold">Hạn Chót</th>
-                  <th class="py-3 px-4 text-center">Trạng Thái</th>
-                  <th class="py-3 px-4 text-right">Thao Tác</th>
+                  <th class="py-3 px-4" data-i18n="th_task_id">Mã CV</th>
+                  <th class="py-3 px-4" data-i18n="th_task_title">Tiêu Đề Công Việc</th>
+                  <th class="py-3 px-4" data-i18n="th_task_type">Loại Việc</th>
+                  <th class="py-3 px-4" data-i18n="th_task_doc">Văn Bản Căn Cứ</th>
+                  <th class="py-3 px-4" data-i18n="th_task_assigner">Người Giao</th>
+                  <th class="py-3 px-4 font-semibold text-blue-700" data-i18n="th_task_assignee">Người Phụ Trách</th>
+                  <th class="py-3 px-4 text-rose-600 font-semibold" data-i18n="th_task_deadline">Hạn Chót</th>
+                  <th class="py-3 px-4 text-center" data-i18n="th_emp_status">Trạng Thái</th>
+                  <th class="py-3 px-4 text-right" data-i18n="th_actions">Thao Tác</th>
                 </tr>
               </thead>
               <tbody id="tasks-tbody" class="divide-y divide-slate-100"></tbody>
             </table>
           </div>
-        </section>
+        </div>
+      </section>
 
-        <!-- ========================================== -->
-        <!-- TAB 8: VĂN BẢN & QUY CHẾ (DOCUMENTS) [NEW!] -->
-        <!-- ========================================== -->
-        <section id="pane-docs" class="tab-pane hidden space-y-4">
-          <div
-            class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div>
-              <h2 class="text-lg font-bold text-slate-900 flex items-center space-x-2">
-                <i class="fa-solid fa-folder-tree text-amber-600"></i>
-                <span>Kho Văn Bản, Quy Chế & Pháp Luật</span>
-              </h2>
-              <p class="text-xs text-slate-500">Lưu trữ văn bản hành chính, quyết định nội bộ và tra cứu văn bản pháp
-                luật
-              </p>
-            </div>
-            <button data-document-create onclick="openDocModal()"
-              class="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-xl text-xs font-semibold shadow-md flex items-center space-x-1.5 transition">
-              <i class="fa-solid fa-upload"></i>
-              <span>Thêm Văn Bản Mới</span>
-            </button>
+      <!-- ========================================== -->
+      <!-- TAB 8: VĂN BẢN & QUY CHẾ (DOCUMENTS) [NEW!] -->
+      <!-- ========================================== -->
+      <section id="pane-docs" class="tab-pane hidden space-y-4">
+        <div
+          class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h2 class="text-lg font-bold text-slate-900 flex items-center space-x-2">
+              <i class="fa-solid fa-folder-tree text-amber-600"></i>
+              <span data-i18n="docs_title">Kho Văn Bản, Quy Chế & Pháp Luật</span>
+            </h2>
+            <p class="text-xs text-slate-500" data-i18n="docs_sub">Lưu trữ văn bản hành chính, quyết định nội bộ và tra
+              cứu văn bản pháp luật</p>
           </div>
+          <button data-document-create onclick="openDocModal()"
+            class="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-xl text-xs font-semibold shadow-md flex items-center space-x-1.5 transition">
+            <i class="fa-solid fa-upload"></i>
+            <span data-i18n="docs_btn_add">Thêm Văn Bản Mới</span>
+          </button>
+        </div>
 
-          <!-- Search & Filter Controls -->
-          <div
-            class="bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col md:flex-row items-stretch md:items-center gap-3">
-            <div class="relative flex-grow">
-              <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-400 text-xs"></i>
-              <input type="text" id="doc-search-input" oninput="filterDocuments()"
-                placeholder="Tìm kiếm văn bản theo số hiệu, trích yếu, cơ quan ban hành..."
-                class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-3.5 py-2 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-500">
-            </div>
-            <div class="flex flex-wrap sm:flex-nowrap items-center gap-2 shrink-0">
-              <select id="doc-type-filter" onchange="filterDocuments()"
-                class="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-700 cursor-pointer focus:outline-none focus:ring-2 focus:ring-amber-500">
-                <option value="all">Tất cả loại văn bản</option>
-                <option value="salary_docs"> Văn bản tiền lương (3 loại)</option>
-                <option value="Quy chế nội bộ">Quy chế nội bộ</option>
-                <option value="Quy chế lương">Quy chế lương</option>
-                <option value="Thông báo trả lương">Thông báo trả lương</option>
-                <option value="Quyết định điều chỉnh lương">Quyết định điều chỉnh lương</option>
-                <option value="Văn bản pháp luật">Văn bản pháp luật</option>
-                <option value="Thông báo">Thông báo</option>
-                <option value="Quyết định">Quyết định</option>
-              </select>
-              <select id="doc-category-filter" onchange="filterDocuments()"
-                class="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-700 cursor-pointer focus:outline-none focus:ring-2 focus:ring-amber-500">
-                <option value="all">Tất cả lĩnh vực tra cứu</option>
-                <option value="Chính sách Lao động & Việc làm">Lao động & Việc làm</option>
-                <option value="Tiền lương & Chế độ BHXH">Tiền lương & BHXH</option>
-                <option value="Thuế & Kế toán Doanh nghiệp">Thuế & Kế toán</option>
-                <option value="Quản trị & Quy chế Nội bộ">Quản trị & Quy chế</option>
-                <option value="An toàn Vệ sinh Lao động">An toàn vệ sinh LĐ</option>
-                <option value="Công nghệ & Bảo mật">Công nghệ & Bảo mật</option>
-              </select>
-            </div>
+        <!-- Search & Filter Controls -->
+        <div
+          class="bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col md:flex-row items-stretch md:items-center gap-3">
+          <div class="relative flex-grow">
+            <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-400 text-xs"></i>
+            <input type="text" id="doc-search-input" oninput="filterDocuments()"
+              placeholder="Tìm kiếm văn bản theo số hiệu, trích yếu, cơ quan ban hành..."
+              data-i18n-placeholder="docs_search_ph"
+              class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-3.5 py-2 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-500">
           </div>
+          <div class="flex flex-wrap sm:flex-nowrap items-center gap-2 shrink-0">
+            <select id="doc-type-filter" onchange="filterDocuments()"
+              class="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-700 cursor-pointer focus:outline-none focus:ring-2 focus:ring-amber-500">
+              <option value="all" data-i18n="docs_all_types">Tất cả loại văn bản</option>
+              <option value="salary_docs" data-i18n="docs_salary_group"> Văn bản tiền lương (3 loại)</option>
+              <option value="Quy chế nội bộ" data-i18n="doc_type_internal">Quy chế nội bộ</option>
+              <option value="Quy chế lương" data-i18n="doc_type_salary_short">Quy chế lương</option>
+              <option value="Thông báo trả lương" data-i18n="doc_type_salary_notice_short">Thông báo trả lương</option>
+              <option value="Quyết định điều chỉnh lương" data-i18n="doc_type_salary_adj_short">Quyết định điều chỉnh
+                lương</option>
+              <option value="Văn bản pháp luật" data-i18n="doc_type_legal">Văn bản pháp luật</option>
+              <option value="Thông báo" data-i18n="doc_type_notice">Thông báo</option>
+              <option value="Quyết định" data-i18n="doc_type_decision">Quyết định</option>
+            </select>
+            <select id="doc-category-filter" onchange="filterDocuments()"
+              class="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-700 cursor-pointer focus:outline-none focus:ring-2 focus:ring-amber-500">
+              <option value="all" data-i18n="docs_all_cats">Tất cả lĩnh vực tra cứu</option>
+              <option value="Chính sách Lao động & Việc làm" data-i18n="doc_cat_labor_short">Lao động & Việc làm
+              </option>
+              <option value="Tiền lương & Chế độ BHXH" data-i18n="doc_cat_salary_si_short">Tiền lương & BHXH</option>
+              <option value="Thuế & Kế toán Doanh nghiệp" data-i18n="doc_cat_tax_acc_short">Thuế & Kế toán</option>
+              <option value="Quản trị & Quy chế Nội bộ" data-i18n="doc_cat_gov_internal_short">Quản trị & Quy chế
+              </option>
+              <option value="An toàn Vệ sinh Lao động" data-i18n="doc_cat_safety_short">An toàn vệ sinh LĐ</option>
+              <option value="Công nghệ & Bảo mật" data-i18n="doc_cat_tech_sec_short">Công nghệ & Bảo mật</option>
+            </select>
+          </div>
+        </div>
 
-          <div class="docs-table-card bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
-            <p id="docs-scroll-hint" class="px-4 py-2 text-xs text-slate-500 border-b border-slate-200">Cuộn ngang để xem đầy đủ các cột.</p>
-            <div class="docs-table-scroll" role="region" aria-label="Danh sách văn bản" aria-describedby="docs-scroll-hint" tabindex="0">
+        <div class="docs-table-card bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+          <p id="docs-scroll-hint" class="px-4 py-2 text-xs text-slate-500 border-b border-slate-200"
+            data-i18n="docs_scroll_hint">Cuộn ngang để xem đầy đủ các cột.</p>
+          <div class="docs-table-scroll" role="region" aria-label="Danh sách văn bản"
+            aria-describedby="docs-scroll-hint" tabindex="0">
             <table id="documents-table" class="docs-table text-xs text-left">
               <thead
                 class="bg-slate-100/80 text-slate-700 uppercase font-semibold text-[11px] border-b border-slate-200">
                 <tr>
-                  <th class="py-3 px-4">Số Hiệu</th>
-                  <th class="py-3 px-4">Trích Yếu / Tiêu Đề</th>
-                  <th class="py-3 px-4">Loại Văn Bản</th>
-                  <th class="py-3 px-4">Lĩnh Vực</th>
-                  <th class="py-3 px-4">Cơ Quan Ban Hành</th>
-                  <th class="py-3 px-4">Ngày Ban Hành</th>
-                  <th class="py-3 px-4 text-center">Tài Liệu</th>
-                  <th class="py-3 px-4 text-center">Hiệu Lực</th>
-                  <th class="py-3 px-4 text-right">Thao Tác</th>
+                  <th class="py-3 px-4" data-i18n="th_doc_no">Số Hiệu</th>
+                  <th class="py-3 px-4" data-i18n="th_doc_summary">Trích Yếu / Tiêu Đề</th>
+                  <th class="py-3 px-4" data-i18n="th_doc_type">Loại Văn Bản</th>
+                  <th class="py-3 px-4" data-i18n="th_doc_category">Lĩnh Vực</th>
+                  <th class="py-3 px-4" data-i18n="th_doc_issuer">Cơ Quan Ban Hành</th>
+                  <th class="py-3 px-4" data-i18n="th_doc_date">Ngày Ban Hành</th>
+                  <th class="py-3 px-4 text-center" data-i18n="th_doc_file">Tài Liệu</th>
+                  <th class="py-3 px-4 text-center" data-i18n="th_doc_validity">Hiệu Lực</th>
+                  <th id="th-doc-actions" class="py-3 px-4 text-right doc-actions-col" data-i18n="th_actions">Thao Tác
+                  </th>
                 </tr>
               </thead>
               <tbody id="docs-tbody" class="divide-y divide-slate-100"></tbody>
             </table>
-            </div>
           </div>
-        </section>
+        </div>
+      </section>
 
-      </main>
+    </main>
+  </div>
+
+  <!-- ============================================================= -->
+  <!-- POPOVER CHỌN NHANH 1-CHẠM KÝ HIỆU CHẤM CÔNG (QUICK SELECT) -->
+  <!-- ============================================================= -->
+  <div id="timesheet-popover"
+    class="hidden fixed z-50 bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl border border-slate-200/90 p-3 w-72 transition-all">
+    <div class="flex items-center justify-between pb-2 mb-2 border-b border-slate-100">
+      <div class="flex items-center space-x-2">
+        <i class="fa-solid fa-calendar-check text-blue-600 text-xs"></i>
+        <div class="text-xs font-bold text-slate-900 truncate max-w-[170px]" id="ts-popover-title">Chọn Ký Hiệu</div>
+      </div>
+      <button onclick="closeAttendancePopover()"
+        class="w-6 h-6 flex items-center justify-center rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition">
+        <i class="fa-solid fa-xmark text-xs"></i>
+      </button>
     </div>
+    <div class="text-[11px] text-slate-500 mb-2 flex items-center justify-between">
+      <span id="ts-popover-date" class="font-medium">Ngày --</span>
+      <span id="ts-popover-current" class="font-semibold text-slate-700">Hiện tại: [X]</span>
+    </div>
+    <div class="grid grid-cols-2 gap-1.5">
+      <button onclick="selectAttendanceSymbol('X')"
+        class="p-1.5 rounded-xl text-xs font-semibold text-left flex items-center space-x-2 bg-slate-50 hover:bg-slate-100 border border-slate-200 transition">
+        <span
+          class="w-6 h-6 rounded-lg bg-slate-200 text-slate-800 font-extrabold text-[11px] flex items-center justify-center shrink-0">X</span>
+        <span class="text-[11px] text-slate-700 font-medium" data-i18n="ts_sym_x">Đi làm</span>
+      </button>
+      <button onclick="selectAttendanceSymbol('OT')"
+        class="p-1.5 rounded-xl text-xs font-semibold text-left flex items-center space-x-2 bg-purple-50 hover:bg-purple-100 border border-purple-200 transition">
+        <span
+          class="w-6 h-6 rounded-lg bg-purple-600 text-white font-extrabold text-[11px] flex items-center justify-center shrink-0">OT</span>
+        <span class="text-[11px] text-purple-900 font-medium" data-i18n="ts_sym_ot">Làm thêm</span>
+      </button>
+      <button onclick="selectAttendanceSymbol('P')"
+        class="p-1.5 rounded-xl text-xs font-semibold text-left flex items-center space-x-2 bg-blue-50 hover:bg-blue-100 border border-blue-200 transition">
+        <span
+          class="w-6 h-6 rounded-lg bg-blue-600 text-white font-extrabold text-[11px] flex items-center justify-center shrink-0">P</span>
+        <span class="text-[11px] text-blue-900 font-medium" data-i18n="ts_sym_p">Phép năm</span>
+      </button>
+      <button onclick="selectAttendanceSymbol('O')"
+        class="p-1.5 rounded-xl text-xs font-semibold text-left flex items-center space-x-2 bg-amber-50 hover:bg-amber-100 border border-amber-200 transition">
+        <span
+          class="w-6 h-6 rounded-lg bg-amber-500 text-white font-extrabold text-[11px] flex items-center justify-center shrink-0">O</span>
+        <span class="text-[11px] text-amber-900 font-medium" data-i18n="ts_sym_o">Nghỉ ốm</span>
+      </button>
+      <button onclick="selectAttendanceSymbol('K')"
+        class="p-1.5 rounded-xl text-xs font-semibold text-left flex items-center space-x-2 bg-rose-50 hover:bg-rose-100 border border-rose-200 transition">
+        <span
+          class="w-6 h-6 rounded-lg bg-rose-500 text-white font-extrabold text-[11px] flex items-center justify-center shrink-0">K</span>
+        <span class="text-[11px] text-rose-900 font-medium" data-i18n="ts_sym_k">Việc riêng</span>
+      </button>
+      <button onclick="selectAttendanceSymbol('')"
+        class="p-1.5 rounded-xl text-xs font-semibold text-left flex items-center space-x-2 bg-slate-50 hover:bg-slate-100 border border-slate-200 transition">
+        <span
+          class="w-6 h-6 rounded-lg bg-slate-100 text-slate-400 font-extrabold text-[11px] flex items-center justify-center shrink-0 border border-dashed border-slate-300">Ø</span>
+        <span class="text-[11px] text-slate-500 font-medium" data-i18n="ts_sym_empty">Xóa công</span>
+      </button>
+    </div>
+    <div class="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-between text-[10px] text-slate-400">
+      <span data-i18n="ts_popover_hint">Chọn 1-chạm để áp dụng ngay</span>
+      <button onclick="closeAttendancePopover()" class="text-blue-600 hover:underline font-semibold"
+        data-i18n="modal_btn_close">Đóng</button>
+    </div>
+  </div>
 
-    <!-- ============================================================= -->
-    <!-- MODALS & OVERLAYS PARTIAL -->
-    <!-- ============================================================= -->
-    <?!= include('Modals'); ?>
+  <!-- ============================================================= -->
+  <!-- MODALS & OVERLAYS PARTIAL -->
+  <!-- ============================================================= -->
+  <?!= include('Modals'); ?>
 
-    <!-- ============================================================= -->
-    <!-- JAVASCRIPT STATE & LOGIC ENGINE PARTIAL -->
-    <!-- ============================================================= -->
-    <?!= include('Scripts'); ?>
+  <!-- ============================================================= -->
+  <!-- JAVASCRIPT STATE & LOGIC ENGINE PARTIAL -->
+  <!-- ============================================================= -->
+  <?!= include('Scripts'); ?>
 </body>
 
 </html>

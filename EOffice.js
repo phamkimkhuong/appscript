@@ -1,3 +1,38 @@
+/**
+ * ====================================================================
+ * WANZHONG CLEAN TECHNOLOGY (VIETNAM) - ENTERPRISE HRM & E-OFFICE
+ * ====================================================================
+ * FILE: EOffice.js
+ * VAI TRÒ: PHÂN HỆ VĂN PHÒNG SỐ & ĐIỀU HÀNH DOANH NGHIỆP (DIGITAL OFFICE & TASKS)
+ * --------------------------------------------------------------------
+ * MÔ TẢ CHỨC NĂNG:
+ * 1. Quản lý Nhiệm vụ & Giao việc thông minh (Task Management):
+ *    - saveTask_(task): Lãnh đạo/Quản lý giao việc trực tiếp cho nhân sự, thiết lập hạn chót (deadline)
+ *      và liên kết trực tiếp với Số hiệu Văn bản pháp lý làm căn cứ chỉ đạo.
+ *    - updateTaskStatus_(taskId, status, evaluation): Nhân sự cập nhật tiến độ công việc ('Đang xử lý',
+ *      'Hoàn thành'); Quản lý đánh giá và nghiệm thu kết quả.
+ *
+ * 2. Quản lý Văn bản, Quy chế & Hồ sơ Pháp lý (Corporate Documents & Regulations):
+ *    - saveDocument_(doc): Ban hành văn bản mới có tải tệp đính kèm (PDF, DOCX) lên Google Drive an toàn.
+ *    - updateDocument_(doc): Cập nhật tiêu đề, số hiệu, trạng thái hiệu lực và phân loại hồ sơ.
+ *    - Phân quyền quản trị văn bản theo 4 nhóm thẩm quyền:
+ *      + Nhóm 1: 'Quy chế nội bộ' (Dành riêng cho Ban Giám Đốc 'manager').
+ *      + Nhóm 2: 'Quy chế lương', 'Thông báo trả lương' (Dành cho Giám đốc và Kế toán 'hr').
+ *      + Nhóm 3: 'Quyết định điều chỉnh lương' (Dành cho Giám đốc).
+ *      + Nhóm 4: 'Văn bản pháp luật', 'Tài liệu tham khảo' (Toàn thể nhân sự xem tra cứu).
+ *
+ * 3. Bảo mật Truy xuất Tệp đính kèm (Secure File Streaming):
+ *    - readAttachment_(kind, id): Tải dữ liệu nhị phân (Base64) của tài liệu hoặc chứng từ bệnh viện
+ *      trực tiếp từ Google Drive có kiểm tra phân quyền người dùng, chống lộ lọt tài liệu mật.
+ * ====================================================================
+ */
+
+/**
+ * ====================================================================
+ * 1. QUẢN LÝ CÔNG VIỆC & NHIỆM VỤ (TASKS)
+ * ====================================================================
+ */
+
 function saveTask_(task) {
   const auth=authorized_(['manager']);
   require_(safeText_(task.title,300),'Vui lòng nhập tiêu đề.');
@@ -10,8 +45,9 @@ function saveTask_(task) {
   if(task.docId)require_(rows_(CONFIG.SHEET_NAMES.DOCUMENTS).some(d=>d['Số Hiệu']===task.docId),'Văn bản không tồn tại.');
   const id=uniqueId_('CV');
   saveRow_(CONFIG.SHEET_NAMES.TASKS,{'Mã CV':id,'Tiêu Đề Công Việc':task.title,'Loại Công Việc':safeText_(task.type),'Người Giao':auth.name,'Người Phụ Trách':assignee['Họ và Tên'],'Mã NV Phụ Trách':assignee['Mã NV'],'Ngày Bắt Đầu':start,'Hạn Chót':deadline,'Ngày Hoàn Thành':'','Trạng Thái':'Đang xử lý','Đánh Giá':'','Ghi Chú':safeText_(task.note),'Mã Văn Bản':task.docId||''});
-  return {success:true,newId:id,message:'Đã giao việc.'};
+  return {success:true,newId:id,code:'MSG_TASK_SAVED',params:{title:task.title,assignee:assignee['Họ và Tên']},message:'Đã giao việc [' + task.title + '] cho ' + assignee['Họ và Tên'] + '.'};
 }
+
 function updateTaskStatus_(id,status,evaluation) {
   const auth=authorized_();
   const row=rows_(CONFIG.SHEET_NAMES.TASKS).find(r=>r['Mã CV']===id);
@@ -19,8 +55,15 @@ function updateTaskStatus_(id,status,evaluation) {
   require_(auth.role==='manager'||row['Mã NV Phụ Trách']===auth.empId,'Bạn chỉ được cập nhật công việc được giao.');
   require_(['Đang xử lý','Hoàn thành'].includes(status),'Trạng thái không hợp lệ.');
   saveRow_(CONFIG.SHEET_NAMES.TASKS,{'Trạng Thái':status,'Ngày Hoàn Thành':status==='Hoàn thành'?Utilities.formatDate(new Date(),CONFIG.TIMEZONE,'yyyy-MM-dd'):'','Đánh Giá':auth.role!=='manager'?row['Đánh Giá']:safeText_(evaluation)},row._rowIndex);
-  return {success:true,message:'Đã cập nhật trạng thái công việc.'};
+  return {success:true,code:'MSG_TASK_UPDATED',params:{id:id},message:'Đã xác nhận hoàn thành công việc [' + id + '] (Đã cập nhật Sheet)!'};
 }
+
+/**
+ * ====================================================================
+ * 2. QUẢN LÝ VĂN BẢN, BIỂU MẪU & QUY CHẾ (DOCUMENTS)
+ * ====================================================================
+ */
+
 function documentFields_(doc,old) {
   const auth=authorized_(['manager','hr']);
   const salaryTypes=['Quy chế lương','Thông báo trả lương','Quyết định điều chỉnh lương'];
@@ -30,22 +73,33 @@ function documentFields_(doc,old) {
   const date=date_(doc.date).toISOString().slice(0,10);
   let url=String(doc.fileUrl||'').trim();
   if(doc.fileData)url=uploadAttachment_(doc.fileData,'VanBan',doc.id);
-  else if(!old||url!==old['Link Tài Liệu']) require_(/^https:\/\//i.test(url),'Chọn tệp hoặc nhập liên kết HTTPS hợp lệ.');
+  else if(!old||url!==old['Link Tài Liệu']) {
+    if (url) require_(/^https:\/\//i.test(url) || /^drive:/i.test(url) || /^demo:/i.test(url),'Chọn tệp hoặc nhập liên kết HTTPS / Google Drive hợp lệ.');
+  }
   return {'Số Hiệu':doc.id,'Tiêu Đề Văn Bản':doc.title,'Loại Văn Bản':safeText_(doc.type),'Cơ Quan Ban Hành':safeText_(doc.issuer),'Ngày Ban Hành':date,'Người Ký':safeText_(doc.signer||authorized_().name),'Link Tài Liệu':url,'Trạng Thái':doc.status,'Lĩnh Vực':safeText_(doc.category)};
 }
+
 function saveDocument_(doc) {
   authorized_(['manager','hr']);
   require_(!rows_(CONFIG.SHEET_NAMES.DOCUMENTS).some(r=>r['Số Hiệu']===doc.id),'Số hiệu đã tồn tại. Hãy dùng chức năng sửa.');
   const fields=documentFields_(doc,null);saveRow_(CONFIG.SHEET_NAMES.DOCUMENTS,fields);
-  return {success:true,newId:doc.id,fileUrl:fields['Link Tài Liệu'],message:'Đã lưu văn bản.'};
+  return {success:true,newId:doc.id,fileUrl:fields['Link Tài Liệu'],code:'MSG_DOC_SAVED',params:{id:doc.id},message:'Đã lưu văn bản.'};
 }
+
 function updateDocument_(doc) {
   authorized_(['manager','hr']);
   const row=rows_(CONFIG.SHEET_NAMES.DOCUMENTS).find(r=>r['Số Hiệu']===doc.id);
   require_(row,'Văn bản không tồn tại.');
   const fields=documentFields_(doc,row);saveRow_(CONFIG.SHEET_NAMES.DOCUMENTS,fields,row._rowIndex);
-  return {success:true,fileUrl:fields['Link Tài Liệu'],message:'Đã cập nhật văn bản.'};
+  return {success:true,fileUrl:fields['Link Tài Liệu'],code:'MSG_DOC_UPDATED',params:{id:doc.id},message:'Đã cập nhật văn bản.'};
 }
+
+/**
+ * ====================================================================
+ * 3. QUẢN LÝ ĐÍNH KÈM & LƯU TRỮ GOOGLE DRIVE (ATTACHMENTS)
+ * ====================================================================
+ */
+
 function uploadAttachment_(file,kind,id) {
   require_(file&&typeof file.base64==='string','Vui lòng chọn tệp đính kèm.');
   const ext=String(file.name||'').split('.').pop().toLowerCase();
@@ -61,30 +115,38 @@ function uploadAttachment_(file,kind,id) {
     try { folder = DriveApp.getFolderById(folderId); } catch(e) { folder = null; }
   }
   if (!folder) {
-    folder = DriveApp.createFolder('VinTech Upload Files');
+    folder = DriveApp.createFolder('Wanzhong Upload Files');
     props.setProperty('UPLOAD_FOLDER_ID', folder.getId());
   }
   const mime={pdf:'application/pdf',png:'image/png',jpg:'image/jpeg',jpeg:'image/jpeg',doc:'application/msword',docx:'application/vnd.openxmlformats-officedocument.wordprocessingml.document',xls:'application/vnd.ms-excel',xlsx:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}[ext];
   const created=folder.createFile(Utilities.newBlob(bytes,mime,safeText_(file.name,180)));
-  // Files stay private; the authorized RPC supplies their bytes.
   return 'drive:'+created.getId();
 }
+
 function readAttachment_(kind,id) {
   const auth=authorized_();
   require_(['doc','sick'].includes(kind),'Loại tài liệu không hợp lệ.');
   const row=rows_(kind==='doc'?CONFIG.SHEET_NAMES.DOCUMENTS:CONFIG.SHEET_NAMES.SICK).find(r=>(r['Số Hiệu']||r['Mã Hồ Sơ'])===id);
   require_(row,'Không tìm thấy tài liệu.');
   if(kind==='sick')ownRecord_(row,auth);
-  const url=row['Link Tài Liệu']||row['Chứng Từ URL'];
-  if(String(url).startsWith('demo:')) {
+  const url=String(row['Link Tài Liệu']||row['Chứng Từ URL']||'').trim();
+  if(!url) return {success:false, message:'Tài liệu này chưa được gắn tệp đính kèm trên Google Drive.'};
+  if(url.startsWith('demo:')) {
     const esc=s=>String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-    const text='<!doctype html><html lang="vi"><meta charset="utf-8"><title>Tài liệu mẫu</title><body><h1>'+esc(row['Tiêu Đề Văn Bản']||'Chứng từ thực hành')+'</h1><p>Số hiệu: '+esc(id)+'</p><p>DỮ LIỆU GIẢ LẬP — chỉ phục vụ thực hành, không phải văn bản pháp luật hoặc chứng từ y tế thật.</p><p>Tình huống: nhân viên gửi hồ sơ, HR kiểm tra, yêu cầu bổ sung và phê duyệt; sau đó đối chiếu bảng công và phiếu lương cùng kỳ.</p></body></html>';
+    const text='<!doctype html><html lang="vi"><meta charset="utf-8"><title>Tài liệu mẫu</title><body><h1>'+esc(row['Tiêu Đề Văn Bản']||'Chứng từ thực hành')+'</h1><p>Số hiệu: '+esc(id)+'</p><p>DỮ LIỆU THỰC HÀNH — Chứng từ nội bộ doanh nghiệp.</p><p>Tình huống: Văn bản hồ sơ lưu trữ nội bộ, đối chiếu tiền lương và quyền lợi người lao động.</p></body></html>';
     return {success:true,fileName:'Tai_lieu_mau.html',mimeType:'text/html',content:Utilities.base64Encode(Utilities.newBlob(text).getBytes())};
   }
-  if(String(url).startsWith('drive:')) {
-    const file=DriveApp.getFileById(url.slice(6)),blob=file.getBlob();
-    return {success:true,fileName:file.getName(),mimeType:blob.getContentType(),content:Utilities.base64Encode(blob.getBytes())};
+  // Hỗ trợ cả mã 'drive:<id>' lẫn link URL trực tiếp 'https://drive.google.com/file/d/<id>/...'
+  const driveMatch = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) || url.match(/^drive:([a-zA-Z0-9_-]+)/);
+  if (driveMatch) {
+    const fileId = driveMatch[1];
+    try {
+      const file = DriveApp.getFileById(fileId), blob = file.getBlob();
+      return {success:true, fileName:file.getName(), mimeType:blob.getContentType(), content:Utilities.base64Encode(blob.getBytes())};
+    } catch(e) {
+      return {success:true, url: url.startsWith('http') ? url : ('https://drive.google.com/file/d/' + fileId + '/view')};
+    }
   }
-  require_(/^https:\/\//i.test(url),'Liên kết không hợp lệ.');
-  return {success:true,url:url};
+  if(/^https:\/\//i.test(url)) return {success:true,url:url};
+  return {success:false, message:'Đường dẫn tệp đính kèm không hợp lệ.'};
 }

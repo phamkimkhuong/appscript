@@ -8,7 +8,7 @@ function createRuntime(options = {}) {
       getDataRange(){return this.getRange(1,1,Math.max(1,data.length),Math.max(1,...data.map(r=>r.length)));},
       getMaxColumns(){return 100;},insertColumnsAfter(){},getMaxRows(){return 100000;},insertRowsAfter(){},
       getLastRow(){return data.length;},getLastColumn(){return Math.max(1,...data.map(r=>r.length));},
-      appendRow(row){data.push(clone(row));},clear(){data.length=0;},
+      appendRow(row){data.push(clone(row));},deleteRow(row){if(row>=1&&row<=data.length)data.splice(row-1,1);},clear(){data.length=0;},
       getRange(row,col,height=1,width=1){
         return {
           setNumberFormat(){return this;},

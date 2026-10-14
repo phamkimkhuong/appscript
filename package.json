@@ -1,8 +1,8 @@
 {
   "name": "appscript",
   "version": "1.0.0",
-  "description": "Tài liệu hướng dẫn vận hành, kiến trúc và tra cứu cú pháp lệnh phát triển hệ thống **VinTech Solutions (HRM & E-Office)**.",
-  "main": "Attendance.js",
+  "description": "Tài liệu hướng dẫn vận hành, kiến trúc và tra cứu cú pháp lệnh phát triển hệ thống **Wanzhong Clean Technology (HRM & E-Office)**.",
+  "main": "Server.js",
   "scripts": {
     "type-check": "tsc -p jsconfig.json --noEmit",
     "build:preview": "node build_preview.cjs",

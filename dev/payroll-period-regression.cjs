@@ -2,9 +2,9 @@ const fs=require('fs'),vm=require('vm'),assert=require('node:assert/strict'),{we
 const {createRuntime}=require('./gas-runtime.cjs'),{fixedDate}=require('./test-clock.cjs');
 const runtime=createRuntime({crypto:webcrypto});
 const server=vm.createContext({...runtime,Date:fixedDate('2026-10-09T05:00:00Z')});
-for(const file of ['Config','Domain','Database','Auth','Attendance','Payroll','Leave','SickLeave','TasksAndDocs','Employee'])vm.runInContext(fs.readFileSync(file+'.js','utf8'),server);
+for(const file of ['Server','HRM','EOffice'])vm.runInContext(fs.readFileSync(file+'.js','utf8'),server);
 let count=0;function check(name,fn){fn();count++;console.log('PASS',name);}
-const login=server.apiLogin('huong.nguyen@vintech.vn','123456');assert(login.success,login.message);
+const login=server.apiLogin('thoa.nguyen@wanzhong.vn','123456');assert(login.success,login.message);
 const rpc=(action,...args)=>server.apiRequest(login.token,action,args);
 const ssId = vm.runInContext('CONFIG.DEFAULT_SPREADSHEET_ID', server);
 const tables = runtime.state.sheets[ssId];

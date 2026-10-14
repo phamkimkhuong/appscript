@@ -21,15 +21,15 @@ const context = vm.createContext({...runtime,Date:require('./test-clock.cjs').fi
   SpreadsheetApp:instrument(runtime.SpreadsheetApp),
   LockService:{getScriptLock:()=>({tryLock(){lockAttempts++;return !lockBusy;},releaseLock(){releases++;}})}
 });
-for (const file of ['Config','Domain','Database','Auth','Attendance','Payroll','Leave','SickLeave','TasksAndDocs','Employee']) {
+for (const file of ['Server','HRM','EOffice']) {
   vm.runInContext(fs.readFileSync(file+'.js','utf8'),context,{filename:file+'.js'});
 }
 let count=0;
 function check(name, fn) {fn();count++;console.log('PASS',name);}
-const login = () => context.apiLogin('phuong.le@vintech.vn','123456');
+const login = () => context.apiLogin('linh.nguyen@wanzhong.vn','123456');
 let session;
 check('invalid credentials create no spreadsheet',()=>{
-  assert.equal(context.apiLogin('phuong.le@vintech.vn','wrong').success,false);
+  assert.equal(context.apiLogin('linh.nguyen@wanzhong.vn','wrong').success,false);
   assert.equal(calls.create || 0,0);
 });
 check('login connects directly to central database without creating spreadsheets',()=>{
@@ -52,13 +52,13 @@ check('initial dashboard reads each table once and scopes data',()=>{
   assert.equal(result.success,true,result.message);
   assert.equal(calls.getValues,7);assert.equal(calls.setValues || 0,0);
   assert.equal(result.data.payroll.length,2);
-  assert(result.data.tasks.every(task=>task.assigneeId==='VT-001'));
+  assert(result.data.tasks.every(task=>task.assigneeId==='WZ-001'));
 });
 check('cache does not survive RPCs or hide account locking',()=>{
   const ssId = vm.runInContext('CONFIG.DEFAULT_SPREADSHEET_ID', context);
   const users = runtime.state.sheets[ssId].Users;
   const table = users || Object.values(runtime.state.sheets[ssId]).find(rows=>rows[0].includes('Mật Khẩu'));
-  const headers = table[0], row = table.find(row=>row.includes('phuong.le@vintech.vn'));
+  const headers = table[0], row = table.find(row=>row.includes('linh.nguyen@wanzhong.vn'));
   row[headers.indexOf('Trạng Thái')]='Đã nghỉ việc';
   assert.equal(context.apiRequest(session.token,'apiGetInitialAppData',['','10/2026']).success,false);
   row[headers.indexOf('Trạng Thái')]='Đang làm việc';

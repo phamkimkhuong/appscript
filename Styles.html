@@ -1,4 +1,26 @@
 <style>
+  /**
+   * ====================================================================
+   * WANZHONG CLEAN TECHNOLOGY (VIETNAM) - ENTERPRISE HRM & E-OFFICE
+   * ====================================================================
+   * FILE: Styles.html
+   * VAI TRÒ: BẢNG ĐỊNH KIỂU & HỆ THỐNG THIẾT KẾ GIAO DIỆN (CSS DESIGN SYSTEM)
+   * --------------------------------------------------------------------
+   * MÔ TẢ THÀNH PHẦN:
+   * 1. Font chữ & Thanh cuộn tùy chỉnh (Typography & Scrollbar):
+   *    - Áp dụng font chuẩn Google Inter, thanh cuộn mini-scrollbar thẩm mỹ.
+   *
+   * 2. Bảng định kiểu Nút bấm & Thẻ trạng thái (Badges & Components):
+   *    - Các lớp định dạng nút điều hướng Sidebar (nav-item active/hover).
+   *    - Badge trạng thái Chấm công, Phép, Hồ sơ ốm đau, Trạng thái văn bản.
+   *
+   * 3. Hiệu ứng chuyển động mượt mà (Transitions & Animations):
+   *    - Toast thông báo, Backdrop blur, Modal popup, Dropdown menu.
+   *
+   * 4. Tối ưu In ấn Phiếu lương (Print Media Query):
+   *    - Ẩn toàn bộ thanh điều hướng, nút bấm khi in; căn lề chuẩn khổ giấy A4/A5.
+   * ====================================================================
+   */
   body {
     font-family: 'Inter', sans-serif;
   }
@@ -64,6 +86,42 @@
     color: #b91c1c;
     font-weight: 600;
   }
+
+  /* Chế độ Chỉnh Sửa Chấm Công (Timesheet Edit Mode) */
+  .matrix-cell-editable {
+    cursor: pointer !important;
+    position: relative;
+    transition: background-color 0.1s ease, box-shadow 0.1s ease, transform 0.1s ease;
+  }
+  .matrix-cell-editable:hover {
+    box-shadow: inset 0 0 0 2px #2563eb !important;
+    z-index: 5;
+    background-color: #eff6ff !important;
+  }
+  .matrix-cell-draft {
+    box-shadow: inset 0 0 0 2px #f59e0b !important;
+    position: relative;
+    font-weight: 800 !important;
+    background-color: #fef3c7 !important;
+  }
+  .matrix-cell-draft::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: #d97706;
+    box-shadow: 0 0 4px rgba(217, 119, 6, 0.6);
+  }
+  #timesheet-popover {
+    animation: popoverFadeIn 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  @keyframes popoverFadeIn {
+    from { opacity: 0; transform: scale(0.95) translateY(-4px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+  }
 </style>
 
 <style>
@@ -71,7 +129,49 @@
 .cell-k { background:#ffe4e6;color:#9f1239; }
 [id^="modal-"] > div { max-height:92vh;overflow-y:auto; }
 button:disabled{opacity:.45;cursor:not-allowed;}
-@media(max-width:640px){#screen-app header p{display:none;} .tab-pane table{min-width:720px;} #pane-payroll>div:first-child{flex-wrap:wrap;gap:12px;} }
+
+/* Mobile Optimization & Responsive Utilities */
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.overflow-x-auto, .docs-table-scroll, .sick-table-scroll {
+  -webkit-overflow-scrolling: touch;
+}
+
+@media(max-width:768px){
+  /* Thu gọn trạng thái Google Sheets Live chỉ còn chấm tròn xanh trên điện thoại, tránh tràn ngang */
+  #sync-status span[data-i18n="sync_live"] { display: none !important; }
+  #sync-status { padding: 4px 6px !important; min-width: 0 !important; }
+  /* Giới hạn bộ chọn ngôn ngữ vừa vặn màn hình điện thoại */
+  #app-lang-select { max-width: 72px; }
+}
+
+@media(max-width:640px){
+  .tab-pane table { min-width: 680px; }
+  #timesheet-table { min-width: 1050px; }
+  #pane-payroll > div:first-child { flex-wrap: wrap; gap: 10px; }
+  /* Tối ưu Safari iOS: không tự động phóng to (auto-zoom) khi chạm vào ô nhập liệu */
+  input:not([type="checkbox"]):not([type="radio"]),
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+  /* Căn lề khung thoại Modal toàn màn hình điện thoại */
+  [id^="modal-"] {
+    padding: 0.5rem !important;
+  }
+  [id^="modal-"] > div {
+    max-height: 92vh;
+    border-radius: 1rem;
+    width: 100% !important;
+    margin: auto;
+  }
+}
 </style>
 
 <style>

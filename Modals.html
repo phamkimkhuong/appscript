@@ -1,94 +1,139 @@
-<!-- ============================================================= -->
-<!-- MODALS & OVERLAYS -->
-<!-- ============================================================= -->
+<!--
+  ====================================================================
+  WANZHONG CLEAN TECHNOLOGY (VIETNAM) - ENTERPRISE HRM & E-OFFICE
+  ====================================================================
+  FILE: Modals.html
+  VAI TRÒ: TỔNG HỢP HỘP THOẠI POPUP BIỂU MẪU (INTERACTIVE MODALS & OVERLAYS)
+  --------------------------------------------------------------------
+  MÔ TẢ THÀNH PHẦN:
+  1. modal-employee: Thêm mới / Cập nhật hồ sơ nhân sự
+     - Nhập mã NV, họ tên, email, SĐT, phòng ban Wanzhong.
+     - Lựa chọn chức vụ doanh nghiệp (Tổng Giám Đốc, Quản đốc, Kế toán, Kỹ sư, Công nhân...).
+     - Thiết lập mức lương cơ bản và trạng thái làm việc.
+  
+  2. modal-leave: Nộp / Chỉnh sửa đơn xin nghỉ phép
+     - Chọn loại nghỉ (Phép năm, Việc riêng không lương, Nghỉ bù).
+     - Khoảng thời gian từ ngày - đến ngày, tự động tính số ngày làm việc trừ cuối tuần.
+  
+  3. modal-sick: Nộp hồ sơ ốm đau BHXH
+     - Khai báo bệnh viện điều trị, khoảng thời gian ốm.
+     - Kéo thả tệp chứng từ viện phí (PDF, JPG, PNG) tự động tải lên Google Drive an toàn.
+  
+  4. modal-sick-more-info & modal-sick-resubmit: Quy trình bổ sung chứng từ BHXH
+     - Quản lý gửi yêu cầu giải trình / bổ sung giấy chứng nhận BHXH có mộc tròn.
+     - Nhân viên nộp tệp chứng từ mới và gửi duyệt lại.
+  
+  5. modal-task: Giao nhiệm vụ & Điều hành công việc
+     - Tiêu đề, loại công việc, hạn chót, người phụ trách từ danh bạ công ty.
+     - Liên kết trực tiếp với Số hiệu Văn bản pháp lý căn cứ điều hành.
+  
+  6. modal-doc: Soạn thảo & Ban hành văn bản số
+     - Số hiệu, tiêu đề, loại văn bản (Quy chế nội bộ, Quyết định lương, Thông báo, Pháp luật).
+     - Đính kèm tệp văn bản gốc lưu trữ trên Google Drive.
+  
+  7. modal-payslip: Xem & In ấn phiếu lương cá nhân (Payslip Viewer)
+     - Bảng kê chi tiết lương cơ bản, ngày công thực tế, phép, OT, phụ cấp, BHXH và thực lĩnh.
+     - Tích hợp nút in phiếu lương chuẩn biểu mẫu kế toán doanh nghiệp.
+  ====================================================================
+-->
 
 <!-- MODAL 1: THÊM / SỬA NHÂN VIÊN (EMPLOYEE MODAL) -->
 <div id="modal-employee"
-  class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
-  <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto">
+  class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-3 sm:p-4">
+  <div class="bg-white rounded-2xl max-w-lg w-full p-4 sm:p-6 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto">
     <div class="flex items-center justify-between pb-3 border-b border-slate-100">
-      <h3 id="modal-employee-title" class="text-base font-bold text-slate-900">Thêm Nhân Sự Mới</h3>
+      <h3 id="modal-employee-title" data-i18n="modal_emp_title_add" class="text-base font-bold text-slate-900">Thêm Nhân Sự Mới</h3>
       <button onclick="closeModal('modal-employee')" class="text-slate-400 hover:text-slate-600"><i
           class="fa-solid fa-xmark"></i></button>
     </div>
     <form onsubmit="handleSaveEmployee(event)" class="mt-4 space-y-3.5 text-xs">
       <input type="hidden" id="emp-form-mode" value="add">
-      <div class="grid grid-cols-2 gap-3">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
-          <label class="block font-semibold text-slate-700 mb-1">Mã nhân viên</label>
-          <input type="text" id="emp-form-id" placeholder="VT-006..." required
+          <label data-i18n="modal_emp_id" class="block font-semibold text-slate-700 mb-1">Mã nhân viên</label>
+          <input type="text" id="emp-form-id" placeholder="WZ-006..." required
             class="w-full border border-slate-300 rounded-lg px-3 py-2">
         </div>
         <div>
-          <label class="block font-semibold text-slate-700 mb-1">Họ và Tên</label>
+          <label data-i18n="modal_emp_name" class="block font-semibold text-slate-700 mb-1">Họ và Tên</label>
           <input type="text" id="emp-form-name" placeholder="Nguyễn Văn A..." required
             class="w-full border border-slate-300 rounded-lg px-3 py-2">
         </div>
       </div>
 
-      <div class="grid grid-cols-2 gap-3">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
-          <label class="block font-semibold text-slate-700 mb-1">Email nội bộ</label>
-          <input type="email" id="emp-form-email" placeholder="a.nguyen@vintech.vn..." required
+          <label data-i18n="modal_emp_email" class="block font-semibold text-slate-700 mb-1">Email nội bộ</label>
+          <input type="email" id="emp-form-email" placeholder="a.nguyen@wanzhong.vn..." required
             class="w-full border border-slate-300 rounded-lg px-3 py-2">
         </div>
         <div>
-          <label class="block font-semibold text-slate-700 mb-1">Số điện thoại</label>
+          <label data-i18n="modal_emp_phone" class="block font-semibold text-slate-700 mb-1">Số điện thoại</label>
           <input type="text" id="emp-form-phone" placeholder="0901234567..."
             class="w-full border border-slate-300 rounded-lg px-3 py-2">
         </div>
       </div>
 
-      <div class="grid grid-cols-2 gap-3">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
-          <label class="block font-semibold text-slate-700 mb-1">Phòng ban</label>
+          <label data-i18n="modal_emp_dept" class="block font-semibold text-slate-700 mb-1">Phòng ban</label>
           <select id="emp-form-dept" class="w-full border border-slate-300 rounded-lg px-3 py-2 bg-white">
-            <option value="Kỹ thuật">Kỹ thuật</option>
-            <option value="Kế toán">Kế toán</option>
-            <option value="Kinh doanh">Kinh doanh</option>
-            <option value="Nhân sự">Nhân sự</option>
+            <option value="Ban Giám Đốc" data-i18n="emp_dept_bod">Ban Giám Đốc</option>
+            <option value="Hành chính" data-i18n="emp_dept_admin">Hành chính</option>
+            <option value="Kế toán" data-i18n="emp_dept_acc">Kế toán</option>
+            <option value="Kinh doanh" data-i18n="emp_dept_biz">Kinh doanh</option>
+            <option value="Kỹ thuật" data-i18n="emp_dept_tech">Kỹ thuật</option>
+            <option value="Sản xuất" data-i18n="emp_dept_prod">Sản xuất</option>
           </select>
         </div>
         <div>
-          <label class="block font-semibold text-slate-700 mb-1">Chức Vụ</label>
+          <label data-i18n="modal_emp_title" class="block font-semibold text-slate-700 mb-1">Chức Vụ</label>
           <select id="emp-form-title" class="w-full border border-slate-300 rounded-lg px-3 py-2 bg-white">
-            <option value="Nhân viên">Nhân viên</option>
-            <option value="Quản lý">Quản lý</option>
-            <option value="Kế toán">Kế toán</option>
+            <option value="Tổng Giám Đốc" data-i18n="title_general_director">Tổng Giám Đốc</option>
+            <option value="Phó Tổng Giám Đốc" data-i18n="title_deputy_director">Phó Tổng Giám Đốc</option>
+            <option value="Quản đốc xưởng" data-i18n="title_factory_manager">Quản đốc xưởng</option>
+            <option value="Kế toán trưởng" data-i18n="title_chief_accountant">Kế toán trưởng</option>
+            <option value="Kế toán viên" data-i18n="title_accountant_staff">Kế toán viên</option>
+            <option value="Kỹ sư kỹ thuật" data-i18n="title_engineer">Kỹ sư kỹ thuật</option>
+            <option value="Nhân viên kinh doanh" data-i18n="title_sales">Nhân viên kinh doanh</option>
+            <option value="Nhân viên hành chính" data-i18n="title_admin">Nhân viên hành chính</option>
+            <option value="Công nhân sản xuất" data-i18n="title_factory_worker">Công nhân sản xuất</option>
+            <option value="Quản lý" data-i18n="title_manager">Quản lý</option>
+            <option value="Kế toán" data-i18n="title_accountant">Kế toán</option>
+            <option value="Nhân viên" data-i18n="title_employee">Nhân viên</option>
           </select>
           <input type="hidden" id="emp-form-role" value="employee">
         </div>
       </div>
 
-      <div class="grid grid-cols-2 gap-3">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
-          <label class="block font-semibold text-slate-700 mb-1">Lương cơ bản (VND)</label>
+          <label data-i18n="modal_emp_salary" class="block font-semibold text-slate-700 mb-1">Lương cơ bản (VND)</label>
           <input type="number" id="emp-form-salary" value="15000000" step="500000" required
             class="w-full border border-slate-300 rounded-lg px-3 py-2">
         </div>
         <div>
-          <label class="block font-semibold text-slate-700 mb-1">Trạng thái</label>
+          <label data-i18n="modal_emp_status" class="block font-semibold text-slate-700 mb-1">Trạng thái</label>
           <select id="emp-form-status" class="w-full border border-slate-300 rounded-lg px-3 py-2 bg-white">
-            <option value="Đang làm việc">Đang làm việc</option>
-            <option value="Đã nghỉ việc">Đã nghỉ việc</option>
+            <option value="Đang làm việc" data-i18n="status_working">Đang làm việc</option>
+            <option value="Đã nghỉ việc" data-i18n="status_resigned">Đã nghỉ việc</option>
           </select>
         </div>
       </div>
 
-      <div class="grid grid-cols-2 gap-3">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
-          <label class="block font-semibold text-slate-700 mb-1">Ngày vào làm</label>
+          <label data-i18n="modal_emp_start_date" class="block font-semibold text-slate-700 mb-1">Ngày vào làm</label>
           <input type="text" id="emp-form-date" value="08/10/2026"
             class="w-full border border-slate-300 rounded-lg px-3 py-2">
         </div>
       </div>
 
       <div class="pt-3 border-t border-slate-100 flex justify-end space-x-2">
-        <button type="button" onclick="closeModal('modal-employee')"
+        <button type="button" onclick="closeModal('modal-employee')" data-i18n="modal_btn_cancel"
           class="px-4 py-2 border border-slate-300 rounded-xl text-slate-600 font-semibold">Hủy</button>
-        <button type="submit"
-          class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-semibold shadow-md">Lưu Nhân
-          Viên</button>
+        <button type="submit" data-i18n="modal_emp_btn_save"
+          class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-semibold shadow-md">Lưu Nhân Viên</button>
       </div>
     </form>
   </div>
@@ -96,63 +141,62 @@
 
 <!-- MODAL 2: GIAO VIỆC MỚI (TASK MODAL) -->
 <div id="modal-task"
-  class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
-  <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200">
+  class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-3 sm:p-4">
+  <div class="bg-white rounded-2xl max-w-lg w-full p-4 sm:p-6 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto">
     <div class="flex items-center justify-between pb-3 border-b border-slate-100">
-      <h3 class="text-base font-bold text-slate-900">Giao Việc & Phân Công Nhiệm Vụ</h3>
+      <h3 data-i18n="modal_task_title" class="text-base font-bold text-slate-900">Giao Việc & Phân Công Nhiệm Vụ</h3>
       <button onclick="closeModal('modal-task')" class="text-slate-400 hover:text-slate-600"><i
           class="fa-solid fa-xmark"></i></button>
     </div>
     <form onsubmit="handleSaveTask(event)" class="mt-4 space-y-3.5 text-xs">
       <div>
-        <label class="block font-semibold text-slate-700 mb-1">Tiêu đề công việc</label>
-        <input type="text" id="task-form-title" placeholder="Rà soát báo cáo tài chính..." required
+        <label data-i18n="modal_task_name" class="block font-semibold text-slate-700 mb-1">Tiêu đề công việc</label>
+        <input type="text" id="task-form-title" placeholder="Rà soát báo cáo tài chính..." data-i18n-placeholder="modal_task_name_ph" required
           class="w-full border border-slate-300 rounded-lg px-3 py-2">
       </div>
-      <div class="grid grid-cols-2 gap-3">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
-          <label class="block font-semibold text-slate-700 mb-1">Loại công việc</label>
+          <label data-i18n="modal_task_type" class="block font-semibold text-slate-700 mb-1">Loại công việc</label>
           <select id="task-form-type" class="w-full border border-slate-300 rounded-lg px-3 py-2 bg-white">
-            <option value="Dự án">Dự án</option>
-            <option value="Hành chính">Hành chính</option>
-            <option value="Kỹ thuật">Kỹ thuật</option>
+            <option value="Dự án" data-i18n="modal_task_type_project">Dự án</option>
+            <option value="Hành chính" data-i18n="modal_task_type_admin">Hành chính</option>
+            <option value="Kỹ thuật" data-i18n="modal_task_type_tech">Kỹ thuật</option>
           </select>
         </div>
         <div>
-          <label class="block font-semibold text-slate-700 mb-1">Người phụ trách</label>
+          <label data-i18n="modal_task_assignee" class="block font-semibold text-slate-700 mb-1">Người phụ trách</label>
           <select id="task-form-assignee" class="w-full border border-slate-300 rounded-lg px-3 py-2 bg-white">
             <!-- Dynamically populated -->
           </select>
         </div>
       </div>
-      <div class="grid grid-cols-2 gap-3">
-        <div><label class="block font-semibold text-slate-700 mb-1">Ngày bắt đầu</label><input type="date"
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div><label data-i18n="modal_task_start" class="block font-semibold text-slate-700 mb-1">Ngày bắt đầu</label><input type="date"
             id="task-form-start" value="2026-10-08" required
             class="w-full border border-slate-300 rounded-lg px-3 py-2"></div>
-        <div><label class="block font-semibold text-slate-700 mb-1">Hạn chót (Deadline)</label><input type="date"
+        <div><label data-i18n="modal_task_deadline" class="block font-semibold text-slate-700 mb-1">Hạn chót (Deadline)</label><input type="date"
             id="task-form-deadline" value="2026-10-25" required
             class="w-full border border-slate-300 rounded-lg px-3 py-2"></div>
       </div>
       <div>
         <label class="block font-semibold text-slate-700 mb-1 flex items-center justify-between">
-          <span class="flex items-center space-x-1.5"><i class="fa-solid fa-file-contract text-amber-600"></i><span>Văn
-              bản căn cứ / Chỉ đạo (E-Office)</span></span>
-          <span class="text-[10px] text-slate-400 font-normal">Tùy chọn liên kết</span>
+          <span class="flex items-center space-x-1.5"><i class="fa-solid fa-file-contract text-amber-600"></i><span data-i18n="modal_task_doc">Văn bản căn cứ / Chỉ đạo (E-Office)</span></span>
+          <span data-i18n="modal_task_doc_opt" class="text-[10px] text-slate-400 font-normal">Tùy chọn liên kết</span>
         </label>
         <select id="task-form-doc" class="w-full border border-slate-300 rounded-lg px-3 py-2 bg-white">
-          <option value="">-- Không có --</option>
+          <option value="" data-i18n="modal_task_no_doc">-- Không có --</option>
           <!-- Dynamically populated from appData.documents -->
         </select>
       </div>
       <div>
-        <label class="block font-semibold text-slate-700 mb-1">Ghi chú & Yêu cầu cụ thể</label>
-        <textarea id="task-form-note" rows="2" placeholder="Chi tiết yêu cầu..."
+        <label data-i18n="modal_task_note" class="block font-semibold text-slate-700 mb-1">Ghi chú & Yêu cầu cụ thể</label>
+        <textarea id="task-form-note" rows="2" placeholder="Chi tiết yêu cầu..." data-i18n-placeholder="modal_task_note_ph"
           class="w-full border border-slate-300 rounded-lg p-2.5"></textarea>
       </div>
       <div class="pt-3 flex justify-end space-x-2">
-        <button type="button" onclick="closeModal('modal-task')"
+        <button type="button" onclick="closeModal('modal-task')" data-i18n="modal_btn_cancel"
           class="px-4 py-2 border border-slate-300 rounded-xl text-slate-600 font-semibold">Hủy</button>
-        <button type="submit"
+        <button type="submit" data-i18n="modal_task_btn_submit"
           class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-semibold">Giao Việc</button>
       </div>
     </form>
@@ -161,10 +205,10 @@
 
 <!-- MODAL 3: THÊM / SỬA VĂN BẢN (DOCUMENT MODAL) -->
 <div id="modal-doc"
-  class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
-  <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 max-h-[92vh] overflow-y-auto">
+  class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-3 sm:p-4">
+  <div class="bg-white rounded-2xl max-w-lg w-full p-4 sm:p-6 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto">
     <div class="flex items-center justify-between pb-3 border-b border-slate-100">
-      <h3 id="modal-doc-title" class="text-base font-bold text-slate-900">Lưu Trữ Văn Bản & Quy Chế Mới</h3>
+      <h3 id="modal-doc-title" data-i18n="modal_doc_title_add" class="text-base font-bold text-slate-900">Lưu Trữ Văn Bản & Quy Chế Mới</h3>
       <button onclick="closeModal('modal-doc')" class="text-slate-400 hover:text-slate-600"><i
           class="fa-solid fa-xmark"></i></button>
     </div>
@@ -172,70 +216,70 @@
       <input type="hidden" id="doc-form-mode" value="add">
       <input type="hidden" id="doc-form-orig-id" value="">
 
-      <div class="grid grid-cols-2 gap-3">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
-          <label class="block font-semibold text-slate-700 mb-1">Số hiệu văn bản</label>
-          <input type="text" id="doc-form-id" placeholder="05/2026/QĐ-VT" required
+          <label data-i18n="modal_doc_no" class="block font-semibold text-slate-700 mb-1">Số hiệu văn bản</label>
+          <input type="text" id="doc-form-id" placeholder="05/2026/QĐ-WZ" required
             class="w-full border border-slate-300 rounded-lg px-3 py-2">
         </div>
         <div>
-          <label class="block font-semibold text-slate-700 mb-1">Loại văn bản</label>
+          <label data-i18n="modal_doc_type" class="block font-semibold text-slate-700 mb-1">Loại văn bản</label>
           <select id="doc-form-type" class="w-full border border-slate-300 rounded-lg px-3 py-2 bg-white">
-            <option value="Quy chế nội bộ">Quy chế nội bộ</option>
-            <option value="Quy chế lương">Quy chế lương (Văn bản lương)</option>
-            <option value="Thông báo trả lương">Thông báo trả lương (Văn bản lương)</option>
-            <option value="Quyết định điều chỉnh lương">Quyết định điều chỉnh lương (Văn bản lương)</option>
-            <option value="Văn bản pháp luật">Văn bản pháp luật</option>
-            <option value="Thông báo">Thông báo</option>
-            <option value="Quyết định">Quyết định</option>
+            <option value="Quy chế nội bộ" data-i18n="doc_type_internal">Quy chế nội bộ</option>
+            <option value="Quy chế lương" data-i18n="doc_type_salary_reg">Quy chế lương (Văn bản lương)</option>
+            <option value="Thông báo trả lương" data-i18n="doc_type_salary_notice">Thông báo trả lương (Văn bản lương)</option>
+            <option value="Quyết định điều chỉnh lương" data-i18n="doc_type_salary_adj">Quyết định điều chỉnh lương (Văn bản lương)</option>
+            <option value="Văn bản pháp luật" data-i18n="doc_type_legal">Văn bản pháp luật</option>
+            <option value="Thông báo" data-i18n="doc_type_notice">Thông báo</option>
+            <option value="Quyết định" data-i18n="doc_type_decision">Quyết định</option>
           </select>
         </div>
       </div>
 
-      <div class="grid grid-cols-2 gap-3">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
-          <label class="block font-semibold text-slate-700 mb-1">Lĩnh vực tra cứu</label>
+          <label data-i18n="modal_doc_category" class="block font-semibold text-slate-700 mb-1">Lĩnh vực tra cứu</label>
           <select id="doc-form-category"
             class="w-full border border-slate-300 rounded-lg px-3 py-2 bg-white font-medium">
-            <option value="Chính sách Lao động & Việc làm">Chính sách Lao động & Việc làm</option>
-            <option value="Tiền lương & Chế độ BHXH">Tiền lương & Chế độ BHXH</option>
-            <option value="Thuế & Kế toán Doanh nghiệp">Thuế & Kế toán Doanh nghiệp</option>
-            <option value="Quản trị & Quy chế Nội bộ" selected>Quản trị & Quy chế Nội bộ</option>
-            <option value="An toàn Vệ sinh Lao động">An toàn Vệ sinh Lao động</option>
-            <option value="Công nghệ & Bảo mật">Công nghệ & Bảo mật</option>
+            <option value="Chính sách Lao động & Việc làm" data-i18n="doc_cat_labor">Chính sách Lao động & Việc làm</option>
+            <option value="Tiền lương & Chế độ BHXH" data-i18n="doc_cat_salary_si">Tiền lương & Chế độ BHXH</option>
+            <option value="Thuế & Kế toán Doanh nghiệp" data-i18n="doc_cat_tax_acc">Thuế & Kế toán Doanh nghiệp</option>
+            <option value="Quản trị & Quy chế Nội bộ" data-i18n="doc_cat_gov_internal" selected>Quản trị & Quy chế Nội bộ</option>
+            <option value="An toàn Vệ sinh Lao động" data-i18n="doc_cat_safety">An toàn Vệ sinh Lao động</option>
+            <option value="Công nghệ & Bảo mật" data-i18n="doc_cat_tech_sec">Công nghệ & Bảo mật</option>
           </select>
         </div>
         <div>
-          <label class="block font-semibold text-slate-700 mb-1">Ngày ban hành</label>
+          <label data-i18n="modal_doc_date" class="block font-semibold text-slate-700 mb-1">Ngày ban hành</label>
           <input type="date" id="doc-form-date" required class="w-full border border-slate-300 rounded-lg px-3 py-2">
         </div>
       </div>
 
       <div>
-        <label class="block font-semibold text-slate-700 mb-1">Trích yếu / Tiêu đề văn bản</label>
+        <label data-i18n="modal_doc_summary" class="block font-semibold text-slate-700 mb-1">Trích yếu / Tiêu đề văn bản</label>
         <input type="text" id="doc-form-title" placeholder="Quy định sử dụng tài sản doanh nghiệp..." required
           class="w-full border border-slate-300 rounded-lg px-3 py-2">
       </div>
 
-      <div class="grid grid-cols-2 gap-3">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
-          <label class="block font-semibold text-slate-700 mb-1">Cơ quan ban hành / Ký</label>
+          <label data-i18n="modal_doc_issuer" class="block font-semibold text-slate-700 mb-1">Cơ quan ban hành / Ký</label>
           <input type="text" id="doc-form-issuer" placeholder="Tổng Giám Đốc" required
             class="w-full border border-slate-300 rounded-lg px-3 py-2">
         </div>
         <div>
-          <label class="block font-semibold text-slate-700 mb-1">Trạng thái hiệu lực</label>
+          <label data-i18n="modal_doc_validity" class="block font-semibold text-slate-700 mb-1">Trạng thái hiệu lực</label>
           <select id="doc-form-status" class="w-full border border-slate-300 rounded-lg px-3 py-2 bg-white">
-            <option value="Hiệu lực">Hiệu lực</option>
-            <option value="Hết hiệu lực">Hết hiệu lực</option>
-            <option value="Dự thảo">Dự thảo</option>
-            <option value="Tài liệu tham khảo">Tài liệu tham khảo</option>
+            <option value="Hiệu lực" data-i18n="modal_doc_status_valid">Hiệu lực</option>
+            <option value="Hết hiệu lực" data-i18n="modal_doc_status_expired">Hết hiệu lực</option>
+            <option value="Dự thảo" data-i18n="modal_doc_status_draft">Dự thảo</option>
+            <option value="Tài liệu tham khảo" data-i18n="modal_doc_status_ref">Tài liệu tham khảo</option>
           </select>
         </div>
       </div>
 
       <div>
-        <label class="block font-semibold text-slate-700 mb-1">Đính kèm file tài liệu lên Google Drive (PDF, Word,
+        <label data-i18n="modal_doc_file_label" class="block font-semibold text-slate-700 mb-1">Đính kèm file tài liệu lên Google Drive (PDF, Word,
           Excel)</label>
         <div
           class="border-2 border-dashed border-slate-300 hover:border-amber-500 rounded-xl bg-slate-50 p-3.5 text-center cursor-pointer transition"
@@ -244,8 +288,8 @@
             onchange="handleDocFileSelected(event)">
           <div id="doc-file-placeholder" class="space-y-1">
             <i class="fa-solid fa-cloud-arrow-up text-amber-600 text-xl"></i>
-            <p class="text-xs font-semibold text-slate-700">Chọn tài liệu từ máy tính để tải lên Drive</p>
-            <p class="text-[11px] text-slate-400">PDF, DOCX, XLSX (tối đa 10MB)</p>
+            <p data-i18n="modal_doc_file_hint" class="text-xs font-semibold text-slate-700">Chọn tài liệu từ máy tính để tải lên Drive</p>
+            <p data-i18n="modal_doc_file_subhint" class="text-[11px] text-slate-400">PDF, DOCX, XLSX (tối đa 10MB)</p>
           </div>
           <div id="doc-file-preview"
             class="hidden items-center justify-center space-x-2 text-emerald-600 font-semibold text-xs">
@@ -261,18 +305,18 @@
       </div>
 
       <div>
-        <label class="block font-semibold text-slate-700 mb-1">Hoặc đường dẫn liên kết ngoài (URL)</label>
+        <label data-i18n="modal_doc_url_label" class="block font-semibold text-slate-700 mb-1">Hoặc đường dẫn liên kết ngoài (URL)</label>
         <input type="text" id="doc-form-url" placeholder="https://drive.google.com/sample_doc.pdf"
           class="w-full border border-slate-300 rounded-lg px-3 py-2 text-slate-600">
       </div>
 
       <div class="pt-3 flex justify-end space-x-2 border-t border-slate-100">
-        <button type="button" onclick="closeModal('modal-doc')"
+        <button type="button" onclick="closeModal('modal-doc')" data-i18n="modal_btn_cancel"
           class="px-4 py-2 border border-slate-300 rounded-xl text-slate-600 font-semibold">Hủy</button>
         <button type="submit" id="btn-save-doc"
           class="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-xl font-semibold shadow-md flex items-center space-x-1.5">
           <i class="fa-solid fa-floppy-disk"></i>
-          <span>Lưu Văn Bản</span>
+          <span data-i18n="modal_doc_btn_save">Lưu Văn Bản</span>
         </button>
       </div>
     </form>
@@ -281,49 +325,50 @@
 
 <!-- MODAL 4: ĐƠN NGHỈ PHÉP -->
 <div id="modal-leave"
-  class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
-  <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200">
+  class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-3 sm:p-4">
+  <div class="bg-white rounded-2xl max-w-lg w-full p-4 sm:p-6 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto">
     <div class="flex items-center justify-between pb-3 border-b border-slate-100">
-      <h3 class="text-base font-bold text-slate-900">Tạo Đơn Xin Nghỉ Phép</h3>
+      <h3 id="modal-leave-title" data-i18n="modal_leave_title" class="text-base font-bold text-slate-900">Tạo Đơn Xin Nghỉ Phép</h3>
       <button onclick="closeModal('modal-leave')" class="text-slate-400 hover:text-slate-600"><i
           class="fa-solid fa-xmark"></i></button>
     </div>
-    <form id="form-leave" onsubmit="handleCreateLeave(event)" class="mt-4 space-y-3.5 text-xs">
+    <form id="form-leave" onsubmit="handleSaveLeave(event)" class="mt-4 space-y-3.5 text-xs">
+      <input type="hidden" id="leave-form-mode" value="create">
+      <input type="hidden" id="leave-form-id" value="">
       <div>
-        <label class="block font-semibold text-slate-700 mb-1">Nhân viên làm đơn</label>
+        <label data-i18n="modal_leave_emp" class="block font-semibold text-slate-700 mb-1">Nhân viên làm đơn</label>
         <input type="text" id="leave-emp-name" readonly
           class="w-full bg-slate-100 border border-slate-200 rounded-lg px-3 py-2 text-slate-600 font-medium">
       </div>
-      <div class="grid grid-cols-2 gap-3">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
-          <label class="block font-semibold text-slate-700 mb-1">Loại nghỉ</label>
+          <label data-i18n="modal_leave_type" class="block font-semibold text-slate-700 mb-1">Loại nghỉ</label>
           <select id="leave-type" class="w-full border border-slate-300 rounded-lg px-3 py-2 bg-white">
-            <option value="Nghỉ phép năm">Nghỉ phép năm (hưởng lương)</option>
-            <option value="Việc riêng">Việc riêng (không lương)</option>
+            <option value="Nghỉ phép năm" data-i18n="leave_type_annual">Nghỉ phép năm (hưởng lương)</option>
+            <option value="Việc riêng" data-i18n="leave_type_unpaid">Việc riêng (không lương)</option>
           </select>
         </div>
         <div>
-          <label class="block font-semibold text-slate-700 mb-1">Số ngày</label>
+          <label data-i18n="modal_leave_days" class="block font-semibold text-slate-700 mb-1">Số ngày</label>
           <input type="number" id="leave-days" value="2" min="1" readonly required
             class="w-full border border-slate-300 rounded-lg px-3 py-2">
         </div>
       </div>
-      <div class="grid grid-cols-2 gap-3">
-        <div><label class="block font-semibold text-slate-700 mb-1">Từ ngày</label><input type="date" id="leave-from"
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div><label data-i18n="modal_leave_from" class="block font-semibold text-slate-700 mb-1">Từ ngày</label><input type="date" id="leave-from"
             value="2026-10-26" required class="w-full border border-slate-300 rounded-lg px-3 py-2"></div>
-        <div><label class="block font-semibold text-slate-700 mb-1">Đến ngày</label><input type="date" id="leave-to"
+        <div><label data-i18n="modal_leave_to" class="block font-semibold text-slate-700 mb-1">Đến ngày</label><input type="date" id="leave-to"
             value="2026-10-27" required class="w-full border border-slate-300 rounded-lg px-3 py-2"></div>
       </div>
       <div>
-        <label class="block font-semibold text-slate-700 mb-1">Lý do nghỉ cụ thể</label>
-        <textarea id="leave-reason" rows="2" placeholder="Ghi rõ lý do..." required
+        <label data-i18n="modal_leave_reason" class="block font-semibold text-slate-700 mb-1">Lý do nghỉ cụ thể</label>
+        <textarea id="leave-reason" rows="2" placeholder="Ghi rõ lý do..." data-i18n-placeholder="modal_leave_reason_ph" required
           class="w-full border border-slate-300 rounded-lg p-2.5"></textarea>
       </div>
       <div class="pt-3 flex justify-end space-x-2">
-        <button type="button" onclick="closeModal('modal-leave')"
+        <button type="button" onclick="closeModal('modal-leave')" data-i18n="modal_btn_cancel"
           class="px-4 py-2 border border-slate-300 rounded-xl text-slate-600 font-semibold">Hủy</button>
-        <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-semibold">Gửi
-          Đơn Duyệt</button>
+        <button type="submit" id="btn-submit-leave" data-i18n="modal_leave_btn_submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-semibold">Gửi Đơn Duyệt</button>
       </div>
     </form>
   </div>
@@ -331,12 +376,12 @@
 
 <!-- MODAL 5: PHIẾU LƯƠNG CÁ NHÂN -->
 <div id="modal-payslip"
-  class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
-  <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200">
+  class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-3 sm:p-4">
+  <div class="bg-white rounded-2xl max-w-lg w-full p-4 sm:p-6 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto">
     <div class="flex items-center justify-between pb-3 border-b border-slate-200">
       <div>
-        <h3 id="payslip-modal-title" class="text-base font-bold text-slate-900">PHIẾU LƯƠNG ĐIỆN TỬ</h3>
-        <p class="text-xs text-slate-500">VinTech Solutions - Enterprise HRM</p>
+        <h3 id="payslip-modal-title" data-i18n="payslip_title" class="text-base font-bold text-slate-900">PHIẾU LƯƠNG ĐIỆN TỬ</h3>
+        <p class="text-xs text-slate-500 font-medium" data-i18n="company_legal_name">CÔNG TY TNHH CÔNG NGHỆ SẠCH WANZHONG VIỆT NAM</p>
       </div>
       <div class="flex items-center space-x-2">
         <select id="payslip-period-select" onchange="changePayslipPeriod(this.value)"
@@ -347,7 +392,7 @@
     </div>
     <div id="payslip-content" class="py-4 text-xs space-y-3"></div>
     <div class="pt-3 border-t border-slate-200 flex justify-end">
-      <button onclick="closeModal('modal-payslip')"
+      <button onclick="closeModal('modal-payslip')" data-i18n="modal_btn_close"
         class="px-4 py-2 border border-slate-300 rounded-xl text-slate-600 font-semibold text-xs">Đóng</button>
     </div>
   </div>
@@ -355,27 +400,27 @@
 
 <!-- MODAL 6: HỒ SƠ ỐM ĐAU -->
 <div id="modal-sick"
-  class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
-  <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200">
+  class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-3 sm:p-4">
+  <div class="bg-white rounded-2xl max-w-lg w-full p-4 sm:p-6 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto">
     <div class="flex items-center justify-between pb-3 border-b border-slate-100">
-      <h3 class="text-base font-bold text-slate-900">Nộp Hồ Sơ Nghỉ Ốm (BHXH)</h3>
+      <h3 data-i18n="modal_sick_title" class="text-base font-bold text-slate-900">Nộp Hồ Sơ Nghỉ Ốm (BHXH)</h3>
       <button onclick="closeModal('modal-sick')" class="text-slate-400 hover:text-slate-600"><i
           class="fa-solid fa-xmark"></i></button>
     </div>
     <form onsubmit="handleCreateSick(event)" class="mt-4 space-y-3.5 text-xs">
       <div>
-        <label class="block font-semibold text-slate-700 mb-1">Cơ sở khám bệnh / Bệnh viện</label>
-        <input type="text" id="sick-hospital" placeholder="Bệnh viện Bạch Mai..." required
+        <label data-i18n="modal_sick_hosp" class="block font-semibold text-slate-700 mb-1">Cơ sở khám bệnh / Bệnh viện</label>
+        <input type="text" id="sick-hospital" placeholder="Bệnh viện Bạch Mai..." data-i18n-placeholder="modal_sick_hosp_ph" required
           class="w-full border border-slate-300 rounded-lg px-3 py-2">
       </div>
-      <div class="grid grid-cols-2 gap-3">
-        <div><label class="block font-semibold text-slate-700 mb-1">Từ ngày</label><input type="date" id="sick-from"
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div><label data-i18n="modal_sick_from" class="block font-semibold text-slate-700 mb-1">Từ ngày</label><input type="date" id="sick-from"
             value="2026-10-12" required class="w-full border border-slate-300 rounded-lg px-3 py-2"></div>
-        <div><label class="block font-semibold text-slate-700 mb-1">Đến ngày</label><input type="date" id="sick-to"
+        <div><label data-i18n="modal_sick_to" class="block font-semibold text-slate-700 mb-1">Đến ngày</label><input type="date" id="sick-to"
             value="2026-10-13" required class="w-full border border-slate-300 rounded-lg px-3 py-2"></div>
       </div>
       <div>
-        <label class="block font-semibold text-slate-700 mb-1">Đính kèm chứng từ y tế / Viện phí (PDF, JPG, PNG)</label>
+        <label data-i18n="modal_sick_proof" class="block font-semibold text-slate-700 mb-1">Đính kèm chứng từ y tế / Viện phí (PDF, JPG, PNG)</label>
         <div
           class="relative border-2 border-dashed border-slate-300 hover:border-rose-400 rounded-xl bg-slate-50 p-4 text-center cursor-pointer transition"
           onclick="document.getElementById('sick-file-input').click()">
@@ -383,8 +428,8 @@
             onchange="handleSickFileSelected(event)">
           <div id="sick-file-placeholder" class="space-y-1">
             <i class="fa-solid fa-cloud-arrow-up text-rose-500 text-2xl"></i>
-            <p class="text-xs font-semibold text-slate-700">Bấm để chọn tệp chứng từ</p>
-            <p class="text-[11px] text-slate-400">Định dạng hỗ trợ: PDF, JPG, PNG (Tự động tải lên Google Drive)</p>
+            <p data-i18n="modal_sick_proof_hint" class="text-xs font-semibold text-slate-700">Bấm để chọn tệp chứng từ</p>
+            <p data-i18n="modal_sick_proof_subhint" class="text-[11px] text-slate-400">Định dạng hỗ trợ: PDF, JPG, PNG (Tự động tải lên Google Drive)</p>
           </div>
           <div id="sick-file-preview"
             class="hidden items-center justify-center space-x-2 text-emerald-600 font-semibold text-xs">
@@ -397,12 +442,12 @@
         </div>
       </div>
       <div class="pt-3 flex justify-end space-x-2">
-        <button type="button" onclick="closeModal('modal-sick')"
+        <button type="button" onclick="closeModal('modal-sick')" data-i18n="modal_btn_cancel"
           class="px-4 py-2 border border-slate-300 rounded-xl text-slate-600 font-semibold">Hủy</button>
         <button type="submit"
           class="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white rounded-xl font-semibold flex items-center space-x-1.5">
           <i class="fa-solid fa-upload"></i>
-          <span>Nộp Hồ Sơ & Tải Lên Drive</span>
+          <span data-i18n="modal_sick_btn_submit">Nộp Hồ Sơ & Tải Lên Drive</span>
         </button>
       </div>
     </form>
@@ -411,12 +456,12 @@
 
 <!-- MODAL 7: YÊU CẦU BỔ SUNG HỒ SƠ ỐM ĐAU (NEED_MORE_INFO) -->
 <div id="modal-sick-more-info"
-  class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
-  <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200">
+  class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-3 sm:p-4">
+  <div class="bg-white rounded-2xl max-w-md w-full p-4 sm:p-6 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto">
     <div class="flex items-center justify-between pb-3 border-b border-slate-100">
       <h3 class="text-base font-bold text-amber-700 flex items-center space-x-2">
         <i class="fa-solid fa-triangle-exclamation text-amber-500"></i>
-        <span>Yêu Cầu Bổ Sung Hồ Sơ BHXH</span>
+        <span data-i18n="modal_sick_moreinfo_title">Yêu Cầu Bổ Sung Hồ Sơ BHXH</span>
       </h3>
       <button onclick="closeModal('modal-sick-more-info')" class="text-slate-400 hover:text-slate-600"><i
           class="fa-solid fa-xmark"></i></button>
@@ -428,18 +473,19 @@
         <div class="text-[11px] text-amber-700" id="sick-more-info-sub">Nhân sự: --</div>
       </div>
       <div>
-        <label class="block font-semibold text-slate-700 mb-1">Chi tiết yêu cầu bổ sung chứng từ / giải trình</label>
+        <label data-i18n="modal_sick_moreinfo_label" class="block font-semibold text-slate-700 mb-1">Chi tiết yêu cầu bổ sung chứng từ / giải trình</label>
         <textarea id="sick-more-info-note" rows="3" required
           placeholder="Ví dụ: Cần bổ sung giấy ra viện hoặc giấy chứng nhận nghỉ việc hưởng BHXH có mộc tròn của bệnh viện..."
+          data-i18n-placeholder="modal_sick_moreinfo_ph"
           class="w-full border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-amber-500"></textarea>
       </div>
       <div class="pt-3 flex justify-end space-x-2 border-t border-slate-100">
-        <button type="button" onclick="closeModal('modal-sick-more-info')"
+        <button type="button" onclick="closeModal('modal-sick-more-info')" data-i18n="modal_btn_cancel"
           class="px-4 py-2 border border-slate-300 rounded-xl text-slate-600 font-semibold">Hủy</button>
         <button type="submit"
           class="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-xl font-semibold shadow-md flex items-center space-x-1.5">
           <i class="fa-solid fa-paper-plane"></i>
-          <span>Gửi Yêu Cầu Cho Nhân Viên</span>
+          <span data-i18n="modal_sick_moreinfo_btn">Gửi Yêu Cầu Cho Nhân Viên</span>
         </button>
       </div>
     </form>
@@ -448,12 +494,12 @@
 
 <!-- MODAL 8: NỘP BỔ SUNG CHỨNG TỪ ỐM ĐAU -->
 <div id="modal-sick-resubmit"
-  class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
-  <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto">
+  class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-3 sm:p-4">
+  <div class="bg-white rounded-2xl max-w-lg w-full p-4 sm:p-6 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto">
     <div class="flex items-center justify-between pb-3 border-b border-slate-100">
       <h3 class="text-base font-bold text-slate-900 flex items-center space-x-2">
         <i class="fa-solid fa-file-circle-plus text-blue-600"></i>
-        <span>Nộp Bổ Sung Chứng Từ Viện Phí / BHXH</span>
+        <span data-i18n="modal_sick_resubmit_title">Nộp Bổ Sung Chứng Từ Viện Phí / BHXH</span>
       </h3>
       <button onclick="closeModal('modal-sick-resubmit')" class="text-slate-400 hover:text-slate-600"><i
           class="fa-solid fa-xmark"></i></button>
@@ -461,25 +507,25 @@
     <form onsubmit="handleResubmitSick(event)" class="mt-4 space-y-3.5 text-xs">
       <input type="hidden" id="sick-resubmit-id" value="">
       <div class="bg-amber-50 p-3 rounded-xl border border-amber-200 text-amber-900 space-y-1">
-        <div class="font-bold text-[11px] uppercase text-amber-800">Yêu cầu từ Quản lý:</div>
+        <div data-i18n="modal_sick_resubmit_hr_label" class="font-bold text-[11px] uppercase text-amber-800">Yêu cầu từ Quản lý:</div>
         <div class="text-xs italic" id="sick-resubmit-hr-note">--</div>
       </div>
 
       <div>
-        <label class="block font-semibold text-slate-700 mb-1">Cơ sở khám bệnh / Bệnh viện</label>
+        <label data-i18n="modal_sick_hosp" class="block font-semibold text-slate-700 mb-1">Cơ sở khám bệnh / Bệnh viện</label>
         <input type="text" id="sick-resubmit-hospital" required
           class="w-full border border-slate-300 rounded-lg px-3 py-2">
       </div>
 
-      <div class="grid grid-cols-2 gap-3">
-        <div><label class="block font-semibold text-slate-700 mb-1">Từ ngày</label><input type="date"
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div><label data-i18n="modal_sick_from" class="block font-semibold text-slate-700 mb-1">Từ ngày</label><input type="date"
             id="sick-resubmit-from" required class="w-full border border-slate-300 rounded-lg px-3 py-2"></div>
-        <div><label class="block font-semibold text-slate-700 mb-1">Đến ngày</label><input type="date"
+        <div><label data-i18n="modal_sick_to" class="block font-semibold text-slate-700 mb-1">Đến ngày</label><input type="date"
             id="sick-resubmit-to" required class="w-full border border-slate-300 rounded-lg px-3 py-2"></div>
       </div>
 
       <div>
-        <label class="block font-semibold text-slate-700 mb-1">Tải lên file chứng từ mới bổ sung (Google Drive)</label>
+        <label data-i18n="modal_sick_resubmit_proof" class="block font-semibold text-slate-700 mb-1">Tải lên file chứng từ mới bổ sung (Google Drive)</label>
         <div
           class="border-2 border-dashed border-slate-300 hover:border-blue-400 rounded-xl bg-slate-50 p-3.5 text-center cursor-pointer transition"
           onclick="document.getElementById('sick-resubmit-file-input').click()">
@@ -487,8 +533,8 @@
             onchange="handleSickResubmitFileSelected(event)">
           <div id="sick-resubmit-file-placeholder" class="space-y-1">
             <i class="fa-solid fa-cloud-arrow-up text-blue-600 text-xl"></i>
-            <p class="text-xs font-semibold text-slate-700">Chọn tệp chứng từ mới (PDF, JPG, PNG)</p>
-            <p class="text-[11px] text-slate-400">Tự động tải lên thư mục Drive an toàn</p>
+            <p data-i18n="modal_sick_resubmit_proof_hint" class="text-xs font-semibold text-slate-700">Chọn tệp chứng từ mới (PDF, JPG, PNG)</p>
+            <p data-i18n="modal_sick_proof_subhint" class="text-[11px] text-slate-400">Tự động tải lên thư mục Drive an toàn</p>
           </div>
           <div id="sick-resubmit-file-preview"
             class="hidden items-center justify-center space-x-2 text-emerald-600 font-semibold text-xs">
@@ -504,18 +550,19 @@
       </div>
 
       <div>
-        <label class="block font-semibold text-slate-700 mb-1">Ghi chú giải trình bổ sung</label>
+        <label data-i18n="modal_sick_resubmit_note" class="block font-semibold text-slate-700 mb-1">Ghi chú giải trình bổ sung</label>
         <textarea id="sick-resubmit-note" rows="2" placeholder="Đã bổ sung giấy ra viện có dấu đỏ theo yêu cầu..."
+          data-i18n-placeholder="modal_sick_resubmit_note_ph"
           class="w-full border border-slate-300 rounded-lg p-2.5"></textarea>
       </div>
 
       <div class="pt-3 flex justify-end space-x-2 border-t border-slate-100">
-        <button type="button" onclick="closeModal('modal-sick-resubmit')"
+        <button type="button" onclick="closeModal('modal-sick-resubmit')" data-i18n="modal_btn_cancel"
           class="px-4 py-2 border border-slate-300 rounded-xl text-slate-600 font-semibold">Hủy</button>
         <button type="submit"
           class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-semibold shadow-md flex items-center space-x-1.5">
           <i class="fa-solid fa-arrow-up-from-bracket"></i>
-          <span>Nộp Bổ Sung & Chuyển Chờ Duyệt</span>
+          <span data-i18n="modal_sick_resubmit_btn">Nộp Bổ Sung & Chuyển Chờ Duyệt</span>
         </button>
       </div>
     </form>
@@ -524,7 +571,7 @@
 
 <!-- TOAST NOTIFICATION -->
 <div id="toast"
-  class="fixed bottom-5 right-5 z-50 transform transition-all duration-300 translate-y-20 opacity-0 pointer-events-none flex items-center space-x-3 bg-slate-900 text-white px-4 py-3 rounded-xl shadow-2xl border border-slate-700">
+  class="fixed bottom-4 right-4 sm:bottom-5 sm:right-5 z-50 transform transition-all duration-300 translate-y-20 opacity-0 pointer-events-none flex items-center space-x-3 bg-slate-900 text-white px-4 py-3 rounded-xl shadow-2xl border border-slate-700">
   <div id="toast-icon" class="text-emerald-400 text-base"><i class="fa-solid fa-circle-check"></i></div>
   <div id="toast-msg" class="text-sm font-medium">Thao tác thành công!</div>
 </div>

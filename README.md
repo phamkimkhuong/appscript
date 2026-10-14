@@ -1,6 +1,6 @@
 # Dự Án Phần Mềm Google Apps Script (GAS)
 
-Tài liệu hướng dẫn vận hành, kiến trúc và tra cứu cú pháp lệnh phát triển hệ thống **VinTech Solutions (HRM & E-Office)**.
+Tài liệu hướng dẫn vận hành, kiến trúc và tra cứu cú pháp lệnh phát triển hệ thống **Wanzhong Clean Technology (HRM & E-Office)**.
 
 ---
 
@@ -29,10 +29,10 @@ Hệ thống sử dụng **1 file Google Spreadsheet duy nhất làm Cơ Sở D�
 
 | STT | Mã NV | Họ và Tên | Email Đăng Nhập | Mật Khẩu | Chức Vụ *(1 cột duy nhất)* | Phòng Ban | Thẩm Quyền Hệ Thống |
 | :---: | :---: | :--- | :--- | :---: | :---: | :--- | :--- |
-| **1** | `VT-001` | **Lê Thị Phương** | `phuong.le@vintech.vn` | `123456` | **Nhân viên** | Kỹ thuật | • Xem dashboard cá nhân<br>• Tạo đơn xin nghỉ phép, nộp hồ sơ ốm đau<br>• **Bảo mật:** Chỉ xem phiếu lương của chính mình<br>• Không có quyền duyệt đơn |
-| **2** | `VT-002` | **Trần Minh Trí** | `tri.tran@vintech.vn` | `123456` | **Quản lý** | Kỹ thuật | • Quản lý nhân sự toàn bộ doanh nghiệp<br>• **Duyệt nghỉ phép và hồ sơ ốm đau**, cập nhật bảng công<br>• Xem bảng lương; kế toán thực hiện tính lương<br>• Giao việc và theo dõi tiến độ nhiệm vụ E-Office |
-| **3** | `VT-003` | **Nguyễn Thu Hương** | `huong.nguyen@vintech.vn` | `123456` | **Kế toán** | Kế toán | • Xem nhân sự và công để đối chiếu<br>• Tính và xem **bảng lương toàn công ty**<br>• Thêm/sửa văn bản tiền lương<br>• Chỉ xem hồ sơ nghỉ/ốm và công việc của bản thân; không duyệt hoặc giao việc |
-| **4** | `VT-004` | **Hoàng Khương Duy** | `duy.hoang@vintech.vn` | `123456` | **Nhân viên** | Kỹ thuật | • Quyền nhân viên kỹ thuật cơ bản<br>• Dữ liệu mẫu kiểm thử chế độ làm thêm OT & hồ sơ ốm đau bổ sung |
+| **1** | `WZ-001` | **Nguyễn Thuỳ Linh** | `linh.nguyen@wanzhong.vn` | `123456` | **Nhân viên** | Hành chính | • Xem dashboard cá nhân<br>• Tạo đơn xin nghỉ phép, nộp hồ sơ ốm đau<br>• **Bảo mật:** Chỉ xem phiếu lương của chính mình<br>• Không có quyền duyệt đơn |
+| **2** | `WZ-002` | **Tang Qi Feng** | `feng.tang@wanzhong.vn` | `123456` | **Quản lý** | Ban Giám Đốc | • Quản lý nhân sự toàn bộ doanh nghiệp (Phó Tổng Giám Đốc)<br>• **Duyệt nghỉ phép và hồ sơ ốm đau**, cập nhật bảng công<br>• Xem bảng lương; kế toán thực hiện tính lương<br>• Giao việc và theo dõi tiến độ nhiệm vụ E-Office |
+| **3** | `WZ-003` | **Nguyễn Thị Kim Thoa** | `thoa.nguyen@wanzhong.vn` | `123456` | **Kế toán** | Kế toán | • Xem nhân sự và công để đối chiếu (Kế toán TH / Kế toán trưởng)<br>• Tính và xem **bảng lương toàn công ty**<br>• Thêm/sửa văn bản tiền lương<br>• Chỉ xem hồ sơ nghỉ/ốm và công việc của bản thân; không duyệt hoặc giao việc |
+| **4** | `WZ-004` | **CHEN CONG XING** | `xing.chen@wanzhong.vn` | `123456` | **Nhân viên** | Kỹ thuật | • Quyền nhân viên kỹ thuật cơ bản (Kỹ sư kỹ thuật)<br>• Dữ liệu mẫu kiểm thử chế độ làm thêm OT & hồ sơ ốm đau bổ sung |
 
 ---
 
