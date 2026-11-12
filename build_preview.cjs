@@ -1,6 +1,6 @@
 const fs=require('fs');
 const {createRuntime}=require('./dev/gas-runtime.cjs');
-const backendFiles=['Server.js','HRM.js','EOffice.js','DocumentAI.js'];
+const backendFiles=['Server.js','HRM.js','EOffice.js','DocumentAI.js','PayrollAI.js','Audit.js','Notifications.js'];
 let index=fs.readFileSync('Index.html','utf8');
 for(const name of ['Styles','Modals','Scripts'])index=index.replace(new RegExp('<\\?!=\\s*include\\([\'\"]'+name+'[\'\"]\\);\\s*\\?>','g'),()=>fs.readFileSync(name+'.html','utf8'));
 const backend=backendFiles.map(f=>fs.readFileSync(f,'utf8')).join('\n');

@@ -52,7 +52,7 @@ const server = vm.createContext({
 const diagnosticLogs = [];
 server.Logger.log = value => diagnosticLogs.push(String(value));
 
-for (const file of ['Server', 'HRM', 'EOffice', 'DocumentAI', 'PayrollAI']) {
+for (const file of ['Server', 'HRM', 'EOffice', 'DocumentAI', 'PayrollAI', 'Audit', 'Notifications']) {
   vm.runInContext(fs.readFileSync(file + '.js', 'utf8'), server);
 }
 

@@ -1,7 +1,7 @@
 const fs=require('fs'),vm=require('vm'),assert=require('node:assert/strict'),{webcrypto}=require('crypto');
 const {createRuntime}=require('./gas-runtime.cjs');
 const BusinessDate=require('./test-clock.cjs').fixedDate('2026-12-09T05:00:00Z');
-const files=['Server.js','HRM.js','EOffice.js','DocumentAI.js','PayrollAI.js'];
+const files=['Server.js','HRM.js','EOffice.js','DocumentAI.js','PayrollAI.js','Audit.js','Notifications.js'];
 const runtime=createRuntime({crypto:webcrypto}),context=vm.createContext({...runtime,console,Date:BusinessDate});
 for(const f of files)vm.runInContext(fs.readFileSync(f,'utf8'),context,{filename:f});
 let count=0;function check(name,fn){fn();count++;console.log('PASS',name);}

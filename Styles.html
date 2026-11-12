@@ -240,4 +240,132 @@ button:disabled{opacity:.45;cursor:not-allowed;}
     padding: 0 0.5rem; white-space: nowrap; line-height: 1;
   }
   .sick-resubmit-button { min-width: 9rem; height: 2.25rem; justify-content: center; white-space: nowrap; flex-shrink: 0; }
+
+  /* ============================================================= */
+  /* PRINT OPTIMIZATION FOR PAYSLIP (A4 / A5 EXPORT & PRINTING)   */
+  /* ============================================================= */
+  @media print {
+    @page {
+      size: A4 portrait;
+      margin: 8mm 10mm 8mm 10mm;
+    }
+
+    html,
+    body {
+      background: #ffffff !important;
+      color: #0f172a !important;
+      font-size: 11pt !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      height: auto !important;
+      min-height: 0 !important;
+      max-height: none !important;
+      overflow: visible !important;
+      display: block !important;
+    }
+
+    /* 1. Triệt để loại bỏ toàn bộ màn hình app, thanh điều hướng, modal khác khỏi flow layout */
+    #screen-login,
+    #screen-app,
+    #attendance-popover,
+    #toast,
+    header,
+    nav,
+    aside,
+    footer,
+    .no-print,
+    [id^="modal-"]:not(#modal-payslip) {
+      display: none !important;
+    }
+
+    /* 2. Đưa modal-payslip về khối tài liệu văn bản tĩnh duy nhất chiếm 1 trang */
+    #modal-payslip {
+      position: static !important;
+      display: block !important;
+      width: 100% !important;
+      max-width: 100% !important;
+      height: auto !important;
+      min-height: 0 !important;
+      max-height: none !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      background: transparent !important;
+      backdrop-filter: none !important;
+      box-shadow: none !important;
+      border: none !important;
+      overflow: visible !important;
+      z-index: auto !important;
+    }
+
+    #modal-payslip > div {
+      position: static !important;
+      display: block !important;
+      width: 100% !important;
+      max-width: 100% !important;
+      height: auto !important;
+      min-height: 0 !important;
+      max-height: none !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      background: transparent !important;
+      box-shadow: none !important;
+      border: none !important;
+      overflow: visible !important;
+    }
+
+    /* Ẩn các nút bấm, select và thanh công cụ của modal khi in */
+    #modal-payslip button,
+    #modal-payslip select,
+    #modal-payslip .no-print {
+      display: none !important;
+    }
+
+    #payslip-content {
+      display: block !important;
+      width: 100% !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      height: auto !important;
+      overflow: visible !important;
+    }
+
+    /* 3. Khung in phiếu lương chuẩn doanh nghiệp: vừa khít chính xác 1 trang in A4/A5 */
+    #payslip-print-area {
+      display: block !important;
+      width: 100% !important;
+      margin: 0 auto !important;
+      padding: 12px 16px !important;
+      border: 1.5px solid #1e293b !important;
+      border-radius: 8px !important;
+      box-shadow: none !important;
+      background: #ffffff !important;
+      page-break-inside: avoid !important;
+      break-inside: avoid !important;
+      page-break-after: avoid !important;
+      break-after: avoid !important;
+    }
+
+    #payslip-print-area .overflow-x-auto {
+      overflow: visible !important;
+    }
+
+    #payslip-print-area table {
+      border: 1px solid #334155 !important;
+      page-break-inside: avoid !important;
+      break-inside: avoid !important;
+      page-break-after: avoid !important;
+      break-after: avoid !important;
+    }
+
+    #payslip-print-area th,
+    #payslip-print-area td {
+      border-color: #cbd5e1 !important;
+    }
+
+    /* Đảm bảo in đầy đủ màu sắc nền, viền và chữ */
+    * {
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+  }
 </style>

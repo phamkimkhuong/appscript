@@ -19,7 +19,7 @@ const document={getElementById:id=>nodes.get(id)||null,querySelector:()=>element
 const storage=new Map();const sessionStorage={getItem:k=>storage.get(k)||null,setItem:(k,v)=>storage.set(k,v)};
 let exported=null;const URL={createObjectURL(blob){exported=blob;return 'blob:test';},revokeObjectURL(){}};
 const runtime=createRuntime({crypto:webcrypto}),server=vm.createContext({...runtime,Date:require('./test-clock.cjs').fixedDate('2026-10-09T05:00:00Z')});
-for(const f of ['Server','HRM','EOffice','DocumentAI','PayrollAI'])vm.runInContext(fs.readFileSync(f+'.js','utf8'),server);
+for(const f of ['Server','HRM','EOffice','DocumentAI','PayrollAI','Audit','Notifications'])vm.runInContext(fs.readFileSync(f+'.js','utf8'),server);
 const calls=[];let deferred=false,queue=[];
 function runner(){let done,fail;return {withSuccessHandler(fn){done=fn;return this;},withFailureHandler(fn){fail=fn;return this;},apiLogin(...args){calls.push(['apiLogin',...args]);try{done(server.apiLogin(...args));}catch(e){fail(e);}},apiRequest(...args){calls.push([args[1],...args[2]]);const run=()=>{try{done(server.apiRequest(...args));}catch(e){fail(e);}};if(deferred)queue.push(run);else run();},apiLogout:server.apiLogout};}
 const google={script:{get run(){return runner();}}};

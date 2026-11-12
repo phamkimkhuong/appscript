@@ -21,7 +21,7 @@ const context = vm.createContext({...runtime,Date:require('./test-clock.cjs').fi
   SpreadsheetApp:instrument(runtime.SpreadsheetApp),
   LockService:{getScriptLock:()=>({tryLock(){lockAttempts++;return !lockBusy;},releaseLock(){releases++;}})}
 });
-for (const file of ['Server','HRM','EOffice','DocumentAI','PayrollAI']) {
+for (const file of ['Server','HRM','EOffice','DocumentAI','PayrollAI','Audit','Notifications']) {
   vm.runInContext(fs.readFileSync(file+'.js','utf8'),context,{filename:file+'.js'});
 }
 let count=0;
@@ -50,7 +50,7 @@ check('subsequent login reads users without rewriting seed data or creating file
 check('initial dashboard reads each table once and scopes data',()=>{
   calls={};const result=context.apiRequest(session.token,'apiGetInitialAppData',['','10/2026']);
   assert.equal(result.success,true,result.message);
-  assert.equal(calls.getValues,7);assert.equal(calls.setValues || 0,0);
+  assert.equal(calls.getValues,8);assert.equal(calls.setValues || 0,0);
   assert.equal(result.data.payroll.length,2);
   assert(result.data.tasks.every(task=>task.assigneeId==='WZ-001'));
 });

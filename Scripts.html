@@ -1819,6 +1819,171 @@
       `;
     });
     pList.innerHTML = html;
+    // =====================================================
+// DASHBOARD ADVANCED METRICS
+// =====================================================
+
+const dashTimesheet =
+  appData.timesheetByPeriod[currentTimesheetPeriod] || {};
+
+let totalWork = 0;
+let totalOT = 0;
+let totalLeave = 0;
+let totalSick = 0;
+
+Object.values(dashTimesheet).forEach(days => {
+  (days || []).forEach(symbol => {
+    if (symbol === 'X') totalWork++;
+    if (symbol === 'OT') totalOT++;
+    if (symbol === 'P') totalLeave++;
+    if (symbol === 'O') totalSick++;
+  });
+});
+
+const setDashText = (id, value) => {
+  const el = document.getElementById(id);
+  if (el) el.textContent = value;
+};
+
+setDashText('dash-total-work', totalWork);
+setDashText('dash-total-ot', totalOT);
+setDashText('dash-total-leave', totalLeave);
+setDashText('dash-total-sick', totalSick);
+
+
+// =====================================================
+// TASK OVERVIEW
+// =====================================================
+
+const visibleTasks = (appData.tasks || []).filter(t =>
+  currentUser.role === 'manager' ||
+  t.assigneeId === currentUser.id ||
+  t.empId === currentUser.id
+);
+
+const activeTasks = visibleTasks.filter(t =>
+  t.status !== 'Hoàn thành'
+);
+
+const doneTasks = visibleTasks.filter(t =>
+  t.status === 'Hoàn thành'
+);
+
+const todayIso = new Date().toISOString().slice(0, 10);
+
+const overdueTasks = visibleTasks.filter(t =>
+  t.status !== 'Hoàn thành' &&
+  t.deadline &&
+  String(t.deadline).slice(0, 10) < todayIso
+);
+
+const taskTotal = visibleTasks.length;
+
+const completionRate =
+  taskTotal > 0
+    ? Math.round(doneTasks.length / taskTotal * 100)
+    : 0;
+
+setDashText('dash-task-active', activeTasks.length);
+setDashText('dash-task-done', doneTasks.length);
+setDashText('dash-task-overdue', overdueTasks.length);
+setDashText('dash-task-rate', completionRate + '%');
+
+const progress =
+  document.getElementById('dash-task-progress');
+
+if (progress) {
+  progress.style.width = completionRate + '%';
+}
+
+
+// =====================================================
+// MANAGEMENT ALERTS
+// =====================================================
+
+const alerts = [];
+
+// Pending leave
+const pendingLeaveCount =
+  (appData.leaveRequests || [])
+    .filter(x => x.status === 'PENDING')
+    .length;
+
+if (pendingLeaveCount > 0) {
+  alerts.push({
+    icon: 'fa-file-signature',
+    text: pendingLeaveCount + ' đơn nghỉ phép đang chờ duyệt',
+    type: 'amber'
+  });
+}
+
+// Sick cases
+const pendingSickCount =
+  (appData.sickCases || [])
+    .filter(x =>
+      x.status === 'PENDING' ||
+      x.status === 'NEED_MORE_INFO'
+    )
+    .length;
+
+if (pendingSickCount > 0) {
+  alerts.push({
+    icon: 'fa-briefcase-medical',
+    text: pendingSickCount + ' hồ sơ BHXH cần xử lý',
+    type: 'rose'
+  });
+}
+
+// Overdue tasks
+if (overdueTasks.length > 0) {
+  alerts.push({
+    icon: 'fa-clock',
+    text: overdueTasks.length + ' công việc đã quá hạn',
+    type: 'red'
+  });
+}
+
+// Payroll
+const dashboardPayroll =
+  (appData.payroll || [])
+    .filter(p => p.period === currentPayrollPeriod);
+
+if (
+  ['manager', 'hr'].includes(currentUser.role) &&
+  currentPayrollPeriod &&
+  dashboardPayroll.length === 0
+) {
+  alerts.push({
+    icon: 'fa-money-check-dollar',
+    text: 'Kỳ ' + currentPayrollPeriod + ' chưa tính lương',
+    type: 'blue'
+  });
+}
+
+const alertBox =
+  document.getElementById('dash-alert-list');
+
+if (alertBox) {
+  if (!alerts.length) {
+    alertBox.innerHTML = `
+      <div class="flex items-center gap-2 p-3 rounded-xl bg-emerald-50">
+        <i class="fa-solid fa-circle-check text-emerald-500"></i>
+        <span class="text-xs text-emerald-700 font-medium">
+          Không có vấn đề cần xử lý
+        </span>
+      </div>
+    `;
+  } else {
+    alertBox.innerHTML = alerts.map(a => `
+      <div class="flex items-start gap-2 p-3 rounded-xl bg-slate-50">
+        <i class="fa-solid ${a.icon} mt-0.5 text-amber-500"></i>
+        <span class="text-xs text-slate-700 leading-relaxed">
+          ${escapeHtml(a.text)}
+        </span>
+      </div>
+    `).join('');
+  }
+}
   }
 
   // --- RENDER 2: QUẢN LÝ NHÂN SỰ (EMPLOYEES) ---
@@ -2664,8 +2829,30 @@
     setPayrollPeriodSelect('payroll-period-select', period);
     document.getElementById('payroll-desc').innerText = currentUser.role === 'employee' ? t('payroll_desc_employee', 'Phiếu lương cá nhân theo kỳ') : t('payroll_desc_manager', 'Bảng lương kỳ đã chọn');
     document.getElementById('btn-calc-payroll').classList.toggle('hidden', !['hr', 'manager'].includes(currentUser.role));
+    updateAdvanceBadge();
     const list = appData.payroll.filter(p => p.period === period && (currentUser.role !== 'employee' || p.empId === currentUser.id));
-    document.getElementById('payroll-tbody').innerHTML = list.length ? list.map(p => '<tr><td class="p-3">' + escapeHtml(p.empId) + '</td><td class="p-3">' + escapeHtml(p.empName) + '</td><td>' + escapeHtml(p.title) + '</td><td>' + money(p.baseSalary) + '</td><td>' + p.standardDays + '</td><td>' + p.actualDays + ' + ' + p.paidLeaveDays + ' ' + t('th_ts_p', 'phép') + '</td><td>' + p.otDays + '</td><td>' + money(p.allowance) + '</td><td>' + money(p.netSalary) + '<br><small>' + escapeHtml(p.status) + '</small></td><td><button class="text-blue-700" data-payslip="' + escapeHtml(p.empId) + '">' + t('payroll_btn_view', 'Xem phiếu') + '</button></td></tr>').join('') : '<tr><td colspan="10" class="p-6 text-center">' + t('payroll_empty_msg', 'Chưa có bảng lương kỳ này. Kế toán cần tính lương.') + '</td></tr>';
+    document.getElementById('payroll-tbody').innerHTML = list.length ? list.map(p => `
+      <tr class="hover:bg-slate-50/80 transition">
+        <td class="py-3 px-4 text-left font-mono font-medium text-slate-700 whitespace-nowrap">${escapeHtml(p.empId)}</td>
+        <td class="py-3 px-4 text-left font-semibold text-slate-900 whitespace-nowrap">${escapeHtml(p.empName)}</td>
+        <td class="py-3 px-4 text-left text-slate-600 whitespace-nowrap">${escapeHtml(p.title)}</td>
+        <td class="py-3 px-4 text-right font-semibold text-slate-800 whitespace-nowrap">${money(p.baseSalary)}</td>
+        <td class="py-3 px-3 text-center text-slate-600 whitespace-nowrap">${p.standardDays}</td>
+        <td class="py-3 px-3 text-center font-medium text-slate-800 whitespace-nowrap">${p.actualDays} + ${p.paidLeaveDays} ${t('th_ts_p', 'phép')}</td>
+        <td class="py-3 px-3 text-center font-bold whitespace-nowrap ${p.otDays ? 'text-purple-700' : 'text-slate-400'}">${p.otDays}</td>
+        <td class="py-3 px-4 text-right font-medium text-slate-800 whitespace-nowrap">${money(p.allowance)}</td>
+        <td class="py-3 px-3 text-right font-bold whitespace-nowrap ${p.advance ? 'text-amber-700' : 'text-slate-400'}">${p.advance ? '-' + money(p.advance) : '--'}</td>
+        <td class="py-3 px-4 text-right font-bold text-blue-700 whitespace-nowrap">
+          <div>${money(p.netSalary)}</div>
+          <small class="font-normal text-slate-400 text-[10px] block mt-0.5">${escapeHtml(p.status)}</small>
+        </td>
+        <td class="py-3 px-4 text-center whitespace-nowrap">
+          <button class="px-2.5 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 font-semibold text-xs transition border border-blue-200 shadow-xs" data-payslip="${escapeHtml(p.empId)}">
+            ${t('payroll_btn_view', 'Xem phiếu')}
+          </button>
+        </td>
+      </tr>
+    `).join('') : '<tr><td colspan="11" class="p-6 text-center text-slate-400">' + t('payroll_empty_msg', 'Chưa có bảng lương kỳ này. Kế toán cần tính lương.') + '</td></tr>';
     document.querySelectorAll('[data-payslip]').forEach(button => button.onclick = () => printPayslip(button.dataset.payslip, period));
   }
 
@@ -3458,21 +3645,186 @@
     setPayrollPeriodSelect('payslip-period-select', period);
     const p = payrollPeriods.includes(period) && appData.payroll.find(item => item.empId === empId && item.period === period);
     const target = document.getElementById('payslip-content');
-    if (!p) target.innerHTML = '<p class="p-5">' + t('payslip_empty_prefix', 'Chưa có phiếu lương kỳ ') + escapeHtml(period) + '.</p>';
-    else target.innerHTML = '<p><strong>' + escapeHtml(p.empName) + '</strong> — ' + escapeHtml(period) + '</p><p>' + escapeHtml(p.status) + '</p><table class="w-full text-left">' + [
-      [t('ps_base', 'Lương cơ bản'), money(p.baseSalary)],
-      [t('ps_std_days', 'Công chuẩn'), p.standardDays],
-      [t('ps_actual_days', 'Công đi làm'), p.actualDays],
-      [t('ps_paid_leave', 'Phép hưởng lương'), p.paidLeaveDays],
-      [t('ps_unpaid', 'Nghỉ không lương'), p.unpaidDays],
-      [t('ps_sick', 'Nghỉ ốm'), p.sickDays],
-      [t('ps_salary_days', 'Lương theo công + phép'), money(p.salaryByDays)],
-      [t('ps_ot', 'OT') + ' (' + p.otDays + ' ' + t('ps_ot_desc', 'ngày quy đổi, hệ số 1,5') + ')', money(p.otPay)],
-      [t('ps_allowance', 'Phụ cấp'), money(p.allowance)],
-      [t('ps_bhxh', 'Khấu trừ BHXH'), money(p.bhxh)],
-      [t('ps_net', 'Thực lĩnh'), money(p.netSalary)]
-    ].map(row => '<tr><td class="p-2">' + row[0] + '</td><td class="p-2 text-right">' + row[1] + '</td></tr>').join('') + '</table>';
+    if (!p) {
+      target.innerHTML = '<div class="p-6 text-center text-slate-500 bg-slate-50 rounded-xl border border-dashed border-slate-300"><i class="fa-solid fa-folder-open text-2xl text-slate-400 mb-2 block"></i><p>' + t('payslip_empty_prefix', 'Chưa có phiếu lương kỳ ') + escapeHtml(period) + '.</p></div>';
+      document.getElementById('modal-payslip').classList.remove('hidden');
+      return;
+    }
+
+    const empUser = (USERS_DB || []).find(u => u.id === empId) || (appData.users || []).find(u => u.id === empId) || {};
+    const dept = empUser.dept || p.dept || '--';
+    const isApproved = p.status === 'Đã tính lương';
+
+    let html = `
+      <div id="payslip-print-area" class="bg-white p-4 sm:p-5 border border-slate-300 rounded-xl shadow-xs space-y-3.5">
+        <!-- Header -->
+        <div class="flex items-start justify-between border-b-2 border-slate-800 pb-3 gap-2">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-xl bg-white p-1 border border-slate-200/90 shadow-xs flex items-center justify-center shrink-0">
+              <img src="https:\u002f\u002flh3.googleusercontent.com/d/1XX_099cHe0Rd7kpRFUgrrR_fkuoNwRBb" alt="Wanzhong Logo" class="w-full h-full object-contain rounded-lg">
+            </div>
+            <div>
+              <h4 class="font-extrabold text-slate-900 text-xs sm:text-sm uppercase tracking-tight">CÔNG TY TNHH CÔNG NGHỆ SẠCH WANZHONG VIỆT NAM</h4>
+              <p class="text-[11px] text-slate-500 mt-0.5">KCN Phố Nối A, Xã Lạc Đạo, Huyện Văn Lâm, Tỉnh Hưng Yên</p>
+            </div>
+          </div>
+          <div class="text-right shrink-0">
+            <span class="inline-flex items-center px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider ${isApproved ? 'bg-emerald-100 text-emerald-800 border border-emerald-300' : 'bg-amber-100 text-amber-800 border border-amber-300'}">
+              <i class="fa-solid ${isApproved ? 'fa-circle-check' : 'fa-clock'} mr-1"></i>${escapeHtml(p.status)}
+            </span>
+          </div>
+        </div>
+
+        <!-- Title -->
+        <div class="text-center py-0.5">
+          <h3 class="text-base sm:text-lg font-black text-slate-900 uppercase tracking-wide">PHIẾU THANH TOÁN TIỀN LƯƠNG & CHẾ ĐỘ</h3>
+          <p class="text-xs font-bold text-blue-700 mt-0.5">Kỳ thanh toán: Tháng ${escapeHtml(period)}</p>
+        </div>
+
+        <!-- Employee Info -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 p-3 bg-slate-50/80 border border-slate-200 rounded-lg text-xs">
+          <div><span class="text-slate-500 font-medium block text-[11px]">Mã nhân viên:</span><strong class="text-slate-900 font-mono text-xs font-bold">${escapeHtml(p.empId)}</strong></div>
+          <div><span class="text-slate-500 font-medium block text-[11px]">Họ và tên:</span><strong class="text-slate-900 text-xs font-bold">${escapeHtml(p.empName)}</strong></div>
+          <div><span class="text-slate-500 font-medium block text-[11px]">Phòng ban:</span><span class="text-slate-800 font-medium text-xs">${escapeHtml(dept)}</span></div>
+          <div><span class="text-slate-500 font-medium block text-[11px]">Chức danh:</span><span class="text-slate-800 font-medium text-xs">${escapeHtml(p.title || '--')}</span></div>
+        </div>
+
+        <!-- Salary Breakdown Table -->
+        <div class="overflow-x-auto">
+          <table class="w-full text-xs border border-slate-300 border-collapse">
+            <thead>
+              <tr class="bg-slate-100 text-slate-800 font-bold border-b border-slate-300">
+                <th class="p-2 text-center border-r border-slate-300 w-10">STT</th>
+                <th class="p-2 text-left border-r border-slate-300">Khoản mục chi trả & Giảm trừ</th>
+                <th class="p-2 text-center border-r border-slate-300 w-28">Số lượng / Tỷ lệ</th>
+                <th class="p-2 text-right w-36">Thành tiền (VNĐ)</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-200">
+              <tr class="bg-slate-50/80 font-bold text-slate-800"><td colspan="4" class="p-1.5 px-2.5">I. THU NHẬP THEO CÔNG</td></tr>
+              <tr>
+                <td class="p-2 text-center border-r border-slate-200 text-slate-500">1</td>
+                <td class="p-2 border-r border-slate-200">Lương cơ bản thỏa thuận</td>
+                <td class="p-2 text-center border-r border-slate-200 text-slate-500">--</td>
+                <td class="p-2 text-right font-medium text-slate-900">${money(p.baseSalary)}</td>
+              </tr>
+              <tr>
+                <td class="p-2 text-center border-r border-slate-200 text-slate-500">2</td>
+                <td class="p-2 border-r border-slate-200">Công chuẩn trong kỳ</td>
+                <td class="p-2 text-center border-r border-slate-200 font-semibold text-slate-700">${p.standardDays} ngày</td>
+                <td class="p-2 text-right text-slate-400">--</td>
+              </tr>
+              <tr>
+                <td class="p-2 text-center border-r border-slate-200 text-slate-500">3</td>
+                <td class="p-2 border-r border-slate-200">Công thực tế đi làm (X)</td>
+                <td class="p-2 text-center border-r border-slate-200 font-semibold text-emerald-700">${p.actualDays} ngày</td>
+                <td class="p-2 text-right text-slate-400">--</td>
+              </tr>
+              <tr>
+                <td class="p-2 text-center border-r border-slate-200 text-slate-500">4</td>
+                <td class="p-2 border-r border-slate-200">Nghỉ phép hưởng lương (P)</td>
+                <td class="p-2 text-center border-r border-slate-200 font-semibold text-blue-700">${p.paidLeaveDays} ngày</td>
+                <td class="p-2 text-right text-slate-400">--</td>
+              </tr>
+              <tr class="bg-blue-50/40 font-semibold">
+                <td class="p-2 text-center border-r border-slate-200 text-blue-900 font-bold">5</td>
+                <td class="p-2 border-r border-slate-200 text-blue-900 font-bold">Lương theo công thực tế + phép</td>
+                <td class="p-2 text-center border-r border-slate-200 text-blue-900 font-bold">${p.actualDays + p.paidLeaveDays} / ${p.standardDays}</td>
+                <td class="p-2 text-right text-blue-900 font-bold">${money(p.salaryByDays)}</td>
+              </tr>
+
+              <tr class="bg-slate-50/80 font-bold text-slate-800"><td colspan="4" class="p-1.5 px-2.5">II. LÀM THÊM GIỜ & PHỤ CẤP</td></tr>
+              <tr>
+                <td class="p-2 text-center border-r border-slate-200 text-slate-500">6</td>
+                <td class="p-2 border-r border-slate-200">Làm thêm giờ (OT - Hệ số 1.5)</td>
+                <td class="p-2 text-center border-r border-slate-200 font-semibold text-purple-700">${p.otDays} ngày</td>
+                <td class="p-2 text-right font-medium text-purple-900">${money(p.otPay)}</td>
+              </tr>
+              <tr>
+                <td class="p-2 text-center border-r border-slate-200 text-slate-500">7</td>
+                <td class="p-2 border-r border-slate-200">Phụ cấp trách nhiệm / ăn ca</td>
+                <td class="p-2 text-center border-r border-slate-200 text-slate-500">Định mức</td>
+                <td class="p-2 text-right font-medium text-slate-900">${money(p.allowance)}</td>
+              </tr>
+
+              <tr class="bg-slate-50/80 font-bold text-slate-800"><td colspan="4" class="p-1.5 px-2.5">III. CÁC KHOẢN GIẢM TRỪ & NGHỈ KHÁC</td></tr>
+              <tr>
+                <td class="p-2 text-center border-r border-slate-200 text-slate-500">8</td>
+                <td class="p-2 border-r border-slate-200">Khấu trừ BHXH, BHYT, BHTN</td>
+                <td class="p-2 text-center border-r border-slate-200 font-semibold text-rose-700">10.5%</td>
+                <td class="p-2 text-right font-medium text-rose-700">-${money(p.bhxh)}</td>
+              </tr>
+              <tr>
+                <td class="p-2 text-center border-r border-slate-200 text-slate-500">9</td>
+                <td class="p-2 border-r border-slate-200">Nghỉ không lương (K) / Nghỉ ốm BHXH (O)</td>
+                <td class="p-2 text-center border-r border-slate-200 text-slate-500">${p.unpaidDays} K / ${p.sickDays} O</td>
+                <td class="p-2 text-right text-slate-400">0 đ</td>
+              </tr>
+              <tr>
+                <td class="p-2 text-center border-r border-slate-200 text-slate-500">10</td>
+                <td class="p-2 border-r border-slate-200">Tạm ứng lương trong kỳ</td>
+                <td class="p-2 text-center border-r border-slate-200 ${p.advance ? 'font-semibold text-amber-700' : 'text-slate-400'}">${p.advance ? 'Đã duyệt' : '--'}</td>
+                <td class="p-2 text-right font-medium ${p.advance ? 'text-amber-700' : 'text-slate-400'}">${p.advance ? '-' + money(p.advance) : '0 đ'}</td>
+              </tr>
+
+              <tr class="bg-gradient-to-r from-blue-50 to-indigo-50 border-t-2 border-slate-800">
+                <td colspan="3" class="p-3 text-right font-black text-slate-900 text-xs sm:text-sm uppercase">THỰC LĨNH CHUYỂN KHOẢN (NET):</td>
+                <td class="p-3 text-right font-black text-blue-700 text-sm sm:text-base">${money(p.netSalary)}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Signatures -->
+        <div class="grid grid-cols-3 text-center pt-3 pb-1 text-xs">
+          <div>
+            <p class="font-bold text-slate-800">NGƯỜI LẬP BIỂU</p>
+            <p class="text-[10px] text-slate-400 italic">(Ký, họ tên)</p>
+            <div class="h-12"></div>
+            <p class="font-semibold text-slate-700">Nguyễn Thị Kim Thoa</p>
+          </div>
+          <div>
+            <p class="font-bold text-slate-800">KẾ TOÁN TRƯỞNG / DUYỆT</p>
+            <p class="text-[10px] text-slate-400 italic">(Ký, đóng dấu)</p>
+            <div class="h-12"></div>
+            <p class="font-semibold text-slate-700">Tang Qi Feng</p>
+          </div>
+          <div>
+            <p class="font-bold text-slate-800">NGƯỜI NHẬN TIỀN</p>
+            <p class="text-[10px] text-slate-400 italic">(Ký, họ tên)</p>
+            <div class="h-12"></div>
+            <p class="font-semibold text-slate-900">${escapeHtml(p.empName)}</p>
+          </div>
+        </div>
+      </div>
+    `;
+
+    target.innerHTML = html;
     document.getElementById('modal-payslip').classList.remove('hidden');
+  }
+
+  function handleExportPayslipPdf() {
+    const period = currentPayrollPeriod || '10/2026';
+    const empId = currentPayslipEmpId || (currentUser && currentUser.id);
+    const p = payrollPeriods.includes(period) && appData.payroll.find(item => item.empId === empId && item.period === period);
+    if (!p) {
+      showToast(t('payslip_empty_prefix', 'Chưa có phiếu lương kỳ ') + period, 'warning');
+      return;
+    }
+    const originalTitle = document.title;
+    const cleanId = String(p.empId || 'NV').replace(/[^a-zA-Z0-9_-]/g, '');
+    const cleanPeriod = String(period).replace('/', '_');
+    document.title = 'Phieu_Luong_' + cleanId + '_' + cleanPeriod;
+    try {
+      window.print();
+    } finally {
+      document.title = originalTitle;
+    }
+  }
+
+  if (typeof window !== 'undefined') {
+    window.handleExportPayslipPdf = handleExportPayslipPdf;
+    window.printPayslip = printPayslip;
   }
 
   function changePayslipPeriod(period) {
@@ -3492,6 +3844,209 @@
 
   if (typeof window !== 'undefined') {
     window.togglePayrollFormulaDetails = togglePayrollFormulaDetails;
+    window.openAdvanceModal = openAdvanceModal;
+    window.renderAdvancesList = renderAdvancesList;
+    window.handleAdvanceSubmit = handleAdvanceSubmit;
+    window.handleApproveAdvance = handleApproveAdvance;
+    window.handleRejectAdvance = handleRejectAdvance;
+    window.updateAdvanceBadge = updateAdvanceBadge;
+  }
+
+  /* ============================================================= */
+  /* SALARY ADVANCE CLIENT CONTROLLER (TẠM ỨNG LƯƠNG)              */
+  /* ============================================================= */
+
+  function updateAdvanceBadge() {
+    const badge = document.getElementById('advance-badge');
+    if (!badge || !currentUser) return;
+    const list = (appData && appData.advances) ? appData.advances : [];
+    let pendingCount = 0;
+    if (['manager', 'hr'].includes(currentUser.role)) {
+      pendingCount = list.filter(a => a.status === 'Chờ duyệt').length;
+    } else {
+      pendingCount = list.filter(a => a.empId === currentUser.id && a.status === 'Chờ duyệt').length;
+    }
+    if (pendingCount > 0) {
+      badge.textContent = pendingCount;
+      badge.classList.remove('hidden');
+    } else {
+      badge.classList.add('hidden');
+    }
+  }
+
+  function openAdvanceModal() {
+    if (!currentUser) return;
+    const reqName = document.getElementById('advance-requester-name');
+    if (reqName) reqName.textContent = currentUser.name + ' (' + currentUser.id + ')';
+
+    const periodSelect = document.getElementById('advance-form-period');
+    if (periodSelect) {
+      const periods = payrollPeriods && payrollPeriods.length ? payrollPeriods : ['10/2026', '09/2026'];
+      periodSelect.innerHTML = periods.map(p => '<option value="' + escapeHtml(p) + '">' + escapeHtml(p) + '</option>').join('');
+      periodSelect.value = currentPayrollPeriod || periods[0];
+    }
+
+    const amountInput = document.getElementById('advance-form-amount');
+    if (amountInput) amountInput.value = '';
+
+    const reasonInput = document.getElementById('advance-form-reason');
+    if (reasonInput) reasonInput.value = '';
+
+    renderAdvancesList();
+    document.getElementById('modal-advance').classList.remove('hidden');
+  }
+
+  function renderAdvancesList() {
+    const tbody = document.getElementById('advance-tbody');
+    const countEl = document.getElementById('advance-list-count');
+    const titleEl = document.getElementById('advance-list-title');
+    if (!tbody) return;
+
+    const all = appData.advances || [];
+    const isBoss = ['manager', 'hr'].includes(currentUser.role);
+
+    if (titleEl) {
+      titleEl.textContent = isBoss ? 'Danh Sách Yêu Cầu Tạm Ứng Toàn Công Ty' : 'Lịch Sử Tạm Ứng Của Tôi';
+    }
+
+    const list = isBoss ? all : all.filter(a => a.empId === currentUser.id);
+    if (countEl) countEl.textContent = list.length + ' bản ghi';
+
+    if (!list.length) {
+      tbody.innerHTML = '<tr><td colspan="7" class="p-6 text-center text-slate-400 italic">Chưa có bản ghi tạm ứng nào trong hệ thống.</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = list.map(a => {
+      let stBadge = '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-300">Chờ duyệt</span>';
+      if (a.status === 'Đã duyệt') {
+        stBadge = '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">Đã duyệt</span>';
+      } else if (a.status === 'Từ chối') {
+        stBadge = '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-800 border border-rose-300">Từ chối</span>';
+      }
+
+      let actionsHtml = '--';
+      if (isBoss && a.status === 'Chờ duyệt') {
+        actionsHtml = `
+          <div class="flex items-center justify-center gap-1.5">
+            <button onclick="handleApproveAdvance('${escapeHtml(a.id)}')"
+              class="px-2 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg font-bold text-[10px] shadow-xs flex items-center gap-1 transition">
+              <i class="fa-solid fa-check"></i>
+              <span>Duyệt</span>
+            </button>
+            <button onclick="handleRejectAdvance('${escapeHtml(a.id)}')"
+              class="px-2 py-1 bg-rose-600 hover:bg-rose-500 text-white rounded-lg font-bold text-[10px] shadow-xs flex items-center gap-1 transition">
+              <i class="fa-solid fa-xmark"></i>
+              <span>Từ chối</span>
+            </button>
+          </div>
+        `;
+      } else if (a.status === 'Đã duyệt' && a.approver) {
+        actionsHtml = `<span class="text-[10px] text-emerald-700 font-medium">Bởi: ${escapeHtml(a.approver)}</span>`;
+      }
+
+      return `
+        <tr class="hover:bg-slate-50 transition">
+          <td class="py-2.5 px-3 font-mono font-bold text-slate-900">${escapeHtml(a.id)}</td>
+          <td class="py-2.5 px-3 font-semibold text-blue-700">${escapeHtml(a.period)}</td>
+          <td class="py-2.5 px-3">
+            <span class="font-bold text-slate-800 block">${escapeHtml(a.empName)}</span>
+            <span class="text-[10px] text-slate-400 font-mono">${escapeHtml(a.empId)} - ${escapeHtml(a.dept || '')}</span>
+          </td>
+          <td class="py-2.5 px-3 text-right font-black text-amber-800 text-xs">${money(a.amount)}</td>
+          <td class="py-2.5 px-3 text-slate-600 max-w-[180px] truncate" title="${escapeHtml(a.reason)}">${escapeHtml(a.reason)}</td>
+          <td class="py-2.5 px-3 text-center">${stBadge}</td>
+          <td class="py-2.5 px-3 text-center">${actionsHtml}</td>
+        </tr>
+      `;
+    }).join('');
+    updateAdvanceBadge();
+  }
+
+  function handleAdvanceSubmit(event) {
+    if (event) event.preventDefault();
+    const period = document.getElementById('advance-form-period').value;
+    const amount = Number(document.getElementById('advance-form-amount').value);
+    const reason = document.getElementById('advance-form-reason').value.trim();
+
+    if (!amount || amount <= 0) {
+      showToast('Số tiền tạm ứng không hợp lệ.', 'warning');
+      return;
+    }
+    if (!reason) {
+      showToast('Vui lòng nhập lý do tạm ứng.', 'warning');
+      return;
+    }
+
+    const btn = document.getElementById('btn-advance-submit');
+    if (btn) btn.disabled = true;
+
+    rpc('apiSubmitAdvance', { period: period, amount: amount, reason: reason }, function(res) {
+      if (btn) btn.disabled = false;
+      if (res && res.success) {
+        showToast(res.message || 'Đã gửi yêu cầu tạm ứng thành công!', 'success');
+        if (!appData.advances) appData.advances = [];
+        appData.advances.unshift({
+          id: res.newId || ('TU-' + Date.now()),
+          period: period,
+          empId: currentUser.id,
+          empName: currentUser.name,
+          dept: currentUser.dept,
+          amount: amount,
+          reason: reason,
+          date: 'Vừa xong',
+          status: 'Chờ duyệt',
+          approver: '',
+          approvedAt: ''
+        });
+        document.getElementById('advance-form-amount').value = '';
+        document.getElementById('advance-form-reason').value = '';
+        renderAdvancesList();
+      } else {
+        showToast(res ? res.message : 'Lỗi gửi yêu cầu tạm ứng.', 'danger');
+      }
+    });
+  }
+
+  function handleApproveAdvance(id) {
+    if (!confirm('Bạn có chắc chắn muốn phê duyệt đơn tạm ứng này? Số tiền sẽ tự động được cấn trừ vào bảng lương kỳ.')) return;
+    rpc('apiApproveAdvance', id, function(res) {
+      if (res && res.success) {
+        showToast(res.message || 'Đã duyệt đơn tạm ứng!', 'success');
+        const item = (appData.advances || []).find(a => a.id === id);
+        if (item) {
+          item.status = 'Đã duyệt';
+          item.approver = currentUser.name;
+        }
+        renderAdvancesList();
+        rpc('apiGetPayrollData', [], function(pRes) {
+          if (pRes && pRes.success && pRes.data) {
+            appData.payroll = pRes.data;
+            renderPayrollTable();
+          }
+        });
+      } else {
+        showToast(res ? res.message : 'Lỗi phê duyệt đơn tạm ứng.', 'danger');
+      }
+    });
+  }
+
+  function handleRejectAdvance(id) {
+    const reason = prompt('Nhập lý do từ chối đơn tạm ứng này:', 'Chưa phù hợp với quy chế nội bộ');
+    if (reason === null) return;
+    rpc('apiRejectAdvance', id, reason, function(res) {
+      if (res && res.success) {
+        showToast(res.message || 'Đã từ chối đơn tạm ứng!', 'warning');
+        const item = (appData.advances || []).find(a => a.id === id);
+        if (item) {
+          item.status = 'Từ chối';
+          item.approver = currentUser.name;
+        }
+        renderAdvancesList();
+      } else {
+        showToast(res ? res.message : 'Lỗi từ chối đơn tạm ứng.', 'danger');
+      }
+    });
   }
 
   function populateAssigneeSelect() {
@@ -4079,7 +4634,7 @@
       const data = res.data; USERS_DB = data.users;
       payrollPeriods = data.payrollPeriods || [];
       if (!payrollPeriods.includes(currentPayrollPeriod)) currentPayrollPeriod = data.defaultPayrollPeriod || '';
-      appData = { attendanceCutoff: data.attendanceCutoff, attendanceAsOf: data.attendanceAsOf, plannedTimesheet: data.plannedTimesheet || {}, timesheet: data.timesheet, timesheetByPeriod: { [period]: data.timesheet }, leaveRequests: data.leaves, sickCases: data.sickCases, payroll: data.payroll, tasks: data.tasks, documents: data.documents };
+      appData = { attendanceCutoff: data.attendanceCutoff, attendanceAsOf: data.attendanceAsOf, plannedTimesheet: data.plannedTimesheet || {}, timesheet: data.timesheet, timesheetByPeriod: { [period]: data.timesheet }, leaveRequests: data.leaves, sickCases: data.sickCases, payroll: data.payroll, tasks: data.tasks, documents: data.documents, advances: data.advances || [] };
       timesheetCacheByPeriod = {
         [period]: {
           timesheet: data.timesheet,

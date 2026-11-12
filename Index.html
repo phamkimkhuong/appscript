@@ -406,6 +406,155 @@
             <!-- Rendered by JS -->
           </div>
         </div>
+        <!-- DASHBOARD ADVANCED -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+
+  <!-- Attendance Overview -->
+  <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
+    <div class="flex items-center justify-between mb-4">
+      <div>
+        <h3 class="text-sm font-bold text-slate-900">
+          Tổng Quan Chuyên Cần
+        </h3>
+        <p class="text-[11px] text-slate-500 mt-1">
+          Theo kỳ chấm công đang chọn
+        </p>
+      </div>
+
+      <div class="w-9 h-9 rounded-xl bg-blue-50 text-blue-600
+                  flex items-center justify-center">
+        <i class="fa-solid fa-calendar-check"></i>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-3">
+
+      <div class="p-3 rounded-xl bg-emerald-50">
+        <div class="text-[11px] text-emerald-700 font-semibold">
+          Công thực
+        </div>
+        <div id="dash-total-work"
+             class="text-xl font-extrabold text-emerald-700 mt-1">
+          0
+        </div>
+      </div>
+
+      <div class="p-3 rounded-xl bg-purple-50">
+        <div class="text-[11px] text-purple-700 font-semibold">
+          OT
+        </div>
+        <div id="dash-total-ot"
+             class="text-xl font-extrabold text-purple-700 mt-1">
+          0
+        </div>
+      </div>
+
+      <div class="p-3 rounded-xl bg-blue-50">
+        <div class="text-[11px] text-blue-700 font-semibold">
+          Nghỉ phép
+        </div>
+        <div id="dash-total-leave"
+             class="text-xl font-extrabold text-blue-700 mt-1">
+          0
+        </div>
+      </div>
+
+      <div class="p-3 rounded-xl bg-rose-50">
+        <div class="text-[11px] text-rose-700 font-semibold">
+          Nghỉ ốm
+        </div>
+        <div id="dash-total-sick"
+             class="text-xl font-extrabold text-rose-700 mt-1">
+          0
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Task Overview -->
+  <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
+    <div class="flex items-center justify-between mb-4">
+      <div>
+        <h3 class="text-sm font-bold text-slate-900">
+          Tiến Độ Công Việc
+        </h3>
+        <p class="text-[11px] text-slate-500 mt-1">
+          Theo dõi nhiệm vụ toàn hệ thống
+        </p>
+      </div>
+
+      <div class="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-600
+                  flex items-center justify-center">
+        <i class="fa-solid fa-list-check"></i>
+      </div>
+    </div>
+
+    <div class="space-y-3">
+
+      <div class="flex justify-between items-center">
+        <span class="text-xs text-slate-600">Đang xử lý</span>
+        <span id="dash-task-active"
+              class="text-sm font-bold text-amber-600">0</span>
+      </div>
+
+      <div class="flex justify-between items-center">
+        <span class="text-xs text-slate-600">Hoàn thành</span>
+        <span id="dash-task-done"
+              class="text-sm font-bold text-emerald-600">0</span>
+      </div>
+
+      <div class="flex justify-between items-center">
+        <span class="text-xs text-slate-600">Quá hạn</span>
+        <span id="dash-task-overdue"
+              class="text-sm font-bold text-rose-600">0</span>
+      </div>
+
+      <div class="pt-2 border-t border-slate-100">
+        <div class="flex justify-between text-[11px] mb-1.5">
+          <span class="text-slate-500">Tỷ lệ hoàn thành</span>
+          <span id="dash-task-rate"
+                class="font-bold text-indigo-600">0%</span>
+        </div>
+
+        <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+          <div id="dash-task-progress"
+               class="h-full bg-indigo-500 rounded-full"
+               style="width:0%">
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Alerts -->
+  <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
+    <div class="flex items-center justify-between mb-4">
+      <div>
+        <h3 class="text-sm font-bold text-slate-900">
+          Cảnh Báo Quản Trị
+        </h3>
+        <p class="text-[11px] text-slate-500 mt-1">
+          Các vấn đề cần chú ý
+        </p>
+      </div>
+
+      <div class="w-9 h-9 rounded-xl bg-amber-50 text-amber-600
+                  flex items-center justify-center">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+      </div>
+    </div>
+
+    <div id="dash-alert-list" class="space-y-2">
+      <div class="text-xs text-slate-400 text-center py-4">
+        Không có cảnh báo
+      </div>
+    </div>
+
+  </div>
+
+</div>
       </section>
 
       <!-- ========================================== -->
@@ -700,6 +849,12 @@
               <i class="fa-solid fa-wand-magic-sparkles text-amber-300"></i>
               <span data-i18n="payroll_btn_ai">AI Phân Tích Lương & OT</span>
             </button>
+            <button id="btn-advance-modal" onclick="openAdvanceModal()"
+              class="relative px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-300 shadow-xs flex items-center space-x-1.5 transition">
+              <i class="fa-solid fa-hand-holding-dollar text-amber-600"></i>
+              <span data-i18n="payroll_btn_advance">Tạm Ứng Lương</span>
+              <span id="advance-badge" class="hidden ml-1 px-1.5 py-0.5 rounded-full text-[10px] font-extrabold bg-rose-600 text-white shadow-xs animate-pulse">0</span>
+            </button>
             <button onclick="printPayslip(currentUser.id)"
               class="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 shadow-xs flex items-center space-x-1.5 transition">
               <i class="fa-solid fa-receipt text-slate-500"></i>
@@ -726,6 +881,8 @@
               <span class="px-1.5 py-0.5 rounded bg-white border border-slate-200 text-slate-700 font-medium" data-i18n="payroll_formula_item_allowance">Phụ Cấp (1.5tr)</span>
               <span class="text-slate-400 font-bold">−</span>
               <span class="px-1.5 py-0.5 rounded bg-white border border-slate-200 text-slate-700 font-medium" data-i18n="payroll_formula_item_bhxh">Khấu Trừ BHXH (10.5%)</span>
+              <span class="text-slate-400 font-bold">−</span>
+              <span class="px-1.5 py-0.5 rounded bg-amber-50 border border-amber-200 text-amber-800 font-medium" data-i18n="payroll_formula_item_advance">Tạm Ứng</span>
             </div>
             <button type="button" onclick="togglePayrollFormulaDetails()"
               class="self-start sm:self-auto text-[11px] font-semibold text-slate-600 hover:text-slate-900 bg-white border border-slate-200 hover:border-slate-300 rounded-lg px-2 py-1 flex items-center space-x-1 transition shrink-0">
@@ -735,7 +892,7 @@
           </div>
 
           <!-- Chi tiết cách tính các thành phần (mặc định ẩn gọn) -->
-          <div id="payroll-formula-details" class="hidden pt-2 border-t border-slate-200/80 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 text-[11px] text-slate-600">
+          <div id="payroll-formula-details" class="hidden pt-2 border-t border-slate-200/80 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2 text-[11px] text-slate-600">
             <div class="bg-white p-2 rounded-lg border border-slate-200/70">
               <div class="font-bold text-slate-800" data-i18n="payroll_formula_step1_title">1. Lương Ngày Công</div>
               <div class="font-mono text-slate-700 text-[10px] mt-0.5" data-i18n="payroll_formula_step1_desc">(Lương CB ÷ 22) × (Công [X] + Phép [P])</div>
@@ -752,6 +909,10 @@
               <div class="font-bold text-slate-800" data-i18n="payroll_formula_step4_title">4. Khấu Trừ BHXH</div>
               <div class="font-mono text-slate-700 text-[10px] mt-0.5" data-i18n="payroll_formula_step4_desc">−(Lương Cơ Bản × 10.5%)</div>
             </div>
+            <div class="bg-white p-2 rounded-lg border border-amber-200/80">
+              <div class="font-bold text-amber-800" data-i18n="payroll_formula_step5_title">5. Tạm Ứng Lương</div>
+              <div class="font-mono text-amber-700 text-[10px] mt-0.5" data-i18n="payroll_formula_step5_desc">−(Số tiền đã tạm ứng trong kỳ)</div>
+            </div>
           </div>
         </div>
 
@@ -761,14 +922,15 @@
               <thead
                 class="bg-slate-100/80 text-slate-700 uppercase font-semibold text-[11px] border-b border-slate-200">
                 <tr>
-                  <th class="py-3 px-4" data-i18n="th_emp_id">Mã NV</th>
-                  <th class="py-3 px-4" data-i18n="th_emp_name">Họ và Tên</th>
-                  <th class="py-3 px-4" data-i18n="th_emp_title">Chức Vụ</th>
+                  <th class="py-3 px-4 text-left" data-i18n="th_emp_id">Mã NV</th>
+                  <th class="py-3 px-4 text-left" data-i18n="th_emp_name">Họ và Tên</th>
+                  <th class="py-3 px-4 text-left" data-i18n="th_emp_title">Chức Vụ</th>
                   <th class="py-3 px-4 text-right" data-i18n="th_pr_base">Lương Cơ Bản</th>
                   <th class="py-3 px-3 text-center" data-i18n="th_pr_std">Công Chuẩn</th>
                   <th class="py-3 px-3 text-center" data-i18n="th_pr_actual">Công Thực</th>
                   <th class="py-3 px-3 text-center text-purple-700 font-bold" data-i18n="th_pr_ot">Làm Thêm (OT)</th>
                   <th class="py-3 px-4 text-right" data-i18n="th_pr_allowance">Phụ Cấp</th>
+                  <th class="py-3 px-3 text-right text-amber-700 font-bold" data-i18n="th_pr_advance">Tạm Ứng</th>
                   <th class="py-3 px-4 text-right font-bold text-blue-700" data-i18n="th_pr_net">Thực Lĩnh (VND)</th>
                   <th class="py-3 px-4 text-center" data-i18n="th_actions">Thao Tác</th>
                 </tr>

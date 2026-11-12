@@ -12,7 +12,7 @@ const fetch = (url, options) => {
 const server = vm.createContext({ ...runtime, UrlFetchApp: { fetch }, LockService: { getScriptLock() { locks++; return { tryLock: () => true, releaseLock() {} }; } } });
 const diagnosticLogs = [];
 server.Logger.log = value => diagnosticLogs.push(String(value));
-for (const file of ['Server', 'HRM', 'EOffice', 'DocumentAI', 'PayrollAI']) vm.runInContext(fs.readFileSync(file + '.js', 'utf8'), server);
+for (const file of ['Server', 'HRM', 'EOffice', 'DocumentAI', 'PayrollAI', 'Audit', 'Notifications']) vm.runInContext(fs.readFileSync(file + '.js', 'utf8'), server);
 const login = email => { const r = server.apiLogin(email, '123456'); assert(r.success); return r; };
 const employee = login('linh.nguyen@wanzhong.vn'), manager = login('feng.tang@wanzhong.vn'), accountant = login('thoa.nguyen@wanzhong.vn');
 const tables = runtime.state.sheets[vm.runInContext('CONFIG.DEFAULT_SPREADSHEET_ID', server)];

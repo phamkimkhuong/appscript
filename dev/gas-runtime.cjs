@@ -34,8 +34,8 @@ function createRuntime(options = {}) {
   function folder(id){if(!state.folders[id])throw Error('Folder unavailable');return {getId:()=>id,createFile(b){const fileId=uuid();state.files[fileId]={bytes:b.getBytes(),type:b.getContentType(),name:b.getName(),folder:id};return file(fileId);},setTrashed(){Object.keys(state.files).filter(key=>state.files[key].folder===id).forEach(key=>delete state.files[key]);delete state.folders[id];return this;}};}
   const DriveApp={createFolder(){const id=uuid();state.folders[id]={};return folder(id);},getFolderById:folder,getFileById(id){if(state.sheets[id])return {setTrashed(){delete state.sheets[id];}};return file(id);}};
   const Utilities={getUuid:uuid,newBlob:blob,base64Encode(bytes){let raw='';for(const b of bytes)raw+=String.fromCharCode((b+256)%256);return btoa(raw);},base64Decode(text){return Array.from(atob(text),c=>c.charCodeAt(0));},formatDate(date,zone,pattern){
-    const parts=Object.fromEntries(new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Ho_Chi_Minh',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false}).formatToParts(date).map(x=>[x.type,x.value]));
-    return pattern.replace(/yyyy|MM|dd|HH|mm/g,key=>({yyyy:parts.year,MM:parts.month,dd:parts.day,HH:parts.hour,mm:parts.minute}[key]));
+    const parts=Object.fromEntries(new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Ho_Chi_Minh',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}).formatToParts(date).map(x=>[x.type,x.value]));
+    return pattern.replace(/yyyy|MM|dd|HH|mm|ss/g,key=>({yyyy:parts.year,MM:parts.month,dd:parts.day,HH:parts.hour,mm:parts.minute,ss:parts.second}[key]));
   }};
   return {state,SpreadsheetApp,DriveApp,Utilities,PropertiesService:{getScriptProperties:()=>properties},CacheService:{getScriptCache:()=>cache},LockService:{getScriptLock:()=>({tryLock:()=>true,releaseLock(){}})},Logger:{log(){}}};
 }

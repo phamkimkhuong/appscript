@@ -72,7 +72,11 @@ const CONFIG = {
     SICK: "HoSoOmDau",
     PAYROLL: "BangLuong",
     TASKS: "CongViec",
-    DOCUMENTS: "VanBan"
+    DOCUMENTS: "VanBan",
+    AUDIT: "NhatKy",
+    NOTIFICATIONS: "ThongBao",
+    PAYROLL_PERIODS: "KyLuong",
+    ADVANCE: "TamUngLuong"
   },
   ROLES: {
     EMPLOYEE: "employee",
@@ -191,7 +195,7 @@ function attendanceTotals_(days) {
   };
 }
 
-const PAYROLL_FIELDS_ = { period: 'Mã Kỳ Lương', empId: 'Mã NV', empName: 'Họ và Tên', title: 'Chức Vụ', baseSalary: 'Lương Cơ Bản', standardDays: 'Công Chuẩn', actualDays: 'Công Thực', allowance: 'Phụ Cấp', bhxh: 'Khấu Trừ BHXH', netSalary: 'Thực Lĩnh', status: 'Trạng Thái', otDays: 'Ngày OT', otPay: 'Tiền OT', paidLeaveDays: 'Phép Hưởng Lương', unpaidDays: 'Nghỉ Không Lương', sickDays: 'Ngày Ốm', salaryByDays: 'Lương Theo Công' };
+const PAYROLL_FIELDS_ = { period: 'Mã Kỳ Lương', empId: 'Mã NV', empName: 'Họ và Tên', title: 'Chức Vụ', baseSalary: 'Lương Cơ Bản', standardDays: 'Công Chuẩn', actualDays: 'Công Thực', allowance: 'Phụ Cấp', bhxh: 'Khấu Trừ BHXH', advance: 'Tạm Ứng', netSalary: 'Thực Lĩnh', status: 'Trạng Thái', otDays: 'Ngày OT', otPay: 'Tiền OT', paidLeaveDays: 'Phép Hưởng Lương', unpaidDays: 'Nghỉ Không Lương', sickDays: 'Ngày Ốm', salaryByDays: 'Lương Theo Công' };
 
 function currentBusinessPeriod_(now) {
   return Utilities.formatDate(now || new Date(), CONFIG.TIMEZONE, 'MM/yyyy');
@@ -233,11 +237,30 @@ function payrollValue_(user, period, days) {
   const otPay = Math.round(baseSalary / standardDays * 1.5 * totals.otDays);
   const allowance = CONFIG.STANDARD_ALLOWANCE;
   const bhxh = Math.round(baseSalary * CONFIG.BHXH_RATE);
+
+  let advance = 0;
+  try {
+    if (!IS_SEEDING_ && REQUEST_CONTEXT_ && REQUEST_CONTEXT_.ss) {
+      const advanceSheetName = (CONFIG.SHEET_NAMES && CONFIG.SHEET_NAMES.ADVANCE) || 'TamUngLuong';
+      const advances = (typeof rows_ === 'function') ? rows_(advanceSheetName) : [];
+      if (advances && Array.isArray(advances)) {
+        advance = advances
+          .filter(a => a['Mã NV'] === user['Mã NV'] && a['Mã Kỳ Lương'] === period && a['Trạng Thái'] === 'Đã duyệt')
+          .reduce((sum, a) => sum + (Number(a['Số Tiền']) || 0), 0);
+      }
+    }
+  } catch (err) {
+    advance = 0;
+  }
+
+  const netSalary = Math.max(0, salaryByDays + otPay + allowance - bhxh - advance);
+
   return Object.assign({
     period: period, empId: user['Mã NV'], empName: user['Họ và Tên'],
     title: user['Chức Vụ'], baseSalary: baseSalary, standardDays: standardDays,
     salaryByDays: salaryByDays, otPay: otPay, allowance: allowance, bhxh: bhxh,
-    netSalary: Math.max(0, salaryByDays + otPay + allowance - bhxh), status: period === businessToday_().slice(5, 7) + '/' + businessToday_().slice(0, 4) ? 'Tạm tính đến ' + businessToday_().split('-').reverse().join('/') + ' (chưa chốt)' : 'Đã tính lương'
+    advance: advance, netSalary: netSalary,
+    status: period === businessToday_().slice(5, 7) + '/' + businessToday_().slice(0, 4) ? 'Tạm tính đến ' + businessToday_().split('-').reverse().join('/') + ' (chưa chốt)' : 'Đã tính lương'
   }, totals);
 }
 
@@ -321,9 +344,12 @@ function formatDateVN_(date) {
   return Utilities.formatDate(d, CONFIG.TIMEZONE, "dd/MM/yyyy HH:mm");
 }
 
+let IS_SEEDING_ = false;
 function demoSeedTables_() {
-  const tables = {};
-  const getOrCreateSheet = name => (tables[name] = []);
+  IS_SEEDING_ = true;
+  try {
+    const tables = {};
+    const getOrCreateSheet = name => (tables[name] = []);
 
   // 1. Sheet Users
   let userSheet = getOrCreateSheet(CONFIG.SHEET_NAMES.USERS);
@@ -424,6 +450,26 @@ function demoSeedTables_() {
     docSheet.push(["PL01/2024/ĐC-LƯƠNG", "Phụ lục bảng kê chi tiết điều chỉnh hệ số và mức lương cán bộ CNV Tháng 7/2024", "Quy chế lương", "Phòng Kế toán - Tài chính", "2024-07-01", "Kế toán trưởng", "", "Hiệu lực", "Tiền lương & Chế độ BHXH"]);
   }
 
+  // 7. Sheet NhatKy (Audit Trail)
+  let auditSheet = getOrCreateSheet(CONFIG.SHEET_NAMES.AUDIT);
+  if (auditSheet.length < 1) {
+    auditSheet.push(["Thời Gian", "Email", "Mã NV", "Họ Tên", "Vai Trò", "Hành Động", "Phân Hệ", "Đối Tượng", "Chi Tiết"]);
+  }
+
+  // 8. Sheet ThongBao (Notifications)
+  let notifSheet = getOrCreateSheet(CONFIG.SHEET_NAMES.NOTIFICATIONS);
+  if (notifSheet.length < 1) {
+    notifSheet.push(["Mã TB", "Mã NV", "Tiêu Đề", "Nội Dung", "Loại", "Link Phân Hệ", "Đã Đọc", "Thời Gian"]);
+  }
+
+  // 9. Sheet TamUngLuong (Salary Advance)
+  let advanceSheet = getOrCreateSheet(CONFIG.SHEET_NAMES.ADVANCE);
+  if (advanceSheet.length < 1) {
+    advanceSheet.push(["Mã Đơn", "Mã Kỳ Lương", "Mã NV", "Họ và Tên", "Phòng Ban", "Số Tiền", "Lý Do", "Ngày Tạo", "Trạng Thái", "Người Duyệt", "Ngày Duyệt", "Lý Do Từ Chối"]);
+    advanceSheet.push(["TU-2610-01", "10/2026", "WZ-001", "Nguyễn Thuỳ Linh", "Hành chính", 2000000, "Việc gia đình đột xuất", "10/10/2026 09:30", "Chờ duyệt", "", "", ""]);
+    advanceSheet.push(["TU-2610-02", "10/2026", "WZ-005", "Chen SongMao", "Kinh doanh", 2000000, "Chi phí cá nhân", "08/10/2026 14:15", "Đã duyệt", "Tang Qi Feng", "09/10/2026 08:30", ""]);
+  }
+
   const users = matrixToObjects_(tables[CONFIG.SHEET_NAMES.USERS]);
   const historicalPeriods = previousPayrollPeriods_(null, 2);
   const attendanceRows = tables[CONFIG.SHEET_NAMES.ATTENDANCE];
@@ -459,8 +505,11 @@ function demoSeedTables_() {
     const value = payrollValue_(user, period, days);
     payrollRows.push(payrollKeys.map(key => value[key]));
   }));
-  tables[CONFIG.SHEET_NAMES.PAYROLL] = payrollRows;
-  return tables;
+    tables[CONFIG.SHEET_NAMES.PAYROLL] = payrollRows;
+    return tables;
+  } finally {
+    IS_SEEDING_ = false;
+  }
 }
 
 function setupDatabaseSheets_(customSS, forceReset) {
@@ -493,8 +542,13 @@ function rows_(name) {
 
 function saveRow_(name, fields, rowIndex) {
   if (REQUEST_CONTEXT_) delete (REQUEST_CONTEXT_.rows || {})[name];
-  const sheet = getSpreadsheet_().getSheetByName(name);
-  const headers = sheet.getDataRange().getValues()[0].map(String);
+  const ss = getSpreadsheet_();
+  let sheet = ss.getSheetByName(name);
+  if (!sheet) {
+    sheet = ss.insertSheet(name);
+  }
+  const data = sheet.getDataRange().getValues();
+  const headers = (data && data[0] && data[0].length && data[0][0]) ? data[0].map(String) : [];
   Object.keys(fields).forEach(key => { if (!headers.includes(key)) headers.push(key); });
   if (sheet.getMaxColumns() < headers.length) sheet.insertColumnsAfter(sheet.getMaxColumns(), headers.length - sheet.getMaxColumns());
   const targetRow = rowIndex || sheet.getLastRow() + 1;
@@ -573,7 +627,13 @@ function apiRequest(token, action, args) {
     apiSubmitSick: submitSick_, apiApproveSick: approveSick_, apiRejectSick: rejectSick_, apiAskMoreInfoSick: askMoreSick_, apiResubmitSick: resubmitSick_,
     apiSaveDocument: saveDocument_, apiUpdateDocument: updateDocument_, apiSaveTask: saveTask_, apiUpdateTaskStatus: updateTaskStatus_,
     apiSaveEmployee: saveEmployee_, apiDeleteEmployee: deleteEmployee_, apiResetDatabase: resetDatabase_, apiReadAttachment: readAttachment_,
-    apiAnalyzeDocument: analyzeDocument_, apiAnalyzePayrollAI: analyzePayrollAI_
+    apiAnalyzeDocument: analyzeDocument_, apiAnalyzePayrollAI: analyzePayrollAI_,
+    apiGetNotifications: getNotifications_,
+    apiMarkNotificationRead: markNotificationRead_,
+    apiSubmitAdvance: submitAdvance_,
+    apiApproveAdvance: approveAdvance_,
+    apiRejectAdvance: rejectAdvance_,
+    apiGetAdvances: getAdvances_
   };
   require_(Object.prototype.hasOwnProperty.call(routes, action), 'Thao tác không được hỗ trợ.');
   require_(Array.isArray(args || []), 'Tham số không hợp lệ.');
@@ -582,7 +642,9 @@ function apiRequest(token, action, args) {
     'apiCalculateMonthlyPayroll', 'apiUpdateAttendanceCell', 'apiUpdateAttendanceBatch', 'apiSubmitLeave', 'apiUpdateLeave', 'apiCancelLeave', 'apiApproveLeave', 'apiRejectLeave',
     'apiSubmitSick', 'apiApproveSick', 'apiRejectSick', 'apiAskMoreInfoSick', 'apiResubmitSick',
     'apiSaveDocument', 'apiUpdateDocument', 'apiSaveTask', 'apiUpdateTaskStatus',
-    'apiSaveEmployee', 'apiDeleteEmployee', 'apiResetDatabase'
+    'apiSaveEmployee', 'apiDeleteEmployee', 'apiResetDatabase', 
+    'apiMarkNotificationRead',
+    'apiSubmitAdvance', 'apiApproveAdvance', 'apiRejectAdvance'
   ];
   const isWrite = writeActions.includes(action);
   const lock = isWrite ? LockService.getScriptLock() : null;
@@ -628,7 +690,8 @@ function initialData_(ignored, period) {
   const documents = rows_(CONFIG.SHEET_NAMES.DOCUMENTS).map(d => ({ id: d['Số Hiệu'], title: d['Tiêu Đề Văn Bản'], type: d['Loại Văn Bản'], issuer: d['Cơ Quan Ban Hành'], date: d['Ngày Ban Hành'], signer: d['Người Ký'], fileUrl: d['Link Tài Liệu'], status: d['Trạng Thái'], category: d['Lĩnh Vực'] }));
   const payroll = getPayroll_();
   const attendance = getAttendance_(period);
-  return { success: true, data: { payrollPeriods: payroll.periods, defaultPayrollPeriod: payroll.defaultPeriod, users: users, period: period, timesheet: attendance.timesheet, attendanceCutoff: attendance.cutoff, attendanceAsOf: attendance.asOf, plannedTimesheet: attendance.plannedTimesheet, leaves: leaves, sickCases: sick, payroll: payroll.data, tasks: tasks, documents: documents } };
+  const advances = (typeof getAdvances_ === 'function') ? (getAdvances_().data || []) : [];
+  return { success: true, data: { payrollPeriods: payroll.periods, defaultPayrollPeriod: payroll.defaultPeriod, users: users, period: period, timesheet: attendance.timesheet, attendanceCutoff: attendance.cutoff, attendanceAsOf: attendance.asOf, plannedTimesheet: attendance.plannedTimesheet, leaves: leaves, sickCases: sick, payroll: payroll.data, tasks: tasks, documents: documents, advances: advances } };
 }
 
 function cleanupExpiredWorkspaces_() {

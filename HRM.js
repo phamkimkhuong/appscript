@@ -239,21 +239,109 @@ function cancelLeave_(id) {
 }
 
 function approveLeave_(id) {
-  const auth=authorized_(['manager']);
-  const row=rows_(CONFIG.SHEET_NAMES.LEAVE).find(r=>r['Mã Đơn']===id);
-  require_(row&&row['Trạng Thái']==='PENDING','Chỉ duyệt đơn đang chờ.');
-  const range=validateAbsence_({empId:row['Mã NV'],from:row['Từ Ngày'],to:row['Đến Ngày']},'leave',id).range;
-  syncAbsence_(row['Mã NV'],range,row['Loại Nghỉ']==='Nghỉ phép năm'?'P':'K');
-  saveRow_(CONFIG.SHEET_NAMES.LEAVE,{'Trạng Thái':'APPROVED','Ngày Duyệt':formatDateVN_(new Date()),'Người Duyệt':auth.name},row._rowIndex);
-  return {success:true,code:'MSG_LEAVE_APPROVED',params:{id:id},message:'Đã duyệt đơn ' + id + ' thành công!'};
+  const auth = authorized_(['manager']);
+
+  const row = rows_(CONFIG.SHEET_NAMES.LEAVE)
+    .find(r => r['Mã Đơn'] === id);
+
+  require_(
+    row && row['Trạng Thái'] === 'PENDING',
+    'Chỉ duyệt đơn đang chờ.'
+  );
+
+  const range = validateAbsence_(
+    {
+      empId: row['Mã NV'],
+      from: row['Từ Ngày'],
+      to: row['Đến Ngày']
+    },
+    'leave',
+    id
+  ).range;
+
+  syncAbsence_(
+    row['Mã NV'],
+    range,
+    row['Loại Nghỉ'] === 'Nghỉ phép năm' ? 'P' : 'K'
+  );
+
+  saveRow_(
+    CONFIG.SHEET_NAMES.LEAVE,
+    {
+      'Trạng Thái': 'APPROVED',
+      'Ngày Duyệt': formatDateVN_(new Date()),
+      'Người Duyệt': auth.name
+    },
+    row._rowIndex
+  );
+
+  // Tạo thông báo cho nhân viên
+  createNotification_(
+    row['Mã NV'],
+    'Đơn nghỉ phép đã được duyệt',
+    'Đơn ' + id + ' của bạn đã được ' + auth.name + ' phê duyệt.',
+    'success',
+    'leave'
+  );
+
+  // Ghi nhật ký hệ thống
+  auditLog_(
+    'APPROVE_LEAVE',
+    'Nghỉ phép',
+    id,
+    'Duyệt đơn nghỉ phép của ' + row['Họ và Tên']
+  );
+
+  return {
+    success: true,
+    code: 'MSG_LEAVE_APPROVED',
+    params: { id: id },
+    message: 'Đã duyệt đơn ' + id + ' thành công!'
+  };
 }
 
 function rejectLeave_(id,reason) {
-  const auth=authorized_(['manager']);
-  const row=rows_(CONFIG.SHEET_NAMES.LEAVE).find(r=>r['Mã Đơn']===id);
-  require_(row&&row['Trạng Thái']==='PENDING','Chỉ từ chối đơn đang chờ.');
-  saveRow_(CONFIG.SHEET_NAMES.LEAVE,{'Trạng Thái':'REJECTED','Ngày Duyệt':formatDateVN_(new Date()),'Người Duyệt':auth.name+' — '+safeText_(reason)},row._rowIndex);
-  return {success:true,code:'MSG_LEAVE_REJECTED',params:{id:id},message:'Đã từ chối đơn ' + id + '!'};
+  const auth = authorized_(['manager']);
+  const row = rows_(CONFIG.SHEET_NAMES.LEAVE).find(r => r['Mã Đơn'] === id);
+
+  require_(
+    row && row['Trạng Thái'] === 'PENDING',
+    'Chỉ từ chối đơn đang chờ.'
+  );
+
+  saveRow_(
+    CONFIG.SHEET_NAMES.LEAVE,
+    {
+      'Trạng Thái': 'REJECTED',
+      'Ngày Duyệt': formatDateVN_(new Date()),
+      'Người Duyệt': auth.name + ' — ' + safeText_(reason)
+    },
+    row._rowIndex
+  );
+
+  // Thông báo cho nhân viên
+  createNotification_(
+    row['Mã NV'],
+    'Đơn nghỉ phép bị từ chối',
+    'Đơn ' + id + ' chưa được phê duyệt. Lý do: ' + safeText_(reason),
+    'warning',
+    'leave'
+  );
+
+  // Ghi nhật ký hệ thống
+  auditLog_(
+    'REJECT_LEAVE',
+    'Nghỉ phép',
+    id,
+    'Từ chối đơn của ' + row['Họ và Tên'] + '. Lý do: ' + safeText_(reason)
+  );
+
+  return {
+    success: true,
+    code: 'MSG_LEAVE_REJECTED',
+    params: { id: id },
+    message: 'Đã từ chối đơn ' + id + '!'
+  };
 }
 
 /**
@@ -418,4 +506,140 @@ function getPayroll_() {
     .filter(p => !isFuturePayrollPeriod_(p, current))
     .sort((a,b)=>periodOrderKey_(b).localeCompare(periodOrderKey_(a)));
   return {success:true,data:data,periods:periods,defaultPeriod:periods[0] || current};
+}
+
+/**
+ * ====================================================================
+ * 6. QUẢN LÝ TẠM ỨNG LƯƠNG (SALARY ADVANCE)
+ * ====================================================================
+ */
+
+function submitAdvance_(form) {
+  const auth = authorized_();
+  require_(form, 'Thiếu thông tin đề xuất.');
+  const amount = Math.round(Number(form.amount));
+  require_(amount > 0, 'Số tiền tạm ứng phải lớn hơn 0.');
+  const period = period_(form.period || currentBusinessPeriod_());
+  const reason = safeText_(form.reason || '', 500);
+  require_(reason, 'Vui lòng nhập lý do tạm ứng.');
+
+  const id = 'TU-' + Utilities.formatDate(new Date(), CONFIG.TIMEZONE, 'yyMM') + '-' + Math.floor(100 + Math.random() * 900);
+  const now = Utilities.formatDate(new Date(), CONFIG.TIMEZONE, 'dd/MM/yyyy HH:mm');
+
+  saveRow_(CONFIG.SHEET_NAMES.ADVANCE, {
+    'Mã Đơn': id,
+    'Mã Kỳ Lương': period,
+    'Mã NV': auth.empId,
+    'Họ và Tên': auth.name,
+    'Phòng Ban': (auth.user && auth.user['Phòng Ban']) || '',
+    'Số Tiền': amount,
+    'Lý Do': reason,
+    'Ngày Tạo': now,
+    'Trạng Thái': 'Chờ duyệt',
+    'Người Duyệt': '',
+    'Ngày Duyệt': '',
+    'Lý Do Từ Chối': ''
+  });
+
+  if (typeof auditLog_ === 'function') {
+    auditLog_('Nộp đơn tạm ứng', 'Tiền Lương', id, 'Số tiền: ' + amount + ' đ, Lý do: ' + reason);
+  }
+  if (typeof createNotification_ === 'function') {
+    createNotification_('WZ-002', 'Đề xuất tạm ứng lương mới', auth.name + ' xin tạm ứng ' + amount.toLocaleString('vi-VN') + ' đ kỳ ' + period, 'info', 'screen-payroll');
+  }
+
+  return {
+    success: true,
+    code: 'MSG_ADVANCE_SUBMITTED',
+    message: 'Đã gửi yêu cầu tạm ứng lương thành công! Vui lòng chờ Ban Giám Đốc xét duyệt.',
+    newId: id
+  };
+}
+
+function approveAdvance_(id) {
+  const auth = authorized_(['manager', 'hr']);
+  require_(id, 'Thiếu mã đơn tạm ứng.');
+  const advances = rows_(CONFIG.SHEET_NAMES.ADVANCE);
+  const row = advances.find(r => r['Mã Đơn'] === id);
+  require_(row, 'Không tìm thấy đơn tạm ứng.');
+  require_(row['Trạng Thái'] === 'Chờ duyệt', 'Đơn này đã được xử lý trước đó.');
+
+  const now = Utilities.formatDate(new Date(), CONFIG.TIMEZONE, 'dd/MM/yyyy HH:mm');
+  saveRow_(CONFIG.SHEET_NAMES.ADVANCE, {
+    'Trạng Thái': 'Đã duyệt',
+    'Người Duyệt': auth.name,
+    'Ngày Duyệt': now
+  }, row._rowIndex);
+
+  if (typeof auditLog_ === 'function') {
+    auditLog_('Duyệt tạm ứng lương', 'Tiền Lương', id, 'Đã duyệt cho NV ' + row['Mã NV'] + ' số tiền ' + row['Số Tiền'] + ' đ');
+  }
+  if (typeof createNotification_ === 'function') {
+    createNotification_(row['Mã NV'], 'Đơn tạm ứng đã được duyệt', 'Đơn tạm ứng ' + Number(row['Số Tiền']).toLocaleString('vi-VN') + ' đ kỳ ' + row['Mã Kỳ Lương'] + ' đã được phê duyệt.', 'success', 'screen-payroll');
+  }
+
+  return {
+    success: true,
+    code: 'MSG_ADVANCE_APPROVED',
+    message: 'Đã phê duyệt đơn tạm ứng ' + id + ' thành công!'
+  };
+}
+
+function rejectAdvance_(id, reason) {
+  const auth = authorized_(['manager', 'hr']);
+  require_(id, 'Thiếu mã đơn tạm ứng.');
+  const note = safeText_(reason || 'Không đủ điều kiện', 500);
+  const advances = rows_(CONFIG.SHEET_NAMES.ADVANCE);
+  const row = advances.find(r => r['Mã Đơn'] === id);
+  require_(row, 'Không tìm thấy đơn tạm ứng.');
+  require_(row['Trạng Thái'] === 'Chờ duyệt', 'Đơn này đã được xử lý trước đó.');
+
+  const now = Utilities.formatDate(new Date(), CONFIG.TIMEZONE, 'dd/MM/yyyy HH:mm');
+  saveRow_(CONFIG.SHEET_NAMES.ADVANCE, {
+    'Trạng Thái': 'Từ chối',
+    'Người Duyệt': auth.name,
+    'Ngày Duyệt': now,
+    'Lý Do Từ Chối': note
+  }, row._rowIndex);
+
+  if (typeof auditLog_ === 'function') {
+    auditLog_('Từ chối tạm ứng lương', 'Tiền Lương', id, 'Lý do: ' + note);
+  }
+  if (typeof createNotification_ === 'function') {
+    createNotification_(row['Mã NV'], 'Đơn tạm ứng bị từ chối', 'Đơn tạm ứng ' + Number(row['Số Tiền']).toLocaleString('vi-VN') + ' đ kỳ ' + row['Mã Kỳ Lương'] + ' đã bị từ chối. Lý do: ' + note, 'warning', 'screen-payroll');
+  }
+
+  return {
+    success: true,
+    code: 'MSG_ADVANCE_REJECTED',
+    message: 'Đã từ chối đơn tạm ứng ' + id + '.'
+  };
+}
+
+function getAdvances_(period) {
+  const auth = authorized_();
+  let list = rows_(CONFIG.SHEET_NAMES.ADVANCE) || [];
+  if (period) {
+    list = list.filter(r => r['Mã Kỳ Lương'] === period);
+  }
+  if (auth.role === 'employee') {
+    list = list.filter(r => r['Mã NV'] === auth.empId);
+  }
+  return {
+    success: true,
+    data: list.map(r => ({
+      id: r['Mã Đơn'],
+      period: r['Mã Kỳ Lương'],
+      empId: r['Mã NV'],
+      empName: r['Họ và Tên'],
+      dept: r['Phòng Ban'],
+      amount: Number(r['Số Tiền']) || 0,
+      reason: r['Lý Do'],
+      date: r['Ngày Tạo'],
+      status: r['Trạng Thái'],
+      approver: r['Người Duyệt'] || '',
+      approvedAt: r['Ngày Duyệt'] || '',
+      rejectReason: r['Lý Do Từ Chối'] || ''
+    }))
+  };
 }
