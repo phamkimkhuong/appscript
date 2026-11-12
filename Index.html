@@ -161,9 +161,6 @@
             <div class="flex items-center space-x-1.5 sm:space-x-2">
               <span class="font-extrabold text-xs sm:text-base tracking-tight text-slate-900 truncate block"
                 data-i18n="app_title">Wanzhong Clean Technology</span>
-              <span
-                class="hidden md:inline-block text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200/80 shrink-0">HRM
-                & E-Office</span>
             </div>
             <p class="text-[9px] sm:text-[11px] text-slate-500 font-medium truncate block"
               data-i18n="company_legal_name">CÔNG TY TNHH CÔNG NGHỆ SẠCH WANZHONG VIỆT NAM</p>
@@ -697,6 +694,11 @@
               class="hidden px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-blue-600 hover:bg-blue-500 text-white shadow-sm flex items-center space-x-1.5 transition">
               <i class="fa-solid fa-calculator"></i>
               <span data-i18n="payroll_btn_calc">Tính Lương & Cập Nhật Sheet</span>
+            </button>
+            <button id="btn-ai-payroll" onclick="openPayrollAIModal()"
+              class="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white shadow-md shadow-purple-500/20 hover:shadow-lg hover:shadow-purple-500/30 active:scale-[0.98] flex items-center space-x-1.5 transition">
+              <i class="fa-solid fa-wand-magic-sparkles text-amber-300"></i>
+              <span data-i18n="payroll_btn_ai">AI Phân Tích Lương & OT</span>
             </button>
             <button onclick="printPayslip(currentUser.id)"
               class="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 shadow-xs flex items-center space-x-1.5 transition">

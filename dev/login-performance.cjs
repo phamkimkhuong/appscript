@@ -21,7 +21,7 @@ const context = vm.createContext({...runtime,Date:require('./test-clock.cjs').fi
   SpreadsheetApp:instrument(runtime.SpreadsheetApp),
   LockService:{getScriptLock:()=>({tryLock(){lockAttempts++;return !lockBusy;},releaseLock(){releases++;}})}
 });
-for (const file of ['Server','HRM','EOffice']) {
+for (const file of ['Server','HRM','EOffice','DocumentAI','PayrollAI']) {
   vm.runInContext(fs.readFileSync(file+'.js','utf8'),context,{filename:file+'.js'});
 }
 let count=0;

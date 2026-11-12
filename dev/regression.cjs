@@ -1,7 +1,7 @@
 const fs=require('fs'),vm=require('vm'),assert=require('node:assert/strict'),{webcrypto}=require('crypto');
 const {createRuntime}=require('./gas-runtime.cjs');
 const BusinessDate=require('./test-clock.cjs').fixedDate('2026-12-09T05:00:00Z');
-const files=['Server.js','HRM.js','EOffice.js'];
+const files=['Server.js','HRM.js','EOffice.js','DocumentAI.js','PayrollAI.js'];
 const runtime=createRuntime({crypto:webcrypto}),context=vm.createContext({...runtime,console,Date:BusinessDate});
 for(const f of files)vm.runInContext(fs.readFileSync(f,'utf8'),context,{filename:f});
 let count=0;function check(name,fn){fn();count++;console.log('PASS',name);}
@@ -65,7 +65,7 @@ check('duplicate docs and arbitrary file URLs rejected',()=>{assert.equal(rpc(ma
 check('reset database restores sample seed data',()=>{assert.equal(rpc(employee,'apiResetDatabase').success,false);ok(manager,'apiResetDatabase');assert(!data(hr).documents.some(d=>d.id==='TEST-DOC'));});
 check('logout revokes token',()=>{context.apiLogout(other.token);assert.equal(rpc(other,'apiGetInitialAppData','','10/2026').success,false);});
 check('leap month and invalid day',()=>{assert.equal(ok(hr,'apiGetAttendance','02/2028').daysInMonth,29);assert.equal(rpc(manager,'apiUpdateAttendanceCell','WZ-001',30,'X','','02/2028').success,false);});
-check('public surface has no legacy unguarded endpoints',()=>{for(const f of files)for(const m of fs.readFileSync(f,'utf8').matchAll(/^function (\w+)\(/gm))assert(m[1].endsWith('_')||['apiLogin','apiLogout','apiRequest','doGet','doPost','include'].includes(m[1]),m[1]);});
+check('public surface has no legacy unguarded endpoints',()=>{for(const f of files)for(const m of fs.readFileSync(f,'utf8').matchAll(/^function (\w+)\(/gm))assert(m[1].endsWith('_')||['apiLogin','apiLogout','apiRequest','doGet','doPost','include','testGemini'].includes(m[1]),m[1]);});
 
 check('duplicate employee ID cannot overwrite existing account',()=>{const p=data(hr).users.find(u=>u.id==='WZ-001');assert.equal(rpc(manager,'apiSaveEmployee',{...p,mode:'add',name:'Changed'}).success,false);assert.equal(data(hr).users.find(u=>u.id==='WZ-001').name,p.name);});
 check('invalid employee date does not partially rename tasks',()=>{const before=data(manager),p=before.users.find(u=>u.id==='WZ-001');assert.equal(rpc(manager,'apiSaveEmployee',{...p,name:'Invalid edit',startDate:'2026-02-30',mode:'edit'}).success,false);assert.equal(data(manager).tasks.find(t=>t.id==='CV-101').assignee,before.tasks.find(t=>t.id==='CV-101').assignee);});

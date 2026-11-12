@@ -2,7 +2,7 @@ const fs=require('fs'),vm=require('vm'),assert=require('node:assert/strict'),{we
 const {createRuntime}=require('./gas-runtime.cjs'),{fixedDate}=require('./test-clock.cjs');
 const runtime=createRuntime({crypto:webcrypto});
 const server=vm.createContext({...runtime,Date:fixedDate('2026-10-09T05:00:00Z')});
-for(const file of ['Server','HRM','EOffice'])vm.runInContext(fs.readFileSync(file+'.js','utf8'),server);
+for(const file of ['Server','HRM','EOffice','DocumentAI','PayrollAI'])vm.runInContext(fs.readFileSync(file+'.js','utf8'),server);
 const login=email=>{const r=server.apiLogin(email,'123456');assert(r.success,r.message);return r;};
 const manager=login('feng.tang@wanzhong.vn'),hr=login('thoa.nguyen@wanzhong.vn');
 const rpc=(who,action,...args)=>server.apiRequest(who.token,action,args);

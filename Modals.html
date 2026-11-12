@@ -109,7 +109,7 @@
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
           <label data-i18n="modal_emp_salary" class="block font-semibold text-slate-700 mb-1">Lương cơ bản (VND)</label>
-          <input type="number" id="emp-form-salary" value="15000000" step="500000" required
+          <input type="number" id="emp-form-salary" value="15000000" min="0" step="any" required
             class="w-full border border-slate-300 rounded-lg px-3 py-2">
         </div>
         <div>
@@ -566,6 +566,277 @@
         </button>
       </div>
     </form>
+  </div>
+</div>
+
+<!-- AI DOCUMENT ASSISTANT -->
+<div id="modal-document-ai" class="hidden fixed inset-0 z-50 bg-slate-900/50 flex items-center justify-center p-4"
+  role="dialog" aria-modal="true" aria-labelledby="ai-dialog-title" onkeydown="handleDocumentAIKeydown(event)">
+  <div class="ai-dialog bg-white rounded-2xl shadow-2xl w-full flex flex-col overflow-hidden">
+    <div class="flex items-start justify-between gap-4 p-5 border-b border-slate-200">
+      <div class="min-w-0">
+        <h2 id="ai-dialog-title" class="font-bold text-lg text-slate-900">Wanzhong AI Document Assistant</h2>
+        <p id="ai-doc-label" class="text-sm text-slate-500 mt-1 break-words"></p>
+      </div>
+      <button id="ai-close" type="button" onclick="closeDocumentAI()" class="ai-control border border-slate-200 text-slate-700"
+        data-i18n="modal_btn_close">Đóng</button>
+    </div>
+    <div class="overflow-y-auto p-5 space-y-4">
+      <p class="text-xs text-slate-500" data-i18n="ai_notice">Nội dung bạn chọn được gửi tới Gemini để phân tích. Kết quả AI có thể sai; hãy đối chiếu trích dẫn với văn bản gốc.</p>
+      <fieldset id="ai-inputs" class="space-y-3">
+        <label for="ai-source" class="block text-sm font-semibold text-slate-700" data-i18n="ai_source">Nguồn phân tích</label>
+        <select id="ai-source" onchange="changeDocumentAISource()" class="w-full border border-slate-300 rounded-lg p-2.5 text-sm">
+          <option value="attachment" data-i18n="ai_attachment">Tài liệu trên Drive (Word, Excel, Google Docs/Sheets/Slides, PDF, ảnh)</option>
+          <option value="text" data-i18n="ai_paste">Dán nội dung văn bản (tối đa 30.000 ký tự)</option>
+        </select>
+        <p id="ai-source-hint" class="text-xs text-slate-500"></p>
+        <div id="ai-text-wrap" class="hidden">
+          <label for="ai-text" class="block text-sm text-slate-700 mb-1" data-i18n="ai_text_label">Nội dung dùng cho lần phân tích này</label>
+          <textarea id="ai-text" rows="6" maxlength="30000" oninput="clearDocumentAIResult()"
+            class="w-full border border-slate-300 rounded-lg p-3 text-sm" data-i18n-placeholder="ai_text_placeholder"
+            placeholder="Dán nội dung đầy đủ hoặc đoạn cần phân tích..."></textarea>
+        </div>
+        <button id="ai-analyze" type="button" onclick="runDocumentAI('analyze')" class="ai-control bg-indigo-600 text-white"
+          data-i18n="ai_analyze">Phân tích văn bản</button>
+        <div class="border-t border-slate-100 pt-3">
+          <label for="ai-question" class="block text-sm font-semibold text-slate-700 mb-1" data-i18n="ai_question">Hỏi về tài liệu</label>
+          <textarea id="ai-question" rows="2" maxlength="2000" class="w-full border border-slate-300 rounded-lg p-3 text-sm"
+            data-i18n-placeholder="ai_question_placeholder" placeholder="Ví dụ: Văn bản quy định đối tượng và thời điểm áp dụng như thế nào?"></textarea>
+          <div class="flex flex-wrap items-center gap-3 mt-2">
+            <button id="ai-ask" type="button" onclick="runDocumentAI('ask')" class="ai-control bg-slate-900 text-white" data-i18n="ai_ask">Gửi câu hỏi</button>
+            <span class="text-xs text-slate-500" data-i18n="ai_question_hint">Mỗi câu hỏi được trả lời riêng theo nguồn đang chọn.</span>
+          </div>
+        </div>
+      </fieldset>
+      <p id="ai-status" role="status" aria-live="polite" class="text-sm text-indigo-700"></p>
+      <div id="ai-result" class="ai-result space-y-4" aria-live="polite"></div>
+    </div>
+  </div>
+</div>
+
+<!-- AI PAYROLL & OT ASSISTANT MODAL -->
+<div id="modal-payroll-ai" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-5"
+  role="dialog" aria-modal="true" aria-labelledby="payroll-ai-dialog-title">
+  <div class="bg-white rounded-2xl sm:rounded-3xl shadow-2xl border border-slate-200 max-w-4xl w-full max-h-[92vh] flex flex-col overflow-hidden animate-fadeIn">
+    
+    <!-- Modal Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 sm:p-5 border-b border-slate-200/80 bg-gradient-to-r from-slate-50 via-purple-50/30 to-indigo-50/40">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-purple-600 via-indigo-600 to-blue-600 flex items-center justify-center text-white shadow-md shadow-purple-500/25 shrink-0">
+          <i class="fa-solid fa-wand-magic-sparkles text-amber-300"></i>
+        </div>
+        <div>
+          <h2 id="payroll-ai-dialog-title" class="font-extrabold text-sm sm:text-base text-slate-900 flex items-center gap-2">
+            <span>Wanzhong AI HR & Payroll Intelligence</span>
+            <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-purple-100 text-purple-700 border border-purple-200/60">Flash AI</span>
+          </h2>
+          <p class="text-xs text-slate-500 mt-0.5" data-i18n="payroll_ai_sub">Phân tích quỹ lương, chi phí làm thêm giờ (OT) và chuyên cần toàn doanh nghiệp</p>
+        </div>
+      </div>
+      <div class="flex items-center space-x-2 self-end sm:self-auto">
+        <select id="payroll-ai-period-select" onchange="changePayrollAIPeriod(this.value)"
+          class="border border-slate-300 rounded-xl px-2.5 py-1.5 text-xs bg-white text-slate-800 font-semibold focus:outline-none focus:ring-2 focus:ring-purple-500/20"></select>
+        <button type="button" onclick="runPayrollAI()" title="Phân tích lại dữ liệu"
+          class="px-2.5 py-1.5 bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-xl text-xs font-semibold shadow-xs flex items-center space-x-1 transition">
+          <i class="fa-solid fa-arrows-rotate text-purple-600"></i>
+          <span class="hidden sm:inline">Làm Mới</span>
+        </button>
+        <button type="button" onclick="closeModal('modal-payroll-ai')"
+          class="w-8 h-8 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 flex items-center justify-center transition">
+          <i class="fa-solid fa-xmark text-sm"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Modal Content -->
+    <div class="overflow-y-auto p-4 sm:p-6 space-y-5 text-xs">
+      
+      <!-- Loading State -->
+      <div id="payroll-ai-loading" class="hidden py-12 flex flex-col items-center justify-center space-y-4">
+        <div class="relative">
+          <div class="w-14 h-14 rounded-full border-4 border-purple-200 border-t-purple-600 animate-spin"></div>
+          <div class="absolute inset-0 flex items-center justify-center text-purple-600">
+            <i class="fa-solid fa-brain text-lg"></i>
+          </div>
+        </div>
+        <div class="text-center">
+          <p class="text-sm font-bold text-slate-800">Gemini AI đang phân tích dữ liệu lương & chấm công...</p>
+          <p class="text-slate-500 text-xs mt-1">Tính toán quỹ lương, đối chiếu OT và chuyên cần chỉ mất ~1 giây</p>
+        </div>
+      </div>
+
+      <!-- Error State -->
+      <div id="payroll-ai-error" class="hidden p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 flex items-start space-x-3">
+        <i class="fa-solid fa-triangle-exclamation text-rose-500 text-base mt-0.5 shrink-0"></i>
+        <div class="flex-1">
+          <p class="font-bold">Không thể phân tích dữ liệu</p>
+          <p id="payroll-ai-error-msg" class="mt-0.5"></p>
+        </div>
+      </div>
+
+      <!-- Main Result Container -->
+      <div id="payroll-ai-result" class="space-y-5">
+        
+        <!-- 4 Metric Cards -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          <!-- Total Net -->
+          <div class="bg-gradient-to-br from-emerald-50/80 to-teal-50/60 p-3.5 rounded-2xl border border-emerald-200/80 shadow-xs">
+            <div class="flex items-center justify-between text-emerald-700 mb-1">
+              <span class="text-[11px] font-bold uppercase tracking-wider">Tổng Thực Lĩnh</span>
+              <i class="fa-solid fa-money-bill-wave text-xs"></i>
+            </div>
+            <div id="pai-kpi-net" class="text-base sm:text-lg font-extrabold text-emerald-800">--</div>
+            <div id="pai-kpi-mom" class="text-[10px] text-emerald-700 font-medium mt-0.5 truncate">Đang đối chiếu...</div>
+          </div>
+
+          <!-- Total OT -->
+          <div class="bg-gradient-to-br from-purple-50/80 to-indigo-50/60 p-3.5 rounded-2xl border border-purple-200/80 shadow-xs">
+            <div class="flex items-center justify-between text-purple-700 mb-1">
+              <span class="text-[11px] font-bold uppercase tracking-wider">Chi Phí Tăng Ca (OT)</span>
+              <i class="fa-solid fa-business-time text-xs"></i>
+            </div>
+            <div id="pai-kpi-ot" class="text-base sm:text-lg font-extrabold text-purple-900">--</div>
+            <div id="pai-kpi-ot-days" class="text-[10px] text-purple-700 font-medium mt-0.5 truncate">-- ngày làm thêm</div>
+          </div>
+
+          <!-- Headcount & Avg -->
+          <div class="bg-gradient-to-br from-blue-50/80 to-sky-50/60 p-3.5 rounded-2xl border border-blue-200/80 shadow-xs">
+            <div class="flex items-center justify-between text-blue-700 mb-1">
+              <span class="text-[11px] font-bold uppercase tracking-wider">Lương Trung Bình</span>
+              <i class="fa-solid fa-users text-xs"></i>
+            </div>
+            <div id="pai-kpi-avg" class="text-base sm:text-lg font-extrabold text-blue-900">--</div>
+            <div id="pai-kpi-headcount" class="text-[10px] text-blue-700 font-medium mt-0.5 truncate">-- nhân sự hưởng lương</div>
+          </div>
+
+          <!-- Attendance & Leaves -->
+          <div class="bg-gradient-to-br from-amber-50/80 to-orange-50/60 p-3.5 rounded-2xl border border-amber-200/80 shadow-xs">
+            <div class="flex items-center justify-between text-amber-700 mb-1">
+              <span class="text-[11px] font-bold uppercase tracking-wider">Tổng Ngày Nghỉ</span>
+              <i class="fa-solid fa-calendar-xmark text-xs"></i>
+            </div>
+            <div id="pai-kpi-leaves" class="text-base sm:text-lg font-extrabold text-amber-900">--</div>
+            <div id="pai-kpi-attendance-sub" class="text-[10px] text-amber-700 font-medium mt-0.5 truncate">Phép (P) & Ốm (O)</div>
+          </div>
+        </div>
+
+        <!-- Executive Summary Banner -->
+        <div class="bg-gradient-to-r from-slate-900 via-indigo-950 to-purple-950 text-white p-4 sm:p-5 rounded-2xl shadow-md border border-slate-800">
+          <div class="flex items-center space-x-2 text-amber-400 font-bold mb-1.5 text-xs">
+            <i class="fa-solid fa-bolt-lightning animate-bounce"></i>
+            <span>Tóm Tắt Điều Hành & Nhận Định Nhanh</span>
+          </div>
+          <p id="pai-summary" class="text-slate-200 text-xs sm:text-sm leading-relaxed font-normal">--</p>
+        </div>
+
+        <!-- Analysis Sections Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Card 1: Payroll Insights -->
+          <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs space-y-2.5">
+            <h3 class="font-bold text-slate-900 text-xs flex items-center space-x-2 border-b border-slate-100 pb-2">
+              <i class="fa-solid fa-chart-line text-blue-600"></i>
+              <span>1. Quỹ Lương & Biến Động So Với Tháng Trước (MoM)</span>
+            </h3>
+            <div class="space-y-1.5 text-slate-600">
+              <p><strong class="text-slate-800">Tổng quan:</strong> <span id="pai-payroll-net">--</span></p>
+              <p><strong class="text-slate-800">Xu hướng MoM:</strong> <span id="pai-payroll-mom">--</span></p>
+              <p><strong class="text-slate-800">Phòng ban:</strong> <span id="pai-payroll-dept">--</span></p>
+              <p><strong class="text-slate-800">Phân bổ thu nhập:</strong> <span id="pai-payroll-dist">--</span></p>
+            </div>
+          </div>
+
+          <!-- Card 2: OT Analysis -->
+          <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs space-y-2.5">
+            <h3 class="font-bold text-slate-900 text-xs flex items-center space-x-2 border-b border-slate-100 pb-2">
+              <i class="fa-solid fa-clock text-purple-600"></i>
+              <span>2. Phân Tích Tăng Ca & Nguy Cơ Quá Tải</span>
+            </h3>
+            <div class="space-y-1.5 text-slate-600">
+              <p><strong class="text-slate-800">Thực trạng OT:</strong> <span id="pai-ot-summary">--</span></p>
+              <p><strong class="text-slate-800">Bộ phận OT nhiều nhất:</strong> <span id="pai-ot-depts">--</span></p>
+              <p><strong class="text-slate-800">Nhân sự OT cao:</strong> <span id="pai-ot-employees">--</span></p>
+              <p class="text-rose-600 font-semibold"><i class="fa-solid fa-triangle-exclamation mr-1"></i><span id="pai-ot-burnout">--</span></p>
+            </div>
+          </div>
+
+          <!-- Card 3: Attendance Discipline -->
+          <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs space-y-2.5">
+            <h3 class="font-bold text-slate-900 text-xs flex items-center space-x-2 border-b border-slate-100 pb-2">
+              <i class="fa-solid fa-user-check text-teal-600"></i>
+              <span>3. Chuyên Cần & Kỷ Luật Lao Động</span>
+            </h3>
+            <div class="space-y-1.5 text-slate-600">
+              <p><strong class="text-slate-800">Tỷ lệ chuyên cần:</strong> <span id="pai-att-rate">--</span></p>
+              <p><strong class="text-slate-800">Nghỉ phép & Nghỉ ốm:</strong> <span id="pai-att-leaves">--</span></p>
+              <p><strong class="text-slate-800">Nghỉ không lương / Bất thường:</strong> <span id="pai-att-unpaid">--</span></p>
+            </div>
+          </div>
+
+          <!-- Card 4: Recommendations -->
+          <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs space-y-2.5">
+            <h3 class="font-bold text-slate-900 text-xs flex items-center space-x-2 border-b border-slate-100 pb-2">
+              <i class="fa-solid fa-lightbulb text-amber-500"></i>
+              <span>4. Đề Xuất Điều Hành Cho Lãnh Đạo</span>
+            </h3>
+            <ul id="pai-recommendations" class="list-disc list-inside space-y-1.5 text-slate-700"></ul>
+          </div>
+        </div>
+
+        <!-- Interactive Question & Answer Box -->
+        <div class="bg-slate-50 border border-slate-200/90 rounded-2xl p-4 space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-slate-800 flex items-center space-x-1.5">
+              <i class="fa-solid fa-comments text-indigo-600"></i>
+              <span>Hỏi Đáp Tương Tác Cùng AI</span>
+            </span>
+            <span class="text-[11px] text-slate-400">Trả lời ngay lập tức theo số liệu thực tế</span>
+          </div>
+
+          <!-- Quick chips -->
+          <div class="flex flex-wrap gap-1.5">
+            <button type="button" onclick="askPayrollAIQuick('So sánh chi phí lương và OT kỳ này với tháng trước?')"
+              class="px-2.5 py-1 rounded-lg bg-white border border-slate-200 hover:border-purple-300 hover:text-purple-700 text-[11px] text-slate-600 transition shadow-xs">
+              📊 So sánh với tháng trước
+            </button>
+            <button type="button" onclick="askPayrollAIQuick('Nhân viên nào có tiền làm thêm (OT) cao nhất và số ngày là bao nhiêu?')"
+              class="px-2.5 py-1 rounded-lg bg-white border border-slate-200 hover:border-purple-300 hover:text-purple-700 text-[11px] text-slate-600 transition shadow-xs">
+              ⚡ Top nhân viên OT nhiều nhất
+            </button>
+            <button type="button" onclick="askPayrollAIQuick('Chi phí lương thực lĩnh phân bổ theo từng phòng ban như thế nào?')"
+              class="px-2.5 py-1 rounded-lg bg-white border border-slate-200 hover:border-purple-300 hover:text-purple-700 text-[11px] text-slate-600 transition shadow-xs">
+              🏢 Lương theo phòng ban
+            </button>
+            <button type="button" onclick="askPayrollAIQuick('Kỳ này có ai nghỉ không lương hoặc nghỉ nhiều ngày bất thường không?')"
+              class="px-2.5 py-1 rounded-lg bg-white border border-slate-200 hover:border-purple-300 hover:text-purple-700 text-[11px] text-slate-600 transition shadow-xs">
+              ⚠️ Cảnh báo nghỉ không lương
+            </button>
+          </div>
+
+          <!-- Input bar -->
+          <form onsubmit="handlePayrollAIQuestionSubmit(event)" class="flex gap-2">
+            <input type="text" id="payroll-ai-question" maxlength="2000"
+              placeholder="Nhập câu hỏi về lương, tăng ca hoặc ngày công kỳ này..."
+              class="flex-1 bg-white border border-slate-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 rounded-xl px-3.5 py-2 text-xs text-slate-800 placeholder-slate-400">
+            <button type="submit" id="payroll-ai-ask-btn"
+              class="px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold rounded-xl shadow-xs flex items-center space-x-1.5 transition shrink-0">
+              <i class="fa-solid fa-paper-plane text-xs"></i>
+              <span>Hỏi AI</span>
+            </button>
+          </form>
+
+          <!-- Answer Box -->
+          <div id="payroll-ai-answer-box" class="hidden bg-white p-3.5 rounded-xl border border-purple-200 shadow-xs space-y-1">
+            <div class="flex items-center space-x-1.5 text-purple-700 font-bold text-[11px]">
+              <i class="fa-solid fa-sparkles"></i>
+              <span>Câu trả lời của AI:</span>
+            </div>
+            <p id="payroll-ai-answer-text" class="text-slate-800 text-xs leading-relaxed whitespace-pre-wrap"></p>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
   </div>
 </div>
 

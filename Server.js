@@ -422,12 +422,6 @@ function demoSeedTables_() {
     docSheet.push(["1507/2024/QĐ-TV", "Quyết định chấm dứt HĐLĐ và giải quyết chế độ thôi việc năm 2024", "Quy chế nội bộ", "Phòng Nhân Sự", "2024-07-15", "Trưởng phòng Nhân sự", "", "Hiệu lực", "Quản trị & Quy chế Nội bộ"]);
     docSheet.push(["D02-LT-595", "Báo cáo danh sách lao động tham gia BHXH, BHYT, BHTN theo QĐ 1040/QĐ-BHXH", "Văn bản pháp luật", "Cơ quan Bảo hiểm Xã hội Huyện Văn Lâm", "2024-07-01", "Giám đốc BHXH", "", "Tài liệu tham khảo", "Chính sách Lao động & Việc làm"]);
     docSheet.push(["PL01/2024/ĐC-LƯƠNG", "Phụ lục bảng kê chi tiết điều chỉnh hệ số và mức lương cán bộ CNV Tháng 7/2024", "Quy chế lương", "Phòng Kế toán - Tài chính", "2024-07-01", "Kế toán trưởng", "", "Hiệu lực", "Tiền lương & Chế độ BHXH"]);
-    // Bộ quy chế & văn bản pháp lý nền tảng:
-    docSheet.push(["01/2026/QĐ-WZ", "Quyết định ban hành Quy chế làm việc từ xa (Work From Home)", "Quy chế nội bộ", "Tổng Giám Đốc", "2026-01-02", "Nguyễn Văn An", "demo:sample", "Hiệu lực", "Quản trị & Quy chế Nội bộ"]);
-    docSheet.push(["02/2026/QC-LUONG", "Quy chế tiền lương, tiền thưởng và phụ cấp nội bộ năm 2026", "Quy chế lương", "Tổng Giám Đốc", "2026-01-05", "Nguyễn Văn An", "demo:sample", "Hiệu lực", "Tiền lương & Chế độ BHXH"]);
-    docSheet.push(["18/2026/TB-LUONG", "Thông báo chi trả kỳ lương Tháng 10/2026 và quyết toán công tác phí", "Thông báo trả lương", "Phòng Nhân Sự", "2026-10-01", "Nguyễn Thị Kim Thoa", "demo:sample", "Hiệu lực", "Tiền lương & Chế độ BHXH"]);
-    docSheet.push(["45/2019/QH14", "Bộ luật Lao động năm 2019 số 45/2019/QH14", "Văn bản pháp luật", "Quốc Hội", "2019-11-20", "Chủ tịch Quốc Hội", "demo:sample", "Tài liệu tham khảo", "Chính sách Lao động & Việc làm"]);
-    docSheet.push(["DEMO-BHXH", "Tình huống thực hành hồ sơ ốm đau (tài liệu giả lập)", "Văn bản pháp luật", "Bộ phận đào tạo (giả lập)", "2026-10-01", "Người biên soạn demo", "demo:sample", "Tài liệu tham khảo", "Tiền lương & Chế độ BHXH"]);
   }
 
   const users = matrixToObjects_(tables[CONFIG.SHEET_NAMES.USERS]);
@@ -578,7 +572,8 @@ function apiRequest(token, action, args) {
     apiUpdateAttendanceCell: updateAttendance_, apiUpdateAttendanceBatch: updateAttendanceBatch_, apiSubmitLeave: submitLeave_, apiUpdateLeave: updateLeave_, apiCancelLeave: cancelLeave_, apiApproveLeave: approveLeave_, apiRejectLeave: rejectLeave_,
     apiSubmitSick: submitSick_, apiApproveSick: approveSick_, apiRejectSick: rejectSick_, apiAskMoreInfoSick: askMoreSick_, apiResubmitSick: resubmitSick_,
     apiSaveDocument: saveDocument_, apiUpdateDocument: updateDocument_, apiSaveTask: saveTask_, apiUpdateTaskStatus: updateTaskStatus_,
-    apiSaveEmployee: saveEmployee_, apiDeleteEmployee: deleteEmployee_, apiResetDatabase: resetDatabase_, apiReadAttachment: readAttachment_
+    apiSaveEmployee: saveEmployee_, apiDeleteEmployee: deleteEmployee_, apiResetDatabase: resetDatabase_, apiReadAttachment: readAttachment_,
+    apiAnalyzeDocument: analyzeDocument_, apiAnalyzePayrollAI: analyzePayrollAI_
   };
   require_(Object.prototype.hasOwnProperty.call(routes, action), 'Thao tác không được hỗ trợ.');
   require_(Array.isArray(args || []), 'Tham số không hợp lệ.');

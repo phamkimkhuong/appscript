@@ -12,14 +12,14 @@ const nodes=new Map();
 function element(id=''){
  const classes=new Set();return {id,value:'',innerHTML:'',innerText:'',textContent:'',disabled:false,style:{},dataset:{},options:[],files:[],
  classList:{add(...v){v.forEach(x=>classes.add(x));},remove(...v){v.forEach(x=>classes.delete(x));},contains:x=>classes.has(x),toggle(x,on){if(on)classes.add(x);else classes.delete(x);}},
- addEventListener(){},querySelector(){return element();},querySelectorAll(){return [];},appendChild(){},remove(){},click(){},add(o){this.options.push(o);},reset(){},setAttribute(k,v){this[k]=v;},getAttribute(k){return this[k];}};
+ addEventListener(){},querySelector(){return element();},querySelectorAll(){return [];},appendChild(){},remove(){},click(){},focus(){document.activeElement=this;},add(o){this.options.push(o);},reset(){},setAttribute(k,v){this[k]=v;},getAttribute(k){return this[k];}};
 }
 ids.forEach(id=>nodes.set(id,element(id)));
 const document={getElementById:id=>nodes.get(id)||null,querySelector:()=>element(),querySelectorAll:()=>[],addEventListener(){},createElement:()=>element(),body:element()};
 const storage=new Map();const sessionStorage={getItem:k=>storage.get(k)||null,setItem:(k,v)=>storage.set(k,v)};
 let exported=null;const URL={createObjectURL(blob){exported=blob;return 'blob:test';},revokeObjectURL(){}};
 const runtime=createRuntime({crypto:webcrypto}),server=vm.createContext({...runtime,Date:require('./test-clock.cjs').fixedDate('2026-10-09T05:00:00Z')});
-for(const f of ['Server','HRM','EOffice'])vm.runInContext(fs.readFileSync(f+'.js','utf8'),server);
+for(const f of ['Server','HRM','EOffice','DocumentAI','PayrollAI'])vm.runInContext(fs.readFileSync(f+'.js','utf8'),server);
 const calls=[];let deferred=false,queue=[];
 function runner(){let done,fail;return {withSuccessHandler(fn){done=fn;return this;},withFailureHandler(fn){fail=fn;return this;},apiLogin(...args){calls.push(['apiLogin',...args]);try{done(server.apiLogin(...args));}catch(e){fail(e);}},apiRequest(...args){calls.push([args[1],...args[2]]);const run=()=>{try{done(server.apiRequest(...args));}catch(e){fail(e);}};if(deferred)queue.push(run);else run();},apiLogout:server.apiLogout};}
 const google={script:{get run(){return runner();}}};
@@ -44,11 +44,11 @@ check('payroll defaults to current month and remains independent from attendance
 check('sick supplement modal uses valid DOM IDs',()=>{run("handleLogout();fillAndLogin('xing.chen@wanzhong.vn');openSickResubmitModal('SC-2610-02')");assert.equal(nodes.get('sick-resubmit-hospital').value,'Bệnh viện Hồng Ngọc');assert.equal(nodes.get('sick-resubmit-from').value,'2026-10-20');});
 check('supplement submits actual hospital, dates and file bytes',()=>{nodes.get('sick-resubmit-hospital').value='Cơ sở demo';nodes.get('sick-resubmit-note').value='Bổ sung';run("selectedSickResubmitFile={name:'a.pdf',type:'application/pdf',base64:btoa('file')};handleResubmitSick(null)");assert.equal(run("appData.sickCases.find(s=>s.id==='SC-2610-02').hospital"),'Cơ sở demo');assert.equal(run("appData.sickCases.find(s=>s.id==='SC-2610-02').status"),'PENDING');});
 check('sick submission counts weekdays and uploads base64',()=>{nodes.get('sick-hospital').value='Bệnh viện mẫu';nodes.get('sick-from').value='2026-11-06';nodes.get('sick-to').value='2026-11-09';run("selectedSickFile={name:'proof.pdf',type:'application/pdf',size:4,content:'file'};handleCreateSick({preventDefault(){},target:{querySelector(){return null;}}})");const call=calls.filter(x=>x[0]==='apiSubmitSick').at(-1);assert.equal(call[1].days,2);assert(call[1].fileData.base64);assert.equal(run("appData.sickCases.find(s=>s.from==='2026-11-06').days"),2);});
-check('document filters accept all and salary group',()=>{nodes.get('doc-type-filter').value='all';nodes.get('doc-category-filter').value='all';run('filterDocuments()');assert(nodes.get('docs-tbody').innerHTML.includes('DEMO-BHXH'));nodes.get('doc-type-filter').value='salary_docs';run('filterDocuments()');assert(nodes.get('docs-tbody').innerHTML.includes('02/2026/QC-LUONG'));assert(!nodes.get('docs-tbody').innerHTML.includes('45/2019/QH14'));});
+check('document filters accept all and salary group',()=>{nodes.get('doc-type-filter').value='all';nodes.get('doc-category-filter').value='all';run('filterDocuments()');assert(nodes.get('docs-tbody').innerHTML.includes('D02-LT-595'));nodes.get('doc-type-filter').value='salary_docs';run('filterDocuments()');assert(nodes.get('docs-tbody').innerHTML.includes('0107/2024/QĐ-ĐC'));assert(!nodes.get('docs-tbody').innerHTML.includes('1507/2024/QĐ-TV'));});
 check('old session callback cannot change newly logged-in role',()=>{deferred=true;run('refreshAppData()');run("handleLogout();fillAndLogin('thoa.nguyen@wanzhong.vn')");deferred=false;queue.shift()();assert.equal(run('appData.payroll.length'),0);while(queue.length)queue.shift()();assert.equal(run('currentUser.role'),'hr');assert.equal(run('appData.payroll.length'),40);});
 check('role controls distinguish accountant, manager and employee',()=>{
  const managerButton=element(),docButton=element(),generalEdit=element(),salaryEdit=element();
- generalEdit.dataset.editDoc='01/2026/QĐ-WZ';salaryEdit.dataset.editDoc='02/2026/QC-LUONG';
+ generalEdit.dataset.editDoc='1507/2024/QĐ-TV';salaryEdit.dataset.editDoc='0107/2024/QĐ-ĐC';
  const original=document.querySelectorAll;
  document.querySelectorAll=selector=>({'[data-manager-only]':[managerButton],'[data-document-create]':[docButton],'[data-edit-doc]':[generalEdit,salaryEdit]}[selector]||[]);
  run('applyRoleControls()');
@@ -118,6 +118,36 @@ check('multilingual toast translates static messages, dynamic patterns and error
  run("changeLanguage('vi')");
  run("showToast('Lưu thông tin nhân sự thành công!')");
  assert.equal(nodes.get('toast-msg').innerText, 'Lưu thông tin nhân sự thành công!');
+});
+check('AI modal defaults to pasted text for missing attachments and validates input before RPC',()=>{
+ run("handleLogout();fillAndLogin('linh.nguyen@wanzhong.vn');openDocumentAI(appData.documents[0].id)");
+ assert.equal(nodes.get('ai-source').value,'text');
+ const before=calls.length;run("runDocumentAI('analyze')");assert.equal(calls.length,before);
+ assert(nodes.get('ai-status').textContent.includes('dán'));
+ assert(nodes.get('docs-tbody').innerHTML.includes('data-ai-doc='));
+});
+check('AI output is escaped, duplicate requests are blocked, and success does not refresh business data',()=>{
+ const original=server.analyzeDocument_;
+ server.analyzeDocument_=()=>({success:true,sourceName:'<img src=x onerror=alert(1)>',data:{summary:'<script>alert(1)</script>',facts:[],actions:[],answer:'',evidence:'',caveats:[]}});
+ nodes.get('ai-text').value='Nội dung chính';const before=calls.length;
+ deferred=true;run("runDocumentAI('analyze');runDocumentAI('analyze')");assert.equal(calls.length,before+1);
+ assert(nodes.get('ai-inputs').disabled);while(queue.length)queue.shift()();deferred=false;
+ assert.equal(calls.length,before+1);assert(!nodes.get('ai-inputs').disabled);
+ assert(nodes.get('ai-result').innerHTML.includes('&lt;script&gt;'));
+ assert(!nodes.get('ai-result').innerHTML.includes('<script>'));
+ nodes.get('ai-source').value='attachment';run('changeDocumentAISource()');assert.equal(nodes.get('ai-result').innerHTML,'');
+ server.analyzeDocument_=original;
+});
+check('AI response arriving after close or logout cannot populate a reopened dialog',()=>{
+ const original=server.analyzeDocument_;
+ server.analyzeDocument_=()=>({success:true,sourceName:'old',data:{summary:'old result',facts:[],actions:[],answer:'',evidence:'',caveats:[]}});
+ run("openDocumentAI(appData.documents[0].id)");nodes.get('ai-text').value='Nội dung cũ';deferred=true;
+ run("runDocumentAI('analyze');closeDocumentAI();openDocumentAI(appData.documents[1].id)");
+ while(queue.length)queue.shift()();assert.equal(nodes.get('ai-result').innerHTML,'');
+ nodes.get('ai-text').value='Nội dung mới';run("runDocumentAI('analyze');handleLogout()");
+ while(queue.length)queue.shift()();deferred=false;
+ assert(nodes.get('modal-document-ai').classList.contains('hidden'));assert.equal(nodes.get('ai-text').value,'');assert.equal(nodes.get('ai-result').innerHTML,'');
+ server.analyzeDocument_=original;
 });
 (async()=>{
  const content = await exported.text();

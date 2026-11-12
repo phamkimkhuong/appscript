@@ -2,6 +2,8 @@
 
 Tài liệu hướng dẫn vận hành, kiến trúc và tra cứu cú pháp lệnh phát triển hệ thống **Wanzhong Clean Technology (HRM & E-Office)**.
 
+**Wanzhong AI Document Assistant:** xem [hướng dẫn cấu hình Gemini và kiểm thử phân tích văn bản](docs/AI_DOCUMENT_ASSISTANT.md).
+
 ---
 
 ## 🏛️ Kiến Trúc Hệ Thống (Single Centralized Database)

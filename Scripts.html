@@ -1494,7 +1494,7 @@
   // --- CALL BACKEND BRIDGE ---
   function callBackend(fnName, args, callback, errorCallback) {
     const generation = authGeneration;
-    const mutating = !['apiLogin', 'apiGetInitialAppData', 'apiGetAttendance', 'apiGetPayrollData', 'apiReadAttachment'].includes(fnName);
+    const mutating = !['apiLogin', 'apiGetInitialAppData', 'apiGetAttendance', 'apiGetPayrollData', 'apiReadAttachment', 'apiAnalyzeDocument', 'apiAnalyzePayrollAI'].includes(fnName);
     if (mutating && busyActions.has(fnName)) { showToast('Thao tác đang được xử lý.', 'info'); return; }
     if (mutating) busyActions.add(fnName);
     const done = res => {
@@ -1607,6 +1607,7 @@
   }
 
   function handleLogout() {
+    closeDocumentAI();
     const token = authToken;
     if (typeof google !== 'undefined' && google.script) google.script.run.apiLogout(token);
     else if (window.localDemoLogout) window.localDemoLogout(token);
@@ -2789,7 +2790,7 @@
           <td class="py-3 px-4 text-slate-600">${escapeHtml(d.issuer)}</td>
           <td class="py-3 px-4 text-slate-500">${escapeHtml(d.date)}</td>
           <td class="py-3 px-4 text-center">
-            <div class="docs-file-actions"><button data-attachment-kind="doc" data-attachment-id="${escapeHtml(d.id)}" class="text-blue-700">${t('btn_doc_view', 'Xem')}</button><button data-attachment-kind="doc" data-attachment-id="${escapeHtml(d.id)}" data-download="true" class="text-blue-700">${t('btn_doc_download', 'Tải')}</button></div>
+            <div class="docs-file-actions"><button data-attachment-kind="doc" data-attachment-id="${escapeHtml(d.id)}" class="text-blue-700">${t('btn_doc_view', 'Xem')}</button><button data-attachment-kind="doc" data-attachment-id="${escapeHtml(d.id)}" data-download="true" class="text-blue-700">${t('btn_doc_download', 'Tải')}</button><button data-ai-doc="${escapeHtml(d.id)}" class="px-2.5 py-1.5 rounded-lg bg-indigo-50 text-indigo-700 font-semibold">${t('ai_button')}</button></div>
           </td>
           <td class="py-3 px-4 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">${escapeHtml(d.status || t('docs_status_valid', 'Hiệu lực'))}</span></td>
           <td class="py-3 px-4 text-right doc-actions-col ${canManageAnyDoc ? '' : 'hidden'}">
@@ -3609,6 +3610,385 @@
     }
   }
 
+  Object.assign(I18N.vi, {
+    ai_button: 'Phân tích AI', ai_analyze: 'Phân tích văn bản', ai_source: 'Nguồn phân tích',
+    ai_attachment: 'Tài liệu trên Drive (Word, Excel, Google Docs/Sheets/Slides, PDF, ảnh)', ai_paste: 'Dán nội dung văn bản (tối đa 30.000 ký tự)',
+    ai_notice: 'Nội dung bạn chọn được gửi tới Gemini để phân tích. Kết quả AI có thể sai; hãy đối chiếu trích dẫn với văn bản gốc.',
+    ai_text_label: 'Nội dung dùng cho lần phân tích này', ai_text_placeholder: 'Dán nội dung đầy đủ hoặc đoạn cần phân tích...',
+    ai_question: 'Hỏi về tài liệu', ai_question_placeholder: 'Ví dụ: Văn bản quy định đối tượng và thời điểm áp dụng như thế nào?',
+    ai_ask: 'Gửi câu hỏi', ai_question_hint: 'Mỗi câu hỏi được trả lời riêng theo nguồn đang chọn.',
+    ai_attachment_hint: 'Đọc từ liên kết đã lưu, tối đa 10 MB trước và sau chuyển đổi. Word/Excel được chuyển đổi qua bản sao tạm rồi đưa bản sao vào thùng rác; giữ nguyên tệp gốc. Kết quả đọc theo bố cục PDF xuất.',
+    ai_paste_hint: 'AI chỉ đọc phần bạn dán, không tự lấy phần còn lại của văn bản. Nội dung này không được lưu vào hồ sơ.',
+    ai_missing: 'Văn bản chưa có tệp thật. Hãy dán nội dung hoặc nhờ quản lý/kế toán gắn tệp phù hợp.',
+    ai_busy: 'Gemini đang đọc và xử lý tài liệu...', ai_wait: 'Gemini vẫn đang xử lý. Tài liệu dài có thể cần thêm thời gian.',
+    ai_empty_text: 'Vui lòng dán nội dung văn bản (tối đa 30.000 ký tự).', ai_empty_question: 'Vui lòng nhập câu hỏi (tối đa 2.000 ký tự).',
+    ai_error: 'Không nhận được kết quả phân tích. Vui lòng thử lại.', ai_done: 'Đã xử lý. Hãy đối chiếu kết quả với nguồn gốc.',
+    ai_summary: 'Tóm tắt văn bản', ai_facts: 'Thông tin quan trọng', ai_actions: 'Việc cần làm — gợi ý để xem xét',
+    ai_answer: 'Trả lời câu hỏi', ai_evidence: 'Căn cứ AI trích dẫn', ai_caveats: 'Điểm cần kiểm tra', ai_used_source: 'Nguồn đã phân tích',
+    ai_no_items: 'Không có nội dung được trích xuất trong mục này.',
+    payroll_btn_ai: 'AI Phân Tích Lương & OT',
+    payroll_ai_sub: 'Phân tích quỹ lương, chi phí làm thêm giờ (OT) và chuyên cần toàn doanh nghiệp'
+  });
+  Object.assign(I18N.en, {
+    ai_button: 'Analyze with AI', ai_analyze: 'Analyze document', ai_source: 'Analysis source',
+    ai_attachment: 'Drive document (Word, Excel, Google Docs/Sheets/Slides, PDF, images)', ai_paste: 'Paste text (up to 30,000 characters)',
+    ai_notice: 'The selected content is sent to Gemini for analysis. AI can make mistakes; check quoted evidence against the original document.',
+    ai_text_label: 'Text for this analysis', ai_text_placeholder: 'Paste the full document or the section to analyze...',
+    ai_question: 'Ask about this document', ai_question_placeholder: 'Example: Who does this document apply to, and from what date?',
+    ai_ask: 'Ask question', ai_question_hint: 'Each question is answered independently using the selected source.',
+    ai_attachment_hint: 'Reads the saved link, up to 10 MB before and after conversion. Word/Excel use a temporary copy that is then trashed; originals stay unchanged. Analysis uses the exported PDF layout.',
+    ai_paste_hint: 'AI reads only the pasted text, not the rest of the document. This text is not saved to the record.',
+    ai_missing: 'No real attachment is linked. Paste text or ask a manager/accountant to attach a supported file.',
+    ai_busy: 'Gemini is reading and processing the document...', ai_wait: 'Gemini is still processing. Longer documents may take more time.',
+    ai_empty_text: 'Paste document text (up to 30,000 characters).', ai_empty_question: 'Enter a question (up to 2,000 characters).',
+    ai_error: 'Analysis could not be completed. Please try again.', ai_done: 'Completed. Check the result against the original source.',
+    ai_summary: 'Summary', ai_facts: 'Key information', ai_actions: 'Suggested actions for review',
+    ai_answer: 'Answer', ai_evidence: 'Evidence quoted by AI', ai_caveats: 'Items to verify', ai_used_source: 'Analyzed source',
+    ai_no_items: 'No items were extracted in this section.',
+    payroll_btn_ai: 'AI Payroll & OT Analytics',
+    payroll_ai_sub: 'Analyze payroll fund, overtime expenditure and attendance discipline'
+  });
+  Object.assign(I18N.zh, {
+    ai_button: 'AI分析', ai_analyze: '分析文件', ai_source: '分析来源',
+    ai_attachment: '云端硬盘文件（Word、Excel、Google Docs/Sheets/Slides、PDF、图片）', ai_paste: '粘贴文本（最多30,000字符）',
+    ai_notice: '所选内容将发送至Gemini进行分析。AI可能出错，请对照原文核实引用内容。',
+    ai_text_label: '本次分析使用的文本', ai_text_placeholder: '粘贴完整文件或需要分析的段落...',
+    ai_question: '询问此文件', ai_question_placeholder: '例如：文件适用于哪些对象？何时生效？',
+    ai_ask: '发送问题', ai_question_hint: '每个问题均根据所选来源独立回答。',
+    ai_attachment_hint: '读取已保存的链接，转换前后最大10 MB。Word/Excel使用临时副本转换，完成后将副本移至回收站；原文件不变。分析基于导出的PDF布局。',
+    ai_paste_hint: 'AI仅读取粘贴内容，不读取文件其余部分。文本不会保存到记录中。',
+    ai_missing: '尚未关联真实附件。请粘贴内容或请管理人员/会计上传支持的文件。',
+    ai_busy: 'Gemini正在读取并处理文件...', ai_wait: 'Gemini仍在处理中。较长文件可能需要更多时间。',
+    ai_empty_text: '请粘贴文件内容（最多30,000字符）。', ai_empty_question: '请输入问题（最多2,000字符）。',
+    ai_error: '无法完成分析，请重试。', ai_done: '处理完成，请对照原文核实结果。',
+    ai_summary: '文件摘要', ai_facts: '重要信息', ai_actions: '建议事项（待审核）',
+    ai_answer: '回答', ai_evidence: 'AI引用依据', ai_caveats: '待核实事项', ai_used_source: '已分析来源',
+    ai_no_items: '此部分未提取到内容。',
+    payroll_btn_ai: 'AI薪酬与加班分析',
+    payroll_ai_sub: '分析企业薪资总额、加班成本与考勤纪律'
+  });
+
+  const documentAIState = { docId: '', version: 0, busy: false, timer: null, opener: null, analysis: null, answer: null, sourceName: '', question: '' };
+
+  function openDocumentAI(docId, opener) {
+    const doc = (appData.documents || []).find(item => item.id === docId);
+    if (!currentUser || !doc) return;
+    closeDocumentAI();
+    documentAIState.docId = docId;
+    documentAIState.opener = opener || document.activeElement;
+    document.getElementById('ai-doc-label').textContent = doc.id + ' — ' + doc.title;
+    document.getElementById('ai-source').value = doc.fileUrl && !doc.fileUrl.startsWith('demo:') ? 'attachment' : 'text';
+    document.getElementById('ai-text').value = '';
+    document.getElementById('ai-question').value = '';
+    document.getElementById('modal-document-ai').classList.remove('hidden');
+    applyStaticI18n();
+    changeDocumentAISource();
+    document.getElementById('ai-close').focus();
+  }
+
+  function closeDocumentAI() {
+    documentAIState.version++;
+    clearTimeout(documentAIState.timer);
+    documentAIState.busy = false;
+    documentAIState.docId = '';
+    const modal = document.getElementById('modal-document-ai');
+    if (modal) modal.classList.add('hidden');
+    const inputs = document.getElementById('ai-inputs');
+    if (inputs) inputs.disabled = false;
+    clearDocumentAIResult();
+    const text = document.getElementById('ai-text'), question = document.getElementById('ai-question');
+    if (text) text.value = '';
+    if (question) question.value = '';
+    if (documentAIState.opener && documentAIState.opener.isConnected && documentAIState.opener.focus) documentAIState.opener.focus();
+    documentAIState.opener = null;
+  }
+
+  function clearDocumentAIResult() {
+    documentAIState.analysis = null; documentAIState.answer = null; documentAIState.sourceName = ''; documentAIState.question = '';
+    const result = document.getElementById('ai-result'), status = document.getElementById('ai-status');
+    if (result) result.innerHTML = '';
+    if (status) status.textContent = '';
+  }
+
+  function changeDocumentAISource() {
+    clearDocumentAIResult();
+    const pasted = document.getElementById('ai-source').value === 'text';
+    document.getElementById('ai-text-wrap').classList.toggle('hidden', !pasted);
+    const doc = (appData.documents || []).find(item => item.id === documentAIState.docId);
+    const missing = !doc || !doc.fileUrl || doc.fileUrl.startsWith('demo:');
+    document.getElementById('ai-source-hint').textContent = t(pasted ? (missing ? 'ai_missing' : 'ai_paste_hint') : 'ai_attachment_hint');
+  }
+
+  function runDocumentAI(mode) {
+    if (!currentUser || !documentAIState.docId || documentAIState.busy) return;
+    const request = {
+      docId: documentAIState.docId, mode: mode, source: document.getElementById('ai-source').value,
+      text: document.getElementById('ai-text').value.trim(), question: document.getElementById('ai-question').value.trim(), language: currentLang
+    };
+    const status = document.getElementById('ai-status');
+    if (request.source === 'text' && (!request.text || request.text.length > 30000)) { status.textContent = t('ai_empty_text'); return; }
+    if (mode === 'ask' && (!request.question || request.question.length > 2000)) { status.textContent = t('ai_empty_question'); return; }
+    if (request.source !== 'text') request.text = '';
+    if (mode !== 'ask') request.question = '';
+    const version = ++documentAIState.version;
+    documentAIState.busy = true;
+    document.getElementById('ai-inputs').disabled = true;
+    status.textContent = t('ai_busy');
+    documentAIState.timer = setTimeout(() => {
+      if (version === documentAIState.version && documentAIState.busy) status.textContent = t('ai_wait');
+    }, 15000);
+    const finish = () => {
+      if (version !== documentAIState.version) return false;
+      clearTimeout(documentAIState.timer);
+      documentAIState.busy = false;
+      document.getElementById('ai-inputs').disabled = false;
+      return true;
+    };
+    callBackend('apiAnalyzeDocument', [request], res => {
+      if (!finish()) return;
+      if (!res || !res.success || !res.data) { status.textContent = res && res.message || t('ai_error'); return; }
+      documentAIState.sourceName = request.source === 'text' ? t('ai_paste') : res.sourceName;
+      if (mode === 'analyze') { documentAIState.analysis = res.data; documentAIState.answer = null; }
+      else { documentAIState.answer = res.data; documentAIState.question = request.question; }
+      renderDocumentAIResult();
+      status.textContent = t('ai_done');
+    }, () => { if (finish()) status.textContent = t('ai_error'); });
+  }
+
+  function renderDocumentAIResult() {
+    const section = (key, body) => '<section><h3>' + escapeHtml(t(key)) + '</h3>' + body + '</section>';
+    const paragraph = text => '<p>' + escapeHtml(text) + '</p>';
+    const evidence = text => text ? '<blockquote>' + escapeHtml(t('ai_evidence')) + ': ' + escapeHtml(text) + '</blockquote>' : '';
+    const items = (list, content) => list.length ? list.map(item => '<article>' + content(item) + '</article>').join('') : paragraph(t('ai_no_items'));
+    let html = paragraph(t('ai_used_source') + ': ' + documentAIState.sourceName);
+    const data = documentAIState.analysis, answer = documentAIState.answer;
+    if (data) {
+      html += section('ai_summary', paragraph(data.summary));
+      html += section('ai_facts', items(data.facts, item => paragraph(item.label + ': ' + item.value) + evidence(item.evidence)));
+      html += section('ai_actions', items(data.actions, item => paragraph(item.role + ': ' + item.task) + evidence(item.evidence)));
+      if (data.caveats.length) html += section('ai_caveats', items(data.caveats, paragraph));
+    }
+    if (answer) {
+      html += section('ai_answer', paragraph(documentAIState.question) + paragraph(answer.answer) + evidence(answer.evidence));
+      if (answer.caveats.length) html += section('ai_caveats', items(answer.caveats, paragraph));
+    }
+    document.getElementById('ai-result').innerHTML = html;
+  }
+
+  function handleDocumentAIKeydown(event) {
+    if (event.key === 'Escape') { event.preventDefault(); closeDocumentAI(); return; }
+    if (event.key !== 'Tab') return;
+    const controls = Array.from(document.getElementById('modal-document-ai').querySelectorAll('button, select, textarea'))
+      .filter(el => !el.matches(':disabled') && el.getClientRects().length);
+    const first = controls[0], last = controls[controls.length - 1];
+    if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+    else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+  }
+
+  // --- AI PAYROLL & OT INTELLIGENCE ---
+  const payrollAIState = {
+    busy: false,
+    period: '',
+    data: null,
+    metrics: null
+  };
+
+  function openPayrollAIModal(targetPeriod) {
+    const modal = document.getElementById('modal-payroll-ai');
+    if (!modal) return;
+    const select = document.getElementById('payroll-ai-period-select');
+    if (select) {
+      select.innerHTML = '';
+      const periods = (appData && appData.payrollPeriods && appData.payrollPeriods.length)
+        ? appData.payrollPeriods
+        : [(document.getElementById('payroll-period-select') && document.getElementById('payroll-period-select').value) || '10/2026'];
+      periods.forEach(p => {
+        const opt = document.createElement('option');
+        opt.value = p;
+        opt.textContent = 'Kỳ lương ' + p;
+        select.appendChild(opt);
+      });
+      const chosen = targetPeriod || (document.getElementById('payroll-period-select') && document.getElementById('payroll-period-select').value) || periods[0];
+      select.value = chosen;
+      payrollAIState.period = chosen;
+    }
+    modal.classList.remove('hidden');
+    runPayrollAI();
+  }
+
+  function changePayrollAIPeriod(val) {
+    payrollAIState.period = val;
+    runPayrollAI();
+  }
+
+  function runPayrollAI(question) {
+    if (payrollAIState.busy) return;
+    payrollAIState.busy = true;
+
+    const select = document.getElementById('payroll-ai-period-select');
+    const period = select ? select.value : payrollAIState.period;
+    const loading = document.getElementById('payroll-ai-loading');
+    const resultBox = document.getElementById('payroll-ai-result');
+    const errorBox = document.getElementById('payroll-ai-error');
+    const askBtn = document.getElementById('payroll-ai-ask-btn');
+
+    if (!question) {
+      if (loading) loading.classList.remove('hidden');
+      if (resultBox) resultBox.classList.add('hidden');
+    } else {
+      if (askBtn) {
+        askBtn.disabled = true;
+        askBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-xs"></i> <span>Đang hỏi...</span>';
+      }
+    }
+    if (errorBox) errorBox.classList.add('hidden');
+
+    const req = {
+      period: period,
+      question: question || '',
+      scope: (currentUser && currentUser.role === 'employee') ? 'my' : 'company',
+      language: currentLang
+    };
+
+    callBackend('apiAnalyzePayrollAI', [req], res => {
+      payrollAIState.busy = false;
+      if (loading) loading.classList.add('hidden');
+      if (askBtn) {
+        askBtn.disabled = false;
+        askBtn.innerHTML = '<i class="fa-solid fa-paper-plane text-xs"></i> <span>Hỏi AI</span>';
+      }
+
+      if (!res || !res.success || !res.data) {
+        if (errorBox) {
+          errorBox.classList.remove('hidden');
+          const errMsg = document.getElementById('payroll-ai-error-msg');
+          if (errMsg) errMsg.textContent = res && res.message || 'Không thể kết nối với Gemini AI.';
+        }
+        return;
+      }
+
+      payrollAIState.data = res.data;
+      payrollAIState.metrics = res.rawMetrics;
+      if (resultBox) resultBox.classList.remove('hidden');
+      renderPayrollAIResult(res);
+    }, err => {
+      payrollAIState.busy = false;
+      if (loading) loading.classList.add('hidden');
+      if (askBtn) {
+        askBtn.disabled = false;
+        askBtn.innerHTML = '<i class="fa-solid fa-paper-plane text-xs"></i> <span>Hỏi AI</span>';
+      }
+      if (errorBox) {
+        errorBox.classList.remove('hidden');
+        const errMsg = document.getElementById('payroll-ai-error-msg');
+        if (errMsg) errMsg.textContent = (err && err.message) || String(err) || 'Lỗi xử lý AI.';
+      }
+    });
+  }
+
+  function renderPayrollAIResult(res) {
+    const m = res.rawMetrics || {};
+    const d = res.data || {};
+
+    const fmt = n => (Number(n) || 0).toLocaleString('vi-VN') + ' đ';
+
+    // 4 KPI Cards
+    const elNet = document.getElementById('pai-kpi-net');
+    if (elNet) elNet.textContent = fmt(m.totalNet);
+
+    const elMom = document.getElementById('pai-kpi-mom');
+    if (elMom) {
+      if (m.momComparison) {
+        const sign = m.momComparison.netGrowthPercent >= 0 ? '+' : '';
+        const color = m.momComparison.netGrowthPercent >= 0 ? 'text-emerald-700' : 'text-blue-700';
+        elMom.className = 'text-[10px] font-bold mt-0.5 truncate ' + color;
+        elMom.textContent = sign + m.momComparison.netGrowthPercent + '% so với ' + (m.momComparison.prevPeriod || 'tháng trước');
+      } else {
+        elMom.className = 'text-[10px] text-slate-500 font-medium mt-0.5 truncate';
+        elMom.textContent = 'Kỳ đầu tiên ghi nhận';
+      }
+    }
+
+    const elOt = document.getElementById('pai-kpi-ot');
+    if (elOt) elOt.textContent = fmt(m.totalOTPay);
+
+    const elOtDays = document.getElementById('pai-kpi-ot-days');
+    if (elOtDays) elOtDays.textContent = (m.totalOTDays || 0) + ' ngày làm thêm';
+
+    const elAvg = document.getElementById('pai-kpi-avg');
+    if (elAvg) elAvg.textContent = fmt(m.avgNet);
+
+    const elHeadcount = document.getElementById('pai-kpi-headcount');
+    if (elHeadcount) elHeadcount.textContent = (m.headcount || 0) + ' nhân sự hưởng lương';
+
+    const totalLeaves = (Number(m.totalPaidLeave) || 0) + (Number(m.totalSickDays) || 0) + (Number(m.totalUnpaidDays) || 0);
+    const elLeaves = document.getElementById('pai-kpi-leaves');
+    if (elLeaves) elLeaves.textContent = totalLeaves + ' ngày';
+
+    const elAttSub = document.getElementById('pai-kpi-attendance-sub');
+    if (elAttSub) elAttSub.textContent = 'Phép (P): ' + (m.totalPaidLeave || 0) + ' | Ốm (O): ' + (m.totalSickDays || 0) + ' | Không lương: ' + (m.totalUnpaidDays || 0);
+
+    // Summary Banner
+    const elSummary = document.getElementById('pai-summary');
+    if (elSummary) elSummary.textContent = d.summary || '--';
+
+    // 1. Payroll insights
+    const pi = d.payrollInsights || {};
+    const setTxt = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val || '--'; };
+    setTxt('pai-payroll-net', pi.totalNetText);
+    setTxt('pai-payroll-mom', pi.momTrend);
+    setTxt('pai-payroll-dept', pi.departmentHighlights);
+    setTxt('pai-payroll-dist', pi.salaryDistribution);
+
+    // 2. OT insights
+    const ot = d.otAnalysis || {};
+    setTxt('pai-ot-summary', ot.totalOTSummary);
+    setTxt('pai-ot-depts', ot.topDepartments);
+    setTxt('pai-ot-employees', ot.topEmployees);
+    setTxt('pai-ot-burnout', ot.burnoutWarning);
+
+    // 3. Attendance Discipline
+    const att = d.attendanceDiscipline || {};
+    setTxt('pai-att-rate', att.generalAttendanceRate);
+    setTxt('pai-att-leaves', att.leaveAndSickSummary);
+    setTxt('pai-att-unpaid', att.unpaidOrIrregular);
+
+    // 4. Recommendations
+    const elRec = document.getElementById('pai-recommendations');
+    if (elRec) {
+      elRec.innerHTML = '';
+      const list = Array.isArray(d.recommendations) ? d.recommendations : [];
+      list.forEach(rec => {
+        const li = document.createElement('li');
+        li.className = 'text-xs text-slate-700 leading-relaxed';
+        li.textContent = rec;
+        elRec.appendChild(li);
+      });
+    }
+
+    // Direct Answer (if question was asked)
+    const answerBox = document.getElementById('payroll-ai-answer-box');
+    const answerText = document.getElementById('payroll-ai-answer-text');
+    if (d.answer && d.answer.trim()) {
+      if (answerBox) answerBox.classList.remove('hidden');
+      if (answerText) answerText.textContent = d.answer;
+    }
+  }
+
+  function handlePayrollAIQuestionSubmit(e) {
+    if (e) e.preventDefault();
+    const input = document.getElementById('payroll-ai-question');
+    const q = input ? input.value.trim() : '';
+    if (!q) return;
+    runPayrollAI(q);
+  }
+
+  function askPayrollAIQuick(questionText) {
+    const input = document.getElementById('payroll-ai-question');
+    if (input) input.value = questionText;
+    runPayrollAI(questionText);
+  }
+
   function closeModal(id) {
     document.getElementById(id).classList.add('hidden');
   }
@@ -3741,6 +4121,8 @@
     }, err => { if (tab) tab.close(); showToast(err.message, 'error'); });
   }
   document.addEventListener('click', event => {
+    const ai = event.target.closest('[data-ai-doc]');
+    if (ai) openDocumentAI(ai.dataset.aiDoc, ai);
     const edit = event.target.closest('[data-edit-doc]'), assign = event.target.closest('[data-assign-doc]');
     if (edit) editDoc(edit.dataset.editDoc);
     if (assign) assignTaskFromDoc(assign.dataset.assignDoc);

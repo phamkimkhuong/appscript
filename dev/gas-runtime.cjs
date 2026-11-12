@@ -30,7 +30,7 @@ function createRuntime(options = {}) {
     const bytes=typeof value==='string'?Array.from(new TextEncoder().encode(value)):Array.from(value);
     return {getBytes:()=>bytes,getContentType:()=>type,getName:()=>name};
   }
-  function file(id){const value=state.files[id];if(!value)throw Error('File unavailable');return {getId:()=>id,getName:()=>value.name,getBlob:()=>blob(value.bytes,value.type,value.name),setTrashed(){delete state.files[id];return this;}};}
+  function file(id){const value=state.files[id];if(!value)throw Error('File unavailable');return {getId:()=>id,getName:()=>value.name,getSize:()=>value.bytes.length,getMimeType:()=>value.type,getBlob:()=>blob(value.bytes,value.type,value.name),setTrashed(){delete state.files[id];return this;}};}
   function folder(id){if(!state.folders[id])throw Error('Folder unavailable');return {getId:()=>id,createFile(b){const fileId=uuid();state.files[fileId]={bytes:b.getBytes(),type:b.getContentType(),name:b.getName(),folder:id};return file(fileId);},setTrashed(){Object.keys(state.files).filter(key=>state.files[key].folder===id).forEach(key=>delete state.files[key]);delete state.folders[id];return this;}};}
   const DriveApp={createFolder(){const id=uuid();state.folders[id]={};return folder(id);},getFolderById:folder,getFileById(id){if(state.sheets[id])return {setTrashed(){delete state.sheets[id];}};return file(id);}};
   const Utilities={getUuid:uuid,newBlob:blob,base64Encode(bytes){let raw='';for(const b of bytes)raw+=String.fromCharCode((b+256)%256);return btoa(raw);},base64Decode(text){return Array.from(atob(text),c=>c.charCodeAt(0));},formatDate(date,zone,pattern){

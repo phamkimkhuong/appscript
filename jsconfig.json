@@ -2,7 +2,7 @@
   "compilerOptions": {
     "target": "ES2020",
     "lib": ["ES2020"],
-    "types": ["google-apps-script"],
+    "types": ["google-apps-script", "google-apps-script/apis/drive_v3"],
     "checkJs": true,
     "noEmit": true,
     "strict": false,
