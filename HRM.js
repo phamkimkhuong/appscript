@@ -518,7 +518,15 @@ function submitAdvance_(form) {
   const auth = authorized_();
   require_(form, 'Thiếu thông tin đề xuất.');
   const amount = Math.round(Number(form.amount));
-  require_(amount > 0, 'Số tiền tạm ứng phải lớn hơn 0.');
+  require_(amount >= 100000, 'Số tiền tạm ứng tối thiểu là 100.000 VNĐ.');
+
+  // HẠN MỨC TRỰC TUYẾN TỐI ĐA: 95% LƯƠNG CƠ BẢN
+  const baseSalary = Number(auth.user && auth.user['Lương Cơ Bản']) || 0;
+  if (baseSalary > 0) {
+    const maxAllowed = Math.floor(baseSalary * 0.95);
+    require_(amount <= maxAllowed, 'Số tiền tạm ứng vượt quá hạn mức trực tuyến tối đa 95% lương cơ bản (Tối đa: ' + maxAllowed.toLocaleString('vi-VN') + ' đ).');
+  }
+
   const period = period_(form.period || currentBusinessPeriod_());
   const reason = safeText_(form.reason || '', 500);
   require_(reason, 'Vui lòng nhập lý do tạm ứng.');
@@ -621,6 +629,14 @@ function updateAdvance_(form) {
   require_(form && form.id, 'Thiếu mã đơn tạm ứng.');
   const amount = Math.round(Number(form.amount));
   require_(amount >= 100000, 'Số tiền tạm ứng tối thiểu là 100.000 VNĐ.');
+
+  // HẠN MỨC TRỰC TUYẾN TỐI ĐA: 95% LƯƠNG CƠ BẢN
+  const baseSalary = Number(auth.user && auth.user['Lương Cơ Bản']) || 0;
+  if (baseSalary > 0) {
+    const maxAllowed = Math.floor(baseSalary * 0.95);
+    require_(amount <= maxAllowed, 'Số tiền tạm ứng vượt quá hạn mức trực tuyến tối đa 95% lương cơ bản (Tối đa: ' + maxAllowed.toLocaleString('vi-VN') + ' đ).');
+  }
+
   const period = period_(form.period || currentBusinessPeriod_());
   const reason = safeText_(form.reason || '', 500);
   require_(reason, 'Vui lòng nhập lý do tạm ứng.');

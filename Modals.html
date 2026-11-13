@@ -989,7 +989,9 @@
             <div>
               <div class="flex items-center justify-between mb-1">
                 <label class="block font-semibold text-slate-700">Số tiền tạm ứng (VNĐ)</label>
-                <span class="text-[10px] text-amber-700 font-medium">Tối thiểu: 100.000 đ</span>
+                <span id="advance-max-limit-badge" class="text-[10px] text-emerald-800 font-bold bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md">
+                  Hạn mức: <span id="advance-max-limit-val">-- đ</span> <span class="text-[9px] font-normal text-emerald-600">(95% Lương CB)</span>
+                </span>
               </div>
               <div class="relative">
                 <input type="text" id="advance-form-amount" inputmode="numeric" placeholder="Ví dụ: 1.500.000"
@@ -1001,6 +1003,11 @@
               <div id="advance-amount-words" class="text-[11px] font-medium text-amber-700 mt-1.5 italic min-h-[16px] flex items-center gap-1">
                 <i class="fa-solid fa-circle-check text-[10px] text-amber-600 hidden" id="advance-amount-icon"></i>
                 <span id="advance-amount-text" class="text-slate-400">Nhập số tiền để xem số tiền bằng chữ</span>
+              </div>
+              <!-- Cảnh báo vượt hạn mức 95% -->
+              <div id="advance-amount-warning" class="hidden text-[11px] font-semibold text-rose-600 mt-1.5 flex items-center gap-1.5 bg-rose-50 border border-rose-200 px-2.5 py-1 rounded-lg">
+                <i class="fa-solid fa-triangle-exclamation text-rose-500 shrink-0 text-xs"></i>
+                <span id="advance-warning-text">Số tiền vượt quá hạn mức tối đa cho phép (95% Lương cơ bản).</span>
               </div>
             </div>
           </div>

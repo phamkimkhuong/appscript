@@ -48,6 +48,8 @@
   let timesheetCacheByPeriod = {};
   let currentPayrollPeriod = '';
   let payrollPeriods = [];
+  let deptChartInstance = null;
+  let payrollChartInstance = null;
 
   // --- I18N DICTIONARY & MULTI-LANGUAGE SYSTEM (VI, EN, ZH) ---
   const I18N = {
@@ -488,7 +490,15 @@
       leave_update_failed: 'Lỗi cập nhật đơn nghỉ phép!',
       leave_delete_failed: 'Lỗi khi xóa đơn nghỉ phép!',
       syncing_data: 'Đang đồng bộ dữ liệu mới nhất từ Google Sheets...',
-      session_expired: 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.'
+      session_expired: 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.',
+      dash_dept_structure: 'Cơ Cấu Nhân Sự',
+      dash_dept_sub: 'Phân bổ nhân sự theo phòng ban',
+      dash_org_scale: 'Quy mô tổ chức:',
+      payroll_trend_title: 'Biến Động Quỹ Lương Qua Các Kỳ',
+      payroll_trend_sub: 'So sánh tổng chi trả thực lĩnh giữa các kỳ lương',
+      payroll_curr_fund_label: 'Kỳ này:',
+      payroll_trend_collapse: 'Thu gọn',
+      payroll_trend_expand: 'Mở rộng'
     },
     en: {
       app_title: 'Wanzhong Clean Technology',
@@ -964,7 +974,15 @@
       leave_update_failed: 'Failed to update leave request!',
       leave_delete_failed: 'Failed to delete leave request!',
       syncing_data: 'Syncing latest data from Google Sheets...',
-      session_expired: 'Session expired. Please log in again.'
+      session_expired: 'Session expired. Please log in again.',
+      dash_dept_structure: 'Workforce Structure',
+      dash_dept_sub: 'Workforce by department',
+      dash_org_scale: 'Organization scale:',
+      payroll_trend_title: 'Payroll Trend by Period',
+      payroll_trend_sub: 'Compare net payout across payroll periods',
+      payroll_curr_fund_label: 'Current:',
+      payroll_trend_collapse: 'Collapse',
+      payroll_trend_expand: 'Expand'
     },
     zh: {
       app_title: '万钟洁净科技',
@@ -1440,7 +1458,15 @@
       leave_update_failed: '更新休假申请失败！',
       leave_delete_failed: '删除休假申请失败！',
       syncing_data: '正在从Google表格同步最新数据...',
-      session_expired: '会话已过期，请重新登录。'
+      session_expired: '会话已过期，请重新登录。',
+      dash_dept_structure: '人员结构',
+      dash_dept_sub: '按部门人员分布',
+      dash_org_scale: '组织规模:',
+      payroll_trend_title: '各周期工资总额走势',
+      payroll_trend_sub: '对比各期实发工资总额',
+      payroll_curr_fund_label: '本期:',
+      payroll_trend_collapse: '折叠',
+      payroll_trend_expand: '展开'
     }
   };
 
@@ -1771,6 +1797,14 @@
   function handleLogout() {
     closeDocumentAI();
     clearAuthSession();
+    if (deptChartInstance) {
+      try { deptChartInstance.destroy(); } catch (e) {}
+      deptChartInstance = null;
+    }
+    if (payrollChartInstance) {
+      try { payrollChartInstance.destroy(); } catch (e) {}
+      payrollChartInstance = null;
+    }
     const token = authToken;
     if (typeof google !== 'undefined' && google.script) google.script.run.apiLogout(token);
     else if (window.localDemoLogout) window.localDemoLogout(token);
@@ -2048,9 +2082,12 @@
     // TẦNG 3: 3 CỘT ĐỘC LẬP KHÔNG TRÙNG LẶP
     // =====================================================
 
-    // CỘT 1: CƠ CẤU NHÂN SỰ THEO PHÒNG BAN
+    // CỘT 1: CƠ CẤU NHÂN SỰ THEO PHÒNG BAN (DONUT CHART.JS)
     const deptListEl = document.getElementById('dash-dept-list');
     const deptCountEl = document.getElementById('dash-dept-count');
+    const donutTotalEl = document.getElementById('dash-donut-total');
+    if (donutTotalEl) donutTotalEl.innerText = active.length;
+
     if (deptListEl) {
       const deptCounts = {};
       active.forEach(u => {
@@ -2059,23 +2096,99 @@
       });
       const deptNames = Object.keys(deptCounts).sort((a, b) => deptCounts[b] - deptCounts[a]);
       if (deptCountEl) deptCountEl.innerText = `${deptNames.length} phòng ban chức năng`;
-      const deptColors = ['bg-blue-500', 'bg-indigo-500', 'bg-teal-500', 'bg-amber-500', 'bg-rose-500', 'bg-purple-500'];
-      deptListEl.innerHTML = deptNames.map((name, idx) => {
-        const count = deptCounts[name];
-        const pct = active.length ? Math.round((count / active.length) * 100) : 0;
-        const color = deptColors[idx % deptColors.length];
-        return `
-          <div>
-            <div class="flex justify-between items-center text-xs mb-1">
-              <span class="font-semibold text-slate-700">${escapeHtml(name)}</span>
-              <span class="text-slate-500 font-medium">${count} NV <span class="text-slate-400">(${pct}%)</span></span>
+
+      const COLOR_MAP = {
+        'Sản xuất': '#0d9488',    // Teal-600
+        'Kỹ thuật': '#2563eb',    // Blue-600
+        'Kinh doanh': '#f59e0b',  // Amber-500
+        'Kế toán': '#8b5cf6',     // Violet-500
+        'Ban Giám Đốc': '#f43f5e' // Rose-500
+      };
+      const FALLBACK_PALETTE = ['#0d9488', '#2563eb', '#f59e0b', '#8b5cf6', '#f43f5e', '#06b6d4', '#6366f1', '#64748b'];
+
+      const bgColors = deptNames.map((name, idx) => COLOR_MAP[name] || FALLBACK_PALETTE[idx % FALLBACK_PALETTE.length]);
+      const deptValues = deptNames.map(name => deptCounts[name]);
+
+      // Vẽ hoặc cập nhật Chart.js Donut Chart (Chỉ chạy trên browser khi có Chart.js và canvas hợp lệ)
+      const canvas = document.getElementById('dept-chart-canvas');
+      if (typeof Chart !== 'undefined' && canvas && typeof canvas.getContext === 'function') {
+        try {
+          if (deptChartInstance) {
+            deptChartInstance.destroy();
+            deptChartInstance = null;
+          }
+          const ctx = canvas.getContext('2d');
+          if (ctx && deptNames.length > 0) {
+            deptChartInstance = new Chart(ctx, {
+              type: 'doughnut',
+              data: {
+                labels: deptNames,
+                datasets: [{
+                  data: deptValues,
+                  backgroundColor: bgColors,
+                  hoverBackgroundColor: bgColors,
+                  borderWidth: 2,
+                  borderColor: '#ffffff',
+                  hoverOffset: 4
+                }]
+              },
+              options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '72%',
+                plugins: {
+                  legend: {
+                    display: false
+                  },
+                  tooltip: {
+                    backgroundColor: '#0f172a',
+                    titleFont: { size: 12, weight: 'bold' },
+                    bodyFont: { size: 12 },
+                    padding: 8,
+                    cornerRadius: 8,
+                    callbacks: {
+                      label: function(context) {
+                        const count = context.raw || 0;
+                        const pct = active.length ? Math.round((count / active.length) * 100) : 0;
+                        return ` ${count} nhân sự (${pct}%)`;
+                      }
+                    }
+                  }
+                },
+                animation: {
+                  duration: 600,
+                  animateRotate: true
+                }
+              }
+            });
+          }
+        } catch (e) {
+          console.warn('Chart.js render error:', e);
+        }
+      }
+
+      // Render danh sách chi tiết các phòng ban bên dưới
+      if (deptNames.length === 0) {
+        deptListEl.innerHTML = '<div class="text-xs text-slate-400 text-center py-4">Chưa có dữ liệu nhân sự</div>';
+      } else {
+        deptListEl.innerHTML = deptNames.map((name, idx) => {
+          const count = deptCounts[name];
+          const pct = active.length ? Math.round((count / active.length) * 100) : 0;
+          const color = bgColors[idx];
+          return `
+            <div class="flex items-center justify-between p-1.5 sm:p-2 rounded-xl hover:bg-slate-50 transition duration-150">
+              <div class="flex items-center space-x-2 truncate min-w-0 mr-2">
+                <span class="w-2.5 h-2.5 rounded-full shrink-0 shadow-2xs" style="background-color: ${color}"></span>
+                <span class="text-xs font-semibold text-slate-700 truncate">${escapeHtml(name)}</span>
+              </div>
+              <div class="flex items-center space-x-2 shrink-0">
+                <span class="text-xs font-bold text-slate-900">${count} <span class="text-[10px] font-normal text-slate-400">NV</span></span>
+                <span class="px-1.5 py-0.5 rounded-md text-[10px] font-bold bg-slate-100 text-slate-600 border border-slate-200/60">${pct}%</span>
+              </div>
             </div>
-            <div class="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
-              <div class="h-full ${color} rounded-full" style="width: ${pct}%"></div>
-            </div>
-          </div>
-        `;
-      }).join('');
+          `;
+        }).join('');
+      }
     }
 
     // CỘT 2: TỔNG QUAN CHUYÊN CẦN TRONG KỲ
@@ -2977,6 +3090,155 @@
       </tr>
     `).join('') : '<tr><td colspan="11" class="p-6 text-center text-slate-400">' + t('payroll_empty_msg', 'Chưa có bảng lương kỳ này. Kế toán cần tính lương.') + '</td></tr>';
     document.querySelectorAll('[data-payslip]').forEach(button => button.onclick = () => printPayslip(button.dataset.payslip, period));
+    renderPayrollTrendChart(period);
+  }
+
+  function togglePayrollTrendChart() {
+    const body = document.getElementById('payroll-trend-chart-body');
+    const text = document.getElementById('payroll-trend-toggle-text');
+    const icon = document.getElementById('payroll-trend-toggle-icon');
+    if (!body) return;
+    const isHidden = body.classList.contains('hidden');
+    if (isHidden) {
+      body.classList.remove('hidden');
+      if (text) text.innerText = t('payroll_trend_collapse', 'Thu gọn');
+      if (icon) icon.className = 'fa-solid fa-chevron-up text-[9px] transition-transform';
+    } else {
+      body.classList.add('hidden');
+      if (text) text.innerText = t('payroll_trend_expand', 'Mở rộng');
+      if (icon) icon.className = 'fa-solid fa-chevron-down text-[9px] transition-transform';
+    }
+  }
+
+  function renderPayrollTrendChart(selectedPeriod) {
+    const trendCard = document.getElementById('payroll-trend-card');
+    if (!trendCard) return;
+
+    if (!currentUser || currentUser.role === 'employee') {
+      trendCard.classList.add('hidden');
+      return;
+    }
+    trendCard.classList.remove('hidden');
+
+    const periodsRaw = [...new Set([...(payrollPeriods || []), ...(appData.payroll || []).map(p => p.period)])].filter(Boolean);
+    periodsRaw.sort((a, b) => {
+      const [mA, yA] = a.split('/').map(Number);
+      const [mB, yB] = b.split('/').map(Number);
+      return (yA - yB) || (mA - mB);
+    });
+
+    const periods = periodsRaw.slice(-6);
+    const totals = periods.map(p => {
+      const rows = (appData.payroll || []).filter(item => item.period === p);
+      return rows.reduce((sum, item) => sum + (Number(item.netSalary) || 0), 0);
+    });
+
+    const idx = periods.indexOf(selectedPeriod);
+    const currTotal = idx >= 0 ? totals[idx] : 0;
+    const currValEl = document.getElementById('payroll-trend-curr-val');
+    if (currValEl) currValEl.innerText = currTotal > 0 ? money(currTotal) : (currentLang === 'vi' ? 'Chưa tính' : currentLang === 'en' ? 'Uncalculated' : '未核算');
+
+    const diffBadge = document.getElementById('payroll-trend-diff-badge');
+    const diffIcon = document.getElementById('payroll-trend-diff-icon');
+    const diffVal = document.getElementById('payroll-trend-diff-val');
+    if (idx > 0 && totals[idx - 1] > 0 && currTotal > 0) {
+      const prevTotal = totals[idx - 1];
+      const diff = currTotal - prevTotal;
+      const pct = Math.round((diff / prevTotal) * 1000) / 10;
+      if (diff > 0) {
+        if (diffBadge) diffBadge.className = 'px-2.5 py-1 rounded-xl bg-emerald-50 border border-emerald-200/80 text-[11px] font-semibold text-emerald-700 flex items-center gap-1';
+        if (diffIcon) diffIcon.className = 'fa-solid fa-arrow-trend-up text-emerald-600';
+        if (diffVal) diffVal.innerText = `+${money(diff)} (+${pct}%)`;
+      } else if (diff < 0) {
+        if (diffBadge) diffBadge.className = 'px-2.5 py-1 rounded-xl bg-blue-50 border border-blue-200/80 text-[11px] font-semibold text-blue-700 flex items-center gap-1';
+        if (diffIcon) diffIcon.className = 'fa-solid fa-arrow-trend-down text-blue-600';
+        if (diffVal) diffVal.innerText = `-${money(Math.abs(diff))} (${pct}%)`;
+      } else {
+        if (diffBadge) diffBadge.className = 'px-2.5 py-1 rounded-xl bg-slate-50 border border-slate-200 text-[11px] font-semibold text-slate-700 flex items-center gap-1';
+        if (diffIcon) diffIcon.className = 'fa-solid fa-minus text-slate-400';
+        if (diffVal) diffVal.innerText = '0 đ (0%)';
+      }
+    } else {
+      if (diffBadge) diffBadge.className = 'px-2.5 py-1 rounded-xl bg-slate-50 border border-slate-200 text-[11px] font-semibold text-slate-700 flex items-center gap-1';
+      if (diffIcon) diffIcon.className = 'fa-solid fa-chart-line text-slate-400';
+      if (diffVal) diffVal.innerText = periods.length > 0 ? `${periods.length} ${currentLang === 'en' ? 'periods' : currentLang === 'zh' ? '个周期' : 'kỳ lương'}` : '--';
+    }
+
+    const barColors = periods.map(p => p === selectedPeriod ? '#2563eb' : '#93c5fd');
+    const hoverColors = periods.map(p => p === selectedPeriod ? '#1d4ed8' : '#60a5fa');
+
+    const canvas = document.getElementById('payroll-trend-chart-canvas');
+    if (typeof Chart !== 'undefined' && canvas && typeof canvas.getContext === 'function') {
+      try {
+        if (payrollChartInstance) {
+          payrollChartInstance.destroy();
+          payrollChartInstance = null;
+        }
+        const ctx = canvas.getContext('2d');
+        if (ctx && periods.length > 0) {
+          payrollChartInstance = new Chart(ctx, {
+            type: 'bar',
+            data: {
+              labels: periods.map(p => (currentLang === 'en' ? 'Period ' : currentLang === 'zh' ? '周期 ' : 'Kỳ ') + p),
+              datasets: [{
+                label: 'Tổng Quỹ Lương',
+                data: totals,
+                backgroundColor: barColors,
+                hoverBackgroundColor: hoverColors,
+                borderRadius: 6,
+                maxBarThickness: 48
+              }]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                legend: { display: false },
+                tooltip: {
+                  backgroundColor: '#0f172a',
+                  titleFont: { size: 12, weight: 'bold' },
+                  bodyFont: { size: 12 },
+                  padding: 8,
+                  cornerRadius: 8,
+                  callbacks: {
+                    label: function(c) {
+                      return ' Quỹ thực lĩnh: ' + money(c.raw);
+                    }
+                  }
+                }
+              },
+              onClick: function(event, elements) {
+                if (elements && elements.length > 0) {
+                  const clickedIdx = elements[0].index;
+                  const targetPeriod = periods[clickedIdx];
+                  if (targetPeriod && targetPeriod !== currentPayrollPeriod) {
+                    changePayrollPeriod(targetPeriod);
+                  }
+                }
+              },
+              scales: {
+                x: {
+                  grid: { display: false },
+                  ticks: { font: { size: 11, weight: '600' }, color: '#475569' }
+                },
+                y: {
+                  grid: { color: '#f1f5f9' },
+                  ticks: {
+                    font: { size: 10 },
+                    color: '#94a3b8',
+                    callback: function(val) {
+                      return (val / 1000000).toFixed(0) + ' Tr';
+                    }
+                  }
+                }
+              }
+            }
+          });
+        }
+      } catch (e) {
+        console.warn('Payroll chart render error:', e);
+      }
+    }
   }
 
   // --- RENDER 7: TASKS TABLE ---
@@ -3979,6 +4241,9 @@
     window.openEditAdvance = openEditAdvance;
     window.cancelEditAdvance = cancelEditAdvance;
     window.handleCancelAdvance = handleCancelAdvance;
+    window.togglePayrollTrendChart = togglePayrollTrendChart;
+    window.renderPayrollTrendChart = renderPayrollTrendChart;
+    window.getCurrentUserBaseSalary = getCurrentUserBaseSalary;
   }
 
   /* ============================================================= */
@@ -4034,12 +4299,26 @@
     return str.charAt(0).toUpperCase() + str.slice(1) + ' đồng';
   }
 
+  function getCurrentUserBaseSalary() {
+    if (!currentUser) return 0;
+    if (Number(currentUser.salary) > 0) return Number(currentUser.salary);
+    const u = (USERS_DB || []).find(item => item.id === currentUser.id);
+    if (u && Number(u.salary) > 0) return Number(u.salary);
+    const p = (appData.payroll || []).find(item => item.empId === currentUser.id && Number(item.baseSalary) > 0);
+    if (p && Number(p.baseSalary) > 0) return Number(p.baseSalary);
+    return 0;
+  }
+
   function formatAdvanceAmountInput(input) {
     if (!input) input = document.getElementById('advance-form-amount');
     if (!input) return;
     const rawDigits = (input.value || '').replace(/\D/g, '');
     const textEl = document.getElementById('advance-amount-text');
     const iconEl = document.getElementById('advance-amount-icon');
+    const warningEl = document.getElementById('advance-amount-warning');
+    const warningText = document.getElementById('advance-warning-text');
+    const btnSubmit = document.getElementById('btn-advance-submit');
+
     if (!rawDigits) {
       input.value = '';
       if (textEl) {
@@ -4047,22 +4326,44 @@
         textEl.className = 'text-slate-400';
       }
       if (iconEl) iconEl.classList.add('hidden');
+      if (warningEl) warningEl.classList.add('hidden');
+      if (btnSubmit) btnSubmit.classList.remove('opacity-50', 'cursor-not-allowed');
       return;
     }
     const val = parseInt(rawDigits, 10);
-    input.value = val.toLocaleString('vi-VN');
+    input.value = val.toLocaleString('vi-VN').replace(/,/g, '.');
     const words = docSoTienTiengViet(val);
     if (textEl) {
       textEl.textContent = 'Bằng chữ: ' + words;
       textEl.className = 'text-amber-800 font-bold';
     }
     if (iconEl) iconEl.classList.remove('hidden');
+
+    // Kiểm tra trần hạn mức 95% lương cơ bản
+    const baseSalary = getCurrentUserBaseSalary();
+    const maxAdvance = baseSalary > 0 ? Math.floor(baseSalary * 0.95) : 0;
+    if (maxAdvance > 0 && val > maxAdvance) {
+      if (warningEl) warningEl.classList.remove('hidden');
+      if (warningText) {
+        warningText.textContent = `Vượt quá hạn mức 95% lương cơ bản (Tối đa: ${money(maxAdvance)} • Lương CB: ${money(baseSalary)}).`;
+      }
+      if (btnSubmit) btnSubmit.classList.add('opacity-50', 'cursor-not-allowed');
+    } else {
+      if (warningEl) warningEl.classList.add('hidden');
+      if (btnSubmit) btnSubmit.classList.remove('opacity-50', 'cursor-not-allowed');
+    }
   }
 
   function setQuickAdvanceAmount(amount) {
+    const baseSalary = getCurrentUserBaseSalary();
+    const maxAdvance = baseSalary > 0 ? Math.floor(baseSalary * 0.95) : 0;
+    if (maxAdvance > 0 && amount > maxAdvance) {
+      showToast(`Mức gợi ý ${money(amount)} vượt quá hạn mức 95% lương cơ bản (${money(maxAdvance)}). Đã tự động điều chỉnh về hạn mức tối đa cho phép.`, 'info');
+      amount = maxAdvance;
+    }
     const input = document.getElementById('advance-form-amount');
     if (!input) return;
-    input.value = amount.toLocaleString('vi-VN');
+    input.value = amount.toLocaleString('vi-VN').replace(/,/g, '.');
     formatAdvanceAmountInput(input);
   }
 
@@ -4089,6 +4390,20 @@
     cancelEditAdvance();
     const reqName = document.getElementById('advance-requester-name');
     if (reqName) reqName.textContent = currentUser.name + ' (' + currentUser.id + ')';
+
+    // Cập nhật huy hiệu hạn mức tối đa 95% lương cơ bản
+    const baseSalary = getCurrentUserBaseSalary();
+    const maxAdvance = baseSalary > 0 ? Math.floor(baseSalary * 0.95) : 0;
+    const limitBadge = document.getElementById('advance-max-limit-badge');
+    const limitVal = document.getElementById('advance-max-limit-val');
+    if (limitVal) {
+      limitVal.textContent = maxAdvance > 0 ? money(maxAdvance) : 'Đang tính...';
+    }
+    if (limitBadge) {
+      limitBadge.classList.toggle('hidden', maxAdvance <= 0);
+    }
+    const warningEl = document.getElementById('advance-amount-warning');
+    if (warningEl) warningEl.classList.add('hidden');
 
     const periodSelect = document.getElementById('advance-form-period');
     if (periodSelect) {
@@ -4264,9 +4579,12 @@
     }
     const iconEl = document.getElementById('advance-amount-icon');
     if (iconEl) iconEl.classList.add('hidden');
+    const warningEl = document.getElementById('advance-amount-warning');
+    if (warningEl) warningEl.classList.add('hidden');
 
     const btnSubmit = document.getElementById('btn-advance-submit');
     if (btnSubmit) {
+      btnSubmit.classList.remove('opacity-50', 'cursor-not-allowed');
       btnSubmit.innerHTML = '<i class="fa-solid fa-paper-plane text-xs mr-1.5"></i><span data-i18n="btn_advance_submit">' + t('btn_advance_submit', 'Gửi Đề Xuất') + '</span>';
     }
     const btnCancel = document.getElementById('btn-advance-cancel-edit');
@@ -4312,6 +4630,17 @@
       showToast('Số tiền tạm ứng tối thiểu là 100.000 VNĐ.', 'warning');
       return;
     }
+
+    // Kiểm tra trần hạn mức 95% lương cơ bản
+    const baseSalary = getCurrentUserBaseSalary();
+    const maxAdvance = baseSalary > 0 ? Math.floor(baseSalary * 0.95) : 0;
+    if (maxAdvance > 0 && amount > maxAdvance) {
+      showToast(`Số tiền tạm ứng vượt quá hạn mức tối đa cho phép (95% Lương cơ bản, tối đa: ${money(maxAdvance)}). Vui lòng điều chỉnh lại số tiền.`, 'error');
+      const input = document.getElementById('advance-form-amount');
+      if (input) input.focus();
+      return;
+    }
+
     if (!reason) {
       showToast('Vui lòng nhập lý do tạm ứng.', 'warning');
       return;
@@ -5053,6 +5382,10 @@
     document.getElementById('nav-sick-label').innerText = manager ? t('nav_sick_manager', 'Duyệt Hồ Sơ Ốm') : t('nav_sick_employee', 'Hồ Sơ Ốm Của Tôi');
     document.getElementById('nav-tasks-label').innerText = manager ? t('nav_tasks_manager', 'Quản Lý Công Việc') : t('nav_tasks_employee', 'Công Việc Của Tôi');
     document.querySelectorAll('[data-manager-only]').forEach(el => el.classList.toggle('hidden', currentUser.role !== 'manager'));
+    const trendCard = document.getElementById('payroll-trend-card');
+    if (trendCard) {
+      trendCard.classList.toggle('hidden', currentUser.role === 'employee');
+    }
     document.querySelectorAll('[data-document-create]').forEach(el => el.classList.toggle('hidden', currentUser.role === 'employee'));
     const canManageAnyDoc = currentUser.role !== 'employee';
     document.querySelectorAll('.doc-actions-col').forEach(el => el.classList.toggle('hidden', !canManageAnyDoc));

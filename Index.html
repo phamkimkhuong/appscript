@@ -406,28 +406,40 @@
         <!-- DASHBOARD DEEP-DIVE: 3 CỘT ĐỘC LẬP KHÔNG TRÙNG LẶP -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
 
-          <!-- Cột 1: Cơ Cấu Nhân Sự Theo Phòng Ban -->
+          <!-- Cột 1: Cơ Cấu Nhân Sự Theo Phòng Ban (Biểu Đồ Tròn Donut Chart) -->
           <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between">
             <div>
-              <div class="flex items-center justify-between mb-4">
+              <div class="flex items-center justify-between mb-3">
                 <div>
-                  <h3 class="text-sm font-bold text-slate-900">
-                    Cơ Cấu Phòng Ban
+                  <h3 class="text-sm font-bold text-slate-900" data-i18n="dash_dept_structure">
+                    Cơ Cấu Nhân Sự
                   </h3>
-                  <p class="text-[11px] text-slate-500 mt-0.5">
-                    Phân bổ nhân sự theo bộ phận
+                  <p class="text-[11px] text-slate-500 mt-0.5" data-i18n="dash_dept_sub">
+                    Phân bổ nhân sự theo phòng ban
                   </p>
                 </div>
-                <div class="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
-                  <i class="fa-solid fa-sitemap"></i>
+                <div class="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+                  <i class="fa-solid fa-chart-pie"></i>
                 </div>
               </div>
-              <div id="dash-dept-list" class="space-y-3">
+
+              <!-- Khu vực Biểu Đồ Tròn Donut Chart.js -->
+              <div class="relative flex items-center justify-center my-2" style="height: 180px;">
+                <canvas id="dept-chart-canvas"></canvas>
+                <!-- Tâm Donut hiển thị tổng quân số -->
+                <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none select-none text-center">
+                  <span id="dash-donut-total" class="text-2xl font-black text-slate-800 tracking-tight leading-none">--</span>
+                  <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 mt-1" data-i18n="kpi_emp_unit">nhân sự</span>
+                </div>
+              </div>
+
+              <!-- Danh sách chi tiết từng phòng ban bên dưới -->
+              <div id="dash-dept-list" class="mt-3 space-y-1.5">
                 <!-- Rendered by JS -->
               </div>
             </div>
             <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500">
-              <span>Quy mô tổ chức:</span>
+              <span data-i18n="dash_org_scale">Quy mô tổ chức:</span>
               <span id="dash-dept-count" class="font-bold text-slate-800">0 phòng ban</span>
             </div>
           </div>
@@ -833,6 +845,41 @@
               <i class="fa-solid fa-receipt text-slate-500"></i>
               <span data-i18n="payroll_btn_view_my">Xem Phiếu Lương Của Tôi</span>
             </button>
+          </div>
+        </div>
+
+        <!-- Thẻ Biểu Đồ Xu Hướng Quỹ Lương Doanh Nghiệp (Chỉ hiển thị cho Quản lý / Kế toán) -->
+        <div id="payroll-trend-card" class="hidden bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-sm transition">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
+            <div>
+              <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+                <i class="fa-solid fa-chart-column text-blue-600 text-sm"></i>
+                <span data-i18n="payroll_trend_title">Biến Động Quỹ Lương Qua Các Kỳ</span>
+              </h3>
+              <p class="text-[11px] text-slate-500 mt-0.5" data-i18n="payroll_trend_sub">
+                So sánh tổng chi trả thực lĩnh giữa các kỳ lương
+              </p>
+            </div>
+            <div class="flex flex-wrap items-center gap-2">
+              <div class="px-2.5 py-1 rounded-xl bg-blue-50 border border-blue-200/80 text-[11px] font-semibold text-blue-700 flex items-center gap-1.5">
+                <span data-i18n="payroll_curr_fund_label">Kỳ này:</span>
+                <span id="payroll-trend-curr-val" class="font-bold text-blue-900">-- đ</span>
+              </div>
+              <div id="payroll-trend-diff-badge" class="px-2.5 py-1 rounded-xl bg-slate-50 border border-slate-200 text-[11px] font-semibold text-slate-700 flex items-center gap-1">
+                <span id="payroll-trend-diff-icon"></span>
+                <span id="payroll-trend-diff-val">--</span>
+              </div>
+              <button type="button" onclick="togglePayrollTrendChart()"
+                class="text-[11px] font-semibold text-slate-500 hover:text-slate-800 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg px-2 py-1 transition flex items-center gap-1">
+                <span id="payroll-trend-toggle-text">Thu gọn</span>
+                <i id="payroll-trend-toggle-icon" class="fa-solid fa-chevron-up text-[9px] transition-transform"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Chart Area -->
+          <div id="payroll-trend-chart-body" class="relative" style="height: 190px;">
+            <canvas id="payroll-trend-chart-canvas"></canvas>
           </div>
         </div>
 
