@@ -465,7 +465,30 @@
       MSG_TASK_UPDATED: 'Đã xác nhận hoàn thành công việc [{id}] (Đã cập nhật Sheet)!',
       MSG_DOC_SAVED: 'Đã lưu văn bản thành công.',
       MSG_DOC_UPDATED: 'Đã cập nhật thông tin văn bản.',
-      MSG_RESET_SUCCESS: 'Đã khôi phục dữ liệu mẫu vào Google Sheet trung tâm.'
+      MSG_RESET_SUCCESS: 'Đã khôi phục dữ liệu mẫu vào Google Sheet trung tâm.',
+      btn_advance_submit: 'Gửi Đề Xuất',
+      btn_advance_sending: 'Đang gửi...',
+      dash_advance_title: 'Đơn xin tạm ứng lương',
+      kpi_pending_sub_full: 'Nghỉ phép, Ốm đau & Tạm ứng',
+      kpi_workforce_title: 'Quân Số & Đi Làm',
+      kpi_emp_unit: 'nhân sự',
+      kpi_today_prefix: 'Hôm nay: ',
+      kpi_tasks_efficiency: 'Hiệu Suất Nhiệm Vụ',
+      kpi_task_done_sub: 'hoàn thành',
+      kpi_task_active_sub: 'đang xử lý',
+      kpi_task_overdue_sub: 'quá hạn',
+      kpi_pending_unit: 'yêu cầu',
+      payroll_btn_advance: 'Tạm Ứng Lương',
+      payroll_formula_item_advance: 'Tạm Ứng',
+      payroll_formula_step5_title: '5. Tạm Ứng Lương',
+      payroll_formula_step5_desc: '−(Số tiền đã tạm ứng trong kỳ)',
+      th_pr_advance: 'Tạm Ứng',
+      loading: 'Đang tải dữ liệu kỳ công...',
+      ts_load_failed: 'Không tải được bảng chấm công kỳ này.',
+      leave_update_failed: 'Lỗi cập nhật đơn nghỉ phép!',
+      leave_delete_failed: 'Lỗi khi xóa đơn nghỉ phép!',
+      syncing_data: 'Đang đồng bộ dữ liệu mới nhất từ Google Sheets...',
+      session_expired: 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.'
     },
     en: {
       app_title: 'Wanzhong Clean Technology',
@@ -918,7 +941,30 @@
       'Đã lưu văn bản thành công.': 'Document archived successfully.',
       'Đã cập nhật thông tin văn bản.': 'Document updated successfully.',
       'Đã lưu công việc.': 'Task saved successfully.',
-      'Đã cập nhật trạng thái công việc.': 'Task status updated successfully.'
+      'Đã cập nhật trạng thái công việc.': 'Task status updated successfully.',
+      btn_advance_submit: 'Submit Request',
+      btn_advance_sending: 'Submitting...',
+      dash_advance_title: 'Salary Advance Request',
+      kpi_pending_sub_full: 'Leave, Sick & Salary Advance',
+      kpi_workforce_title: 'Workforce & Attendance',
+      kpi_emp_unit: 'staff',
+      kpi_today_prefix: 'Today: ',
+      kpi_tasks_efficiency: 'Task Efficiency',
+      kpi_task_done_sub: 'completed',
+      kpi_task_active_sub: 'in progress',
+      kpi_task_overdue_sub: 'overdue',
+      kpi_pending_unit: 'requests',
+      payroll_btn_advance: 'Salary Advance',
+      payroll_formula_item_advance: 'Advance',
+      payroll_formula_step5_title: '5. Salary Advance',
+      payroll_formula_step5_desc: '−(Salary advance amount deducted)',
+      th_pr_advance: 'Advance',
+      loading: 'Loading timesheet data...',
+      ts_load_failed: 'Failed to load timesheet for this period.',
+      leave_update_failed: 'Failed to update leave request!',
+      leave_delete_failed: 'Failed to delete leave request!',
+      syncing_data: 'Syncing latest data from Google Sheets...',
+      session_expired: 'Session expired. Please log in again.'
     },
     zh: {
       app_title: '万钟洁净科技',
@@ -1371,7 +1417,30 @@
       'Đã lưu văn bản thành công.': '公文已成功归档。',
       'Đã cập nhật thông tin văn bản.': '公文信息已更新。',
       'Đã lưu công việc.': '任务已成功保存。',
-      'Đã cập nhật trạng thái công việc.': '任务状态已成功更新。'
+      'Đã cập nhật trạng thái công việc.': '任务状态已成功更新。',
+      btn_advance_submit: '提交申请',
+      btn_advance_sending: '正在提交...',
+      dash_advance_title: '预支工资申请',
+      kpi_pending_sub_full: '休假、病假与预支工资',
+      kpi_workforce_title: '在册与出勤',
+      kpi_emp_unit: '人',
+      kpi_today_prefix: '今日: ',
+      kpi_tasks_efficiency: '任务执行效能',
+      kpi_task_done_sub: '已完成',
+      kpi_task_active_sub: '处理中',
+      kpi_task_overdue_sub: '已逾期',
+      kpi_pending_unit: '项申请',
+      payroll_btn_advance: '预支工资',
+      payroll_formula_item_advance: '预支',
+      payroll_formula_step5_title: '5. 预支工资',
+      payroll_formula_step5_desc: '−(本期已预支扣减金额)',
+      th_pr_advance: '预支',
+      loading: '正在加载考勤数据...',
+      ts_load_failed: '无法加载本期考勤表。',
+      leave_update_failed: '更新休假申请失败！',
+      leave_delete_failed: '删除休假申请失败！',
+      syncing_data: '正在从Google表格同步最新数据...',
+      session_expired: '会话已过期，请重新登录。'
     }
   };
 
@@ -1393,6 +1462,71 @@
     } catch (e) { }
   }
 
+  // --- PERSISTENT AUTH SESSION MANAGEMENT (SURVIVES F5 & REFRESH) ---
+  const AUTH_STORAGE_KEY = 'wanzhong_auth_token';
+  const USER_STORAGE_KEY = 'wanzhong_user_profile';
+  const TAB_STORAGE_KEY = 'wanzhong_active_tab';
+
+  function saveAuthSession(token, user) {
+    authToken = token || '';
+    currentUser = user || null;
+    const userJson = user ? JSON.stringify(user) : '';
+    try {
+      if (typeof localStorage !== 'undefined' && localStorage.setItem) {
+        localStorage.setItem(AUTH_STORAGE_KEY, authToken);
+        localStorage.setItem(USER_STORAGE_KEY, userJson);
+      }
+    } catch (e) {}
+    try {
+      if (typeof sessionStorage !== 'undefined' && sessionStorage.setItem) {
+        sessionStorage.setItem(AUTH_STORAGE_KEY, authToken);
+        sessionStorage.setItem(USER_STORAGE_KEY, userJson);
+      }
+    } catch (e) {}
+  }
+
+  function clearAuthSession() {
+    authToken = '';
+    currentUser = null;
+    const storages = [];
+    try { if (typeof localStorage !== 'undefined') storages.push(localStorage); } catch (e) {}
+    try { if (typeof sessionStorage !== 'undefined') storages.push(sessionStorage); } catch (e) {}
+    storages.forEach(s => {
+      try {
+        if (typeof s.removeItem === 'function') {
+          s.removeItem(AUTH_STORAGE_KEY);
+          s.removeItem(USER_STORAGE_KEY);
+          s.removeItem(TAB_STORAGE_KEY);
+        } else if (typeof s.setItem === 'function') {
+          s.setItem(AUTH_STORAGE_KEY, '');
+          s.setItem(USER_STORAGE_KEY, '');
+          s.setItem(TAB_STORAGE_KEY, '');
+        }
+      } catch (e) {}
+    });
+  }
+
+  function getStoredAuthSession() {
+    try {
+      let token = '', userStr = '';
+      if (typeof localStorage !== 'undefined' && localStorage.getItem) {
+        token = localStorage.getItem(AUTH_STORAGE_KEY) || '';
+        userStr = localStorage.getItem(USER_STORAGE_KEY) || '';
+      }
+      if ((!token || !userStr) && typeof sessionStorage !== 'undefined' && sessionStorage.getItem) {
+        token = sessionStorage.getItem(AUTH_STORAGE_KEY) || '';
+        userStr = sessionStorage.getItem(USER_STORAGE_KEY) || '';
+      }
+      if (token && userStr) {
+        const user = JSON.parse(userStr);
+        if (user && user.id && user.email) {
+          return { token: token, user: user };
+        }
+      }
+    } catch (e) {}
+    return null;
+  }
+
   let currentLang = getStoredLang();
 
   function t(key, params) {
@@ -1400,7 +1534,7 @@
     const lang = (typeof currentLang !== 'undefined' ? currentLang : 'vi') || 'vi';
     let str = (I18N[lang] && I18N[lang][key] !== undefined)
       ? I18N[lang][key]
-      : ((I18N['vi'] && I18N['vi'][key] !== undefined) ? I18N['vi'][key] : key);
+      : ((I18N['vi'] && I18N['vi'][key] !== undefined) ? I18N['vi'][key] : (typeof params === 'string' ? params : key));
 
     if (str === key && typeof key === 'string') {
       let m;
@@ -1503,6 +1637,12 @@
       if (fnName === 'apiLogin' && res && res.success) {
         authToken = res.token;
       }
+      if (res && !res.success && (res.code === 'ERR_SESSION_EXPIRED' || (res.message && res.message.includes('Phiên hết hạn')))) {
+        clearAuthSession();
+        handleLogout();
+        showToast(t('session_expired', 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.'), 'error');
+        return;
+      }
       if (callback) callback(res);
       if (mutating && res && res.success) refreshAppData();
     };
@@ -1550,6 +1690,7 @@
     callBackend('apiLogin', [email, password], (res) => {
       finishLogin();
       if (res && res.success && res.profile) {
+        saveAuthSession(res.token, res.profile);
         loginAsUser(res.profile);
         showToast(t('login_success_prefix', 'Đăng nhập thành công! Xin chào ') + res.profile.name + '.', 'success');
       } else {
@@ -1568,18 +1709,39 @@
     handleLoginSubmit(null);
   }
 
+  function manualRefreshData() {
+    if (!currentUser) return;
+    const pulse = document.getElementById('sync-pulse');
+    const spinner = document.getElementById('sync-spinner');
+    if (spinner) spinner.classList.remove('hidden');
+    if (pulse) pulse.classList.add('hidden');
+    showToast(t('syncing_data', 'Đang đồng bộ dữ liệu mới nhất từ Google Sheets...'), 'info');
+    refreshAppData();
+    setTimeout(() => {
+      if (spinner) spinner.classList.add('hidden');
+      if (pulse) pulse.classList.remove('hidden');
+    }, 1200);
+  }
+
   // Gắn tường minh vào window để mọi chế độ iframe/sandbox đều gọi được từ inline onsubmit
   if (typeof window !== 'undefined') {
     window.handleLoginSubmit = handleLoginSubmit;
     window.fillAndLogin = fillAndLogin;
+    window.manualRefreshData = manualRefreshData;
+    window.saveAuthSession = saveAuthSession;
+    window.clearAuthSession = clearAuthSession;
   }
 
-  function loginAsUser(user) {
+  function loginAsUser(user, targetTab) {
     currentUser = user;
     currentPayrollPeriod = ''; payrollPeriods = [];
     appData = emptyAppData(); USERS_DB = []; currentPayslipEmpId = null;
     initApp(); applyRoleControls();
-    switchTab('dashboard');
+    let effectiveTab = targetTab || 'dashboard';
+    if (effectiveTab === 'employees' && user.role === 'employee') {
+      effectiveTab = 'dashboard';
+    }
+    switchTab(effectiveTab);
     document.getElementById('screen-login').classList.add('hidden');
     document.getElementById('screen-app').classList.remove('hidden');
 
@@ -1608,6 +1770,7 @@
 
   function handleLogout() {
     closeDocumentAI();
+    clearAuthSession();
     const token = authToken;
     if (typeof google !== 'undefined' && google.script) google.script.run.apiLogout(token);
     else if (window.localDemoLogout) window.localDemoLogout(token);
@@ -1644,6 +1807,12 @@
       }
     }
 
+    try {
+      if (typeof sessionStorage !== 'undefined' && sessionStorage.setItem) {
+        sessionStorage.setItem(TAB_STORAGE_KEY, tabId);
+      }
+    } catch (e) {}
+
     if (!currentUser) return;
     if (tabId === 'dashboard') renderDashboard();
     if (tabId === 'employees') renderEmployees();
@@ -1667,30 +1836,57 @@
     const kpiTotalSub = document.getElementById('kpi-total-emp-sub');
     const kpiPayroll = document.getElementById('kpi-payroll-total');
 
-    const kpiActiveTasks = document.getElementById('kpi-active-tasks');
-
+    // 1. Dữ liệu nhân sự & Đi làm hôm nay
     const active = USERS_DB.filter(u => u.status !== 'Đã nghỉ việc');
-    kpiTotal.innerText = active.length;
+    if (kpiTotal) kpiTotal.innerText = active.length;
     const visible = currentUser.role === 'employee' ? active.filter(u => u.id === currentUser.id) : active;
-    kpiTotalSub.innerText = visible.length;
+    if (kpiTotalSub) kpiTotalSub.innerText = visible.length;
     const now = new Date(), todayPeriod = String(now.getMonth() + 1).padStart(2, '0') + '/' + now.getFullYear();
     const map = appData.timesheetByPeriod[currentTimesheetPeriod] || {};
     const working = visible.filter(u => ['X', 'OT'].includes((map[u.id] || [])[now.getDate() - 1])).length;
-    document.getElementById('kpi-working-today').innerText = currentTimesheetPeriod === todayPeriod ? working : '—';
-    document.getElementById('kpi-attendance-rate').innerText = currentTimesheetPeriod === todayPeriod && visible.length ? t('kpi_rate_prefix', 'Tỷ lệ đi làm: ') + Math.round(working / visible.length * 100) + '%' : t('kpi_rate_hint', 'Chọn kỳ hiện tại để xem hôm nay');
+    const elWorkingToday = document.getElementById('kpi-working-today');
+    if (elWorkingToday) elWorkingToday.innerText = currentTimesheetPeriod === todayPeriod ? working : '—';
+    const elAttRate = document.getElementById('kpi-attendance-rate');
+    if (elAttRate) elAttRate.innerText = currentTimesheetPeriod === todayPeriod && visible.length ? t('kpi_rate_prefix', 'Tỷ lệ: ') + Math.round(working / visible.length * 100) + '%' : t('kpi_rate_hint', 'Kỳ hiện tại');
+
+    // 2. Tài chính tiền lương
     const periodPayroll = appData.payroll.filter(p => p.period === currentPayrollPeriod);
     if (kpiPayroll) kpiPayroll.innerText = periodPayroll.length ? money(periodPayroll.reduce((sum, p) => sum + p.netSalary, 0)) : (currentLang === 'vi' ? 'Chưa tính' : currentLang === 'en' ? 'Uncalculated' : '未核算');
-    document.getElementById('kpi-payroll-status').innerText = (currentPayrollPeriod ? (currentLang === 'en' ? 'Period ' : currentLang === 'zh' ? '周期 ' : 'Kỳ ') + currentPayrollPeriod : (currentLang === 'en' ? 'Loading payroll period' : currentLang === 'zh' ? '正在加载薪资周期' : 'Đang tải kỳ lương')) + (periodPayroll.some(p => p.status === 'Cần tính lại') ? (currentLang === 'en' ? ' • Needs recalculation' : currentLang === 'zh' ? ' • 需重新核算' : ' • Cần tính lại') : '');
-    document.getElementById('kpi-payroll-label').innerText = currentUser.role === 'employee' ? t('kpi_my_salary', 'Lương của tôi') : t('kpi_payroll_fund', 'Quỹ lương');
-    kpiActiveTasks.innerText = appData.tasks.filter(t => t.status !== 'Hoàn thành').length;
-    document.getElementById('kpi-pending-docs').innerText = new Set(appData.tasks.filter(t => t.docId && t.status !== 'Hoàn thành').map(t => t.docId)).size;
+    const elPayrollStatus = document.getElementById('kpi-payroll-status');
+    if (elPayrollStatus) elPayrollStatus.innerText = (currentPayrollPeriod ? (currentLang === 'en' ? 'Period ' : currentLang === 'zh' ? '周期 ' : 'Kỳ ') + currentPayrollPeriod : 'Đang tải kỳ lương') + (periodPayroll.some(p => p.status === 'Cần tính lại') ? ' • Cần tính lại' : '');
+    const elPayrollLabel = document.getElementById('kpi-payroll-label');
+    if (elPayrollLabel) elPayrollLabel.innerText = currentUser.role === 'employee' ? t('kpi_my_salary', 'Lương của tôi') : t('kpi_payroll_fund', 'Quỹ lương');
+
+    // 3. Hiệu suất công việc
+    const visibleTasks = (appData.tasks || []).filter(t =>
+      currentUser.role === 'manager' ||
+      t.assigneeId === currentUser.id ||
+      t.empId === currentUser.id
+    );
+    const activeTasks = visibleTasks.filter(t => t.status !== 'Hoàn thành');
+    const doneTasks = visibleTasks.filter(t => t.status === 'Hoàn thành');
+    const todayIso = new Date().toISOString().slice(0, 10);
+    const overdueTasks = visibleTasks.filter(t =>
+      t.status !== 'Hoàn thành' &&
+      t.deadline &&
+      String(t.deadline).slice(0, 10) < todayIso
+    );
+    const taskTotal = visibleTasks.length;
+    const completionRate = taskTotal > 0 ? Math.round(doneTasks.length / taskTotal * 100) : 0;
+
+    const elTaskRate = document.getElementById('kpi-task-rate');
+    if (elTaskRate) elTaskRate.innerText = completionRate + '%';
+    const elActiveTasks = document.getElementById('kpi-active-tasks');
+    if (elActiveTasks) elActiveTasks.innerText = activeTasks.length;
+    const elOverdueTasks = document.getElementById('kpi-overdue-tasks');
+    if (elOverdueTasks) elOverdueTasks.innerText = overdueTasks.length;
+
+    // 4. Danh sách đơn chờ phê duyệt (Nghỉ phép + Ốm đau + Tạm ứng lương)
     let pendings = [];
 
-    // Lọc đơn nghỉ phép theo quyền hạn bảo mật
-    appData.leaveRequests.filter(r => r.status === 'PENDING').forEach(r => {
-      // Nhân viên chỉ thấy đơn của chính mình
+    // Đơn nghỉ phép
+    (appData.leaveRequests || []).filter(r => r.status === 'PENDING').forEach(r => {
       if (currentUser.role === 'employee' && r.empId !== currentUser.id) return;
-
       pendings.push({
         type: 'leave',
         id: r.id,
@@ -1701,24 +1897,21 @@
       });
     });
 
-    // Lọc hồ sơ ốm đau theo quyền hạn bảo mật và trạng thái PENDING hoặc NEED_MORE_INFO
-    appData.sickCases.filter(s => s.status === 'PENDING' || s.status === 'NEED_MORE_INFO').forEach(s => {
-      // Nhân viên chỉ thấy hồ sơ ốm đau của chính mình (bảo mật thông tin y tế)
+    // Hồ sơ ốm đau BHXH
+    (appData.sickCases || []).filter(s => s.status === 'PENDING' || s.status === 'NEED_MORE_INFO').forEach(s => {
       if (currentUser.role === 'employee' && s.empId !== currentUser.id) return;
-
       const isNeedInfo = (s.status === 'NEED_MORE_INFO');
       let title = `${t('dash_sick_title_prefix', 'Hồ sơ nghỉ ốm hưởng BHXH (')}${s.days} ${t('ts_days', 'ngày')})`;
       let sub = `${escapeHtml(s.empName)} • ${escapeHtml(s.hospital)} • ${currentLang === 'en' ? 'From' : currentLang === 'zh' ? '自' : 'Từ'} ${escapeHtml(s.from)} ${currentLang === 'en' ? 'to' : currentLang === 'zh' ? '至' : 'đến'} ${escapeHtml(s.to)}`;
       if (isNeedInfo) {
         if (s.empId === currentUser.id) {
           title = `${t('dash_sick_need_info_self', 'Hồ sơ cần bổ sung chứng từ y tế (')}${s.id})`;
-          sub = `${currentLang === 'en' ? 'Manager requested supplement' : currentLang === 'zh' ? '主管要求补充材料' : 'Quản lý yêu cầu bổ sung'}: "${escapeHtml(s.note || (currentLang === 'en' ? 'Valid medical bill/proof required' : currentLang === 'zh' ? '请重新提交有效医疗凭证' : 'Cần nộp lại chứng từ/hóa đơn y tế hợp lệ'))}"`;
+          sub = `${currentLang === 'en' ? 'Manager requested supplement' : currentLang === 'zh' ? '主管要求补充材料' : 'Quản lý yêu cầu bổ sung'}: "${escapeHtml(s.note || 'Cần nộp lại chứng từ/hóa đơn y tế hợp lệ')}"`;
         } else {
           title = `${t('dash_sick_need_info_mgr', 'Hồ sơ ốm đau [Yêu cầu bổ sung] (')}${s.id})`;
-          sub = `${escapeHtml(s.empName)} • ${currentLang === 'en' ? 'Waiting for employee supplement' : currentLang === 'zh' ? '等待员工补充凭证' : 'Đang chờ NV bổ sung chứng từ'} • ${currentLang === 'en' ? 'Note' : currentLang === 'zh' ? '备注' : 'Ghi chú'}: "${escapeHtml(s.note || '')}"`;
+          sub = `${escapeHtml(s.empName)} • ${currentLang === 'en' ? 'Waiting for employee supplement' : currentLang === 'zh' ? '等待员工补充凭证' : 'Đang chờ NV bổ sung chứng từ'} • Ghi chú: "${escapeHtml(s.note || '')}"`;
         }
       }
-
       pendings.push({
         type: 'sick',
         id: s.id,
@@ -1734,256 +1927,186 @@
       });
     });
 
-    kpiPending.innerText = pendings.length;
+    // Đơn tạm ứng lương
+    (appData.advances || []).filter(a => a.status === 'Chờ duyệt').forEach(a => {
+      if (currentUser.role === 'employee' && a.empId !== currentUser.id) return;
+      pendings.push({
+        type: 'advance',
+        id: a.id,
+        title: `${t('dash_advance_title', 'Đơn xin tạm ứng lương')} (${money(a.amount)})`,
+        sub: `${escapeHtml(a.empName)} • ${escapeHtml(a.dept || '')} • ${currentLang === 'en' ? 'Reason' : currentLang === 'zh' ? '事由' : 'Lý do'}: "${escapeHtml(a.reason)}"`,
+        canApprove: (currentUser.role === 'manager' || currentUser.role === 'hr'),
+        roleReq: currentUser.role === 'employee' ? t('dash_role_req_waiting', 'Đang chờ Quản lý duyệt') : t('dash_role_req_mgr', 'Quản lý duyệt')
+      });
+    });
+
+    if (kpiPending) kpiPending.innerText = pendings.length;
+    const elPendingSub = document.getElementById('kpi-pending-sub');
+    if (elPendingSub) elPendingSub.innerText = t('kpi_pending_sub_full', 'Nghỉ phép, Ốm đau & Tạm ứng');
 
     // Cập nhật Badge trên thanh Menu Tab theo quyền
-    const leavesPendingCount = appData.leaveRequests.filter(r => r.status === 'PENDING' && (currentUser.role !== 'employee' || r.empId === currentUser.id)).length;
-    const sickPendingCount = appData.sickCases.filter(s => (s.status === 'PENDING' || (s.empId === currentUser.id && s.status === 'NEED_MORE_INFO')) && (currentUser.role !== 'employee' || s.empId === currentUser.id)).length;
+    const leavesPendingCount = (appData.leaveRequests || []).filter(r => r.status === 'PENDING' && (currentUser.role !== 'employee' || r.empId === currentUser.id)).length;
+    const sickPendingCount = (appData.sickCases || []).filter(s => (s.status === 'PENDING' || (s.empId === currentUser.id && s.status === 'NEED_MORE_INFO')) && (currentUser.role !== 'employee' || s.empId === currentUser.id)).length;
 
-    if (leavesPendingCount > 0) {
-      badgeLeave.innerText = leavesPendingCount;
-      badgeLeave.classList.remove('hidden');
-    } else {
-      badgeLeave.classList.add('hidden');
-    }
-
-    if (sickPendingCount > 0) {
-      badgeSick.innerText = sickPendingCount;
-      badgeSick.classList.remove('hidden');
-    } else {
-      badgeSick.classList.add('hidden');
-    }
-
-    if (currentUser.role === 'employee') {
-      roleNotice.innerText = t('role_notice_employee', 'Chế độ cá nhân: Theo dõi tiến độ phê duyệt hồ sơ của bạn');
-    } else if (currentUser.role === 'manager') {
-      roleNotice.innerText = t('role_notice_manager', 'Quản lý: Quản lý nhân sự, duyệt nghỉ phép/ốm đau và giao việc');
-    } else {
-      roleNotice.innerText = t('role_notice_hr', 'Kế toán: Đối chiếu bảng công, tính lương và quản lý văn bản lương');
-    }
-
-    if (pendings.length === 0) {
-      pList.innerHTML = `
-        <div class="text-center py-10 text-slate-400">
-          <i class="fa-solid fa-circle-check text-emerald-500 text-3xl mb-2.5"></i>
-          <p class="text-xs sm:text-sm font-medium text-slate-600">
-            ${currentUser.role === 'employee'
-          ? t('dash_no_pending_emp', 'Bạn hiện không có đơn nào đang chờ xử lý. Tất cả quy trình đã hoàn tất!')
-          : t('dash_no_pending', 'Hiện tại không có đơn nào đang chờ xử lý. Tất cả quy trình đã hoàn tất!')}
-          </p>
-        </div>
-      `;
-      return;
-    }
-
-    let html = '';
-    pendings.forEach(p => {
-      let actionBtn = '';
-      if (p.canResubmit) {
-        actionBtn = `
-          <button onclick="openSickResubmitModal('${p.id}')" class="px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-xs font-bold shadow-sm transition flex items-center space-x-1">
-            <i class="fa-solid fa-upload mr-1"></i><span>${t('btn_resubmit', 'Bổ sung hồ sơ')}</span>
-          </button>`;
-      } else if (p.canApprove) {
-        if (p.type === 'leave') {
-          actionBtn = `
-            <div class="flex items-center space-x-1.5">
-              <button onclick="approveLeave('${p.id}')" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold shadow-sm transition flex items-center space-x-1"><i class="fa-solid fa-check mr-1"></i><span>${t('btn_approve', 'Duyệt')}</span></button>
-              <button onclick="rejectLeave('${p.id}')" class="px-2.5 py-1.5 bg-rose-100 hover:bg-rose-200 text-rose-700 rounded-lg text-xs font-bold transition flex items-center space-x-1"><i class="fa-solid fa-xmark"></i></button>
-            </div>`;
-        } else {
-          actionBtn = `
-            <div class="flex items-center space-x-1.5">
-              <button onclick="approveSick('${p.id}')" class="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold shadow-sm transition flex items-center space-x-1"><i class="fa-solid fa-check mr-1"></i><span>${t('btn_approve', 'Duyệt')}</span></button>
-              <button onclick="openSickMoreInfoModal('${p.id}')" class="px-2.5 py-1.5 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-xs font-bold shadow-sm transition flex items-center space-x-1" title="Yêu cầu bổ sung chứng từ"><i class="fa-solid fa-triangle-exclamation mr-1"></i><span>${t('btn_supplement', 'Bổ sung')}</span></button>
-              <button onclick="rejectSick('${p.id}')" class="px-2 py-1.5 bg-rose-100 hover:bg-rose-200 text-rose-700 rounded-lg text-xs font-bold transition flex items-center space-x-1"><i class="fa-solid fa-xmark"></i></button>
-            </div>`;
-        }
+    if (badgeLeave) {
+      if (leavesPendingCount > 0) {
+        badgeLeave.innerText = leavesPendingCount;
+        badgeLeave.classList.remove('hidden');
       } else {
-        actionBtn = `<span class="text-xs px-3 py-1.5 rounded-full ${p.isNeedInfo ? 'bg-amber-100 text-amber-800 border border-amber-300' : 'bg-amber-50 text-amber-700 border border-amber-200/80'} font-semibold flex items-center space-x-1"><i class="fa-solid fa-clock"></i><span>${p.roleReq}</span></span>`;
+        badgeLeave.classList.add('hidden');
       }
+    }
 
-      html += `
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-slate-50/70 hover:bg-slate-100/80 rounded-2xl border border-slate-200/80 transition duration-150 gap-3">
-          <div class="flex items-center space-x-3.5">
-            <div class="w-10 h-10 rounded-xl ${p.type === 'leave' ? 'bg-amber-100 text-amber-700' : p.isNeedInfo ? 'bg-amber-100 text-amber-800' : 'bg-rose-100 text-rose-700'} flex items-center justify-center text-base font-bold shrink-0 shadow-sm">
-              <i class="${p.type === 'leave' ? 'fa-solid fa-file-pen' : p.isNeedInfo ? 'fa-solid fa-triangle-exclamation' : 'fa-solid fa-heart-pulse'}"></i>
+    if (badgeSick) {
+      if (sickPendingCount > 0) {
+        badgeSick.innerText = sickPendingCount;
+        badgeSick.classList.remove('hidden');
+      } else {
+        badgeSick.classList.add('hidden');
+      }
+    }
+
+    if (roleNotice) {
+      if (currentUser.role === 'employee') {
+        roleNotice.innerText = t('role_notice_employee', 'Chế độ cá nhân: Theo dõi tiến độ phê duyệt hồ sơ của bạn');
+      } else if (currentUser.role === 'manager') {
+        roleNotice.innerText = t('role_notice_manager', 'Quản lý: Quản lý nhân sự, duyệt nghỉ phép/ốm đau/tạm ứng');
+      } else {
+        roleNotice.innerText = t('role_notice_hr', 'Kế toán: Đối chiếu bảng công, tính lương và duyệt tạm ứng');
+      }
+    }
+
+    if (pList) {
+      if (pendings.length === 0) {
+        pList.innerHTML = `
+          <div class="text-center py-10 text-slate-400">
+            <i class="fa-solid fa-circle-check text-emerald-500 text-3xl mb-2.5"></i>
+            <p class="text-xs sm:text-sm font-medium text-slate-600">
+              ${currentUser.role === 'employee'
+            ? t('dash_no_pending_emp', 'Bạn hiện không có đơn nào đang chờ xử lý. Tất cả quy trình đã hoàn tất!')
+            : t('dash_no_pending', 'Hiện tại không có yêu cầu nào đang chờ xử lý. Tất cả quy trình đã hoàn tất!')}
+            </p>
+          </div>
+        `;
+      } else {
+        let html = '';
+        pendings.forEach(p => {
+          let actionBtn = '';
+          if (p.canResubmit) {
+            actionBtn = `
+              <button onclick="openSickResubmitModal('${p.id}')" class="px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-xs font-bold shadow-sm transition flex items-center space-x-1">
+                <i class="fa-solid fa-upload mr-1"></i><span>${t('btn_resubmit', 'Bổ sung hồ sơ')}</span>
+              </button>`;
+          } else if (p.canApprove) {
+            if (p.type === 'leave') {
+              actionBtn = `
+                <div class="flex items-center space-x-1.5">
+                  <button onclick="approveLeave('${p.id}')" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold shadow-sm transition flex items-center space-x-1"><i class="fa-solid fa-check mr-1"></i><span>${t('btn_approve', 'Duyệt')}</span></button>
+                  <button onclick="rejectLeave('${p.id}')" class="px-2.5 py-1.5 bg-rose-100 hover:bg-rose-200 text-rose-700 rounded-lg text-xs font-bold transition flex items-center space-x-1"><i class="fa-solid fa-xmark"></i></button>
+                </div>`;
+            } else if (p.type === 'advance') {
+              actionBtn = `
+                <div class="flex items-center space-x-1.5">
+                  <button onclick="handleApproveAdvance('${p.id}')" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold shadow-sm transition flex items-center space-x-1"><i class="fa-solid fa-check mr-1"></i><span>${t('btn_approve', 'Duyệt')}</span></button>
+                  <button onclick="handleRejectAdvance('${p.id}')" class="px-2.5 py-1.5 bg-rose-100 hover:bg-rose-200 text-rose-700 rounded-lg text-xs font-bold transition flex items-center space-x-1"><i class="fa-solid fa-xmark"></i></button>
+                </div>`;
+            } else {
+              actionBtn = `
+                <div class="flex items-center space-x-1.5">
+                  <button onclick="approveSick('${p.id}')" class="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold shadow-sm transition flex items-center space-x-1"><i class="fa-solid fa-check mr-1"></i><span>${t('btn_approve', 'Duyệt')}</span></button>
+                  <button onclick="openSickMoreInfoModal('${p.id}')" class="px-2.5 py-1.5 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-xs font-bold shadow-sm transition flex items-center space-x-1" title="Yêu cầu bổ sung chứng từ"><i class="fa-solid fa-triangle-exclamation mr-1"></i><span>${t('btn_supplement', 'Bổ sung')}</span></button>
+                  <button onclick="rejectSick('${p.id}')" class="px-2 py-1.5 bg-rose-100 hover:bg-rose-200 text-rose-700 rounded-lg text-xs font-bold transition flex items-center space-x-1"><i class="fa-solid fa-xmark"></i></button>
+                </div>`;
+            }
+          } else {
+            actionBtn = `<span class="text-xs px-3 py-1.5 rounded-full ${p.isNeedInfo ? 'bg-amber-100 text-amber-800 border border-amber-300' : 'bg-amber-50 text-amber-700 border border-amber-200/80'} font-semibold flex items-center space-x-1"><i class="fa-solid fa-clock"></i><span>${p.roleReq}</span></span>`;
+          }
+
+          const iconBg = p.type === 'leave' ? 'bg-amber-100 text-amber-700' : p.type === 'advance' ? 'bg-emerald-100 text-emerald-700' : p.isNeedInfo ? 'bg-amber-100 text-amber-800' : 'bg-rose-100 text-rose-700';
+          const iconClass = p.type === 'leave' ? 'fa-solid fa-file-pen' : p.type === 'advance' ? 'fa-solid fa-hand-holding-dollar' : p.isNeedInfo ? 'fa-solid fa-triangle-exclamation' : 'fa-solid fa-heart-pulse';
+
+          html += `
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-slate-50/70 hover:bg-slate-100/80 rounded-2xl border border-slate-200/80 transition duration-150 gap-3">
+              <div class="flex items-center space-x-3.5">
+                <div class="w-10 h-10 rounded-xl ${iconBg} flex items-center justify-center text-base font-bold shrink-0 shadow-sm">
+                  <i class="${iconClass}"></i>
+                </div>
+                <div>
+                  <div class="text-sm font-bold text-slate-900">${p.title}</div>
+                  <div class="text-xs text-slate-500 mt-0.5">${p.sub}</div>
+                </div>
+              </div>
+              <div class="self-end sm:self-center shrink-0">${actionBtn}</div>
             </div>
-            <div>
-              <div class="text-sm font-bold text-slate-900">${p.title}</div>
-              <div class="text-xs text-slate-500 mt-0.5">${p.sub}</div>
+          `;
+        });
+        pList.innerHTML = html;
+      }
+    }
+
+    // =====================================================
+    // TẦNG 3: 3 CỘT ĐỘC LẬP KHÔNG TRÙNG LẶP
+    // =====================================================
+
+    // CỘT 1: CƠ CẤU NHÂN SỰ THEO PHÒNG BAN
+    const deptListEl = document.getElementById('dash-dept-list');
+    const deptCountEl = document.getElementById('dash-dept-count');
+    if (deptListEl) {
+      const deptCounts = {};
+      active.forEach(u => {
+        const d = u.dept || 'Khác';
+        deptCounts[d] = (deptCounts[d] || 0) + 1;
+      });
+      const deptNames = Object.keys(deptCounts).sort((a, b) => deptCounts[b] - deptCounts[a]);
+      if (deptCountEl) deptCountEl.innerText = `${deptNames.length} phòng ban chức năng`;
+      const deptColors = ['bg-blue-500', 'bg-indigo-500', 'bg-teal-500', 'bg-amber-500', 'bg-rose-500', 'bg-purple-500'];
+      deptListEl.innerHTML = deptNames.map((name, idx) => {
+        const count = deptCounts[name];
+        const pct = active.length ? Math.round((count / active.length) * 100) : 0;
+        const color = deptColors[idx % deptColors.length];
+        return `
+          <div>
+            <div class="flex justify-between items-center text-xs mb-1">
+              <span class="font-semibold text-slate-700">${escapeHtml(name)}</span>
+              <span class="text-slate-500 font-medium">${count} NV <span class="text-slate-400">(${pct}%)</span></span>
+            </div>
+            <div class="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+              <div class="h-full ${color} rounded-full" style="width: ${pct}%"></div>
             </div>
           </div>
-          <div class="self-end sm:self-center shrink-0">${actionBtn}</div>
-        </div>
-      `;
+        `;
+      }).join('');
+    }
+
+    // CỘT 2: TỔNG QUAN CHUYÊN CẦN TRONG KỲ
+    const dashTimesheet = appData.timesheetByPeriod[currentTimesheetPeriod] || {};
+    let totalWork = 0, totalOT = 0, totalLeave = 0, totalSick = 0;
+    Object.values(dashTimesheet).forEach(days => {
+      (days || []).forEach(symbol => {
+        if (symbol === 'X') totalWork++;
+        if (symbol === 'OT') totalOT++;
+        if (symbol === 'P') totalLeave++;
+        if (symbol === 'O') totalSick++;
+      });
     });
-    pList.innerHTML = html;
-    // =====================================================
-// DASHBOARD ADVANCED METRICS
-// =====================================================
 
-const dashTimesheet =
-  appData.timesheetByPeriod[currentTimesheetPeriod] || {};
+    const setDashText = (id, value) => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = value;
+    };
 
-let totalWork = 0;
-let totalOT = 0;
-let totalLeave = 0;
-let totalSick = 0;
+    setDashText('dash-total-work', totalWork);
+    setDashText('dash-total-ot', totalOT);
+    setDashText('dash-total-leave', totalLeave);
+    setDashText('dash-total-sick', totalSick);
 
-Object.values(dashTimesheet).forEach(days => {
-  (days || []).forEach(symbol => {
-    if (symbol === 'X') totalWork++;
-    if (symbol === 'OT') totalOT++;
-    if (symbol === 'P') totalLeave++;
-    if (symbol === 'O') totalSick++;
-  });
-});
-
-const setDashText = (id, value) => {
-  const el = document.getElementById(id);
-  if (el) el.textContent = value;
-};
-
-setDashText('dash-total-work', totalWork);
-setDashText('dash-total-ot', totalOT);
-setDashText('dash-total-leave', totalLeave);
-setDashText('dash-total-sick', totalSick);
-
-
-// =====================================================
-// TASK OVERVIEW
-// =====================================================
-
-const visibleTasks = (appData.tasks || []).filter(t =>
-  currentUser.role === 'manager' ||
-  t.assigneeId === currentUser.id ||
-  t.empId === currentUser.id
-);
-
-const activeTasks = visibleTasks.filter(t =>
-  t.status !== 'Hoàn thành'
-);
-
-const doneTasks = visibleTasks.filter(t =>
-  t.status === 'Hoàn thành'
-);
-
-const todayIso = new Date().toISOString().slice(0, 10);
-
-const overdueTasks = visibleTasks.filter(t =>
-  t.status !== 'Hoàn thành' &&
-  t.deadline &&
-  String(t.deadline).slice(0, 10) < todayIso
-);
-
-const taskTotal = visibleTasks.length;
-
-const completionRate =
-  taskTotal > 0
-    ? Math.round(doneTasks.length / taskTotal * 100)
-    : 0;
-
-setDashText('dash-task-active', activeTasks.length);
-setDashText('dash-task-done', doneTasks.length);
-setDashText('dash-task-overdue', overdueTasks.length);
-setDashText('dash-task-rate', completionRate + '%');
-
-const progress =
-  document.getElementById('dash-task-progress');
-
-if (progress) {
-  progress.style.width = completionRate + '%';
-}
-
-
-// =====================================================
-// MANAGEMENT ALERTS
-// =====================================================
-
-const alerts = [];
-
-// Pending leave
-const pendingLeaveCount =
-  (appData.leaveRequests || [])
-    .filter(x => x.status === 'PENDING')
-    .length;
-
-if (pendingLeaveCount > 0) {
-  alerts.push({
-    icon: 'fa-file-signature',
-    text: pendingLeaveCount + ' đơn nghỉ phép đang chờ duyệt',
-    type: 'amber'
-  });
-}
-
-// Sick cases
-const pendingSickCount =
-  (appData.sickCases || [])
-    .filter(x =>
-      x.status === 'PENDING' ||
-      x.status === 'NEED_MORE_INFO'
-    )
-    .length;
-
-if (pendingSickCount > 0) {
-  alerts.push({
-    icon: 'fa-briefcase-medical',
-    text: pendingSickCount + ' hồ sơ BHXH cần xử lý',
-    type: 'rose'
-  });
-}
-
-// Overdue tasks
-if (overdueTasks.length > 0) {
-  alerts.push({
-    icon: 'fa-clock',
-    text: overdueTasks.length + ' công việc đã quá hạn',
-    type: 'red'
-  });
-}
-
-// Payroll
-const dashboardPayroll =
-  (appData.payroll || [])
-    .filter(p => p.period === currentPayrollPeriod);
-
-if (
-  ['manager', 'hr'].includes(currentUser.role) &&
-  currentPayrollPeriod &&
-  dashboardPayroll.length === 0
-) {
-  alerts.push({
-    icon: 'fa-money-check-dollar',
-    text: 'Kỳ ' + currentPayrollPeriod + ' chưa tính lương',
-    type: 'blue'
-  });
-}
-
-const alertBox =
-  document.getElementById('dash-alert-list');
-
-if (alertBox) {
-  if (!alerts.length) {
-    alertBox.innerHTML = `
-      <div class="flex items-center gap-2 p-3 rounded-xl bg-emerald-50">
-        <i class="fa-solid fa-circle-check text-emerald-500"></i>
-        <span class="text-xs text-emerald-700 font-medium">
-          Không có vấn đề cần xử lý
-        </span>
-      </div>
-    `;
-  } else {
-    alertBox.innerHTML = alerts.map(a => `
-      <div class="flex items-start gap-2 p-3 rounded-xl bg-slate-50">
-        <i class="fa-solid ${a.icon} mt-0.5 text-amber-500"></i>
-        <span class="text-xs text-slate-700 leading-relaxed">
-          ${escapeHtml(a.text)}
-        </span>
-      </div>
-    `).join('');
-  }
-}
+    // CỘT 3: TIẾN ĐỘ NHIỆM VỤ
+    setDashText('dash-task-active', activeTasks.length);
+    setDashText('dash-task-done', doneTasks.length);
+    setDashText('dash-task-overdue', overdueTasks.length);
+    setDashText('dash-task-rate', completionRate + '%');
+    const progress = document.getElementById('dash-task-progress');
+    if (progress) progress.style.width = completionRate + '%';
   }
 
   // --- RENDER 2: QUẢN LÝ NHÂN SỰ (EMPLOYEES) ---
@@ -3850,11 +3973,98 @@ if (alertBox) {
     window.handleApproveAdvance = handleApproveAdvance;
     window.handleRejectAdvance = handleRejectAdvance;
     window.updateAdvanceBadge = updateAdvanceBadge;
+    window.formatAdvanceAmountInput = formatAdvanceAmountInput;
+    window.setQuickAdvanceAmount = setQuickAdvanceAmount;
+    window.docSoTienTiengViet = docSoTienTiengViet;
+    window.openEditAdvance = openEditAdvance;
+    window.cancelEditAdvance = cancelEditAdvance;
+    window.handleCancelAdvance = handleCancelAdvance;
   }
 
   /* ============================================================= */
   /* SALARY ADVANCE CLIENT CONTROLLER (TẠM ỨNG LƯƠNG)              */
   /* ============================================================= */
+
+  function docSoTienTiengViet(num) {
+    if (!num || num <= 0) return '';
+    num = Math.round(Number(num));
+    if (num === 0) return 'Không đồng';
+    const digits = ['không', 'một', 'hai', 'ba', 'bốn', 'năm', 'sáu', 'bảy', 'tám', 'chín'];
+    function readGroup(group, isFirst) {
+      let h = Math.floor(group / 100);
+      let t = Math.floor((group % 100) / 10);
+      let u = group % 10;
+      let res = [];
+      if (h > 0 || !isFirst) {
+        res.push(digits[h] + ' trăm');
+      }
+      if (t > 1) {
+        res.push(digits[t] + ' mươi');
+        if (u === 1) res.push('mốt');
+        else if (u === 5) res.push('lăm');
+        else if (u > 0) res.push(digits[u]);
+      } else if (t === 1) {
+        res.push('mười');
+        if (u === 5) res.push('lăm');
+        else if (u > 0) res.push(digits[u]);
+      } else if (t === 0 && u > 0) {
+        if (h > 0 || !isFirst) res.push('lẻ');
+        res.push(digits[u]);
+      }
+      return res.join(' ');
+    }
+    const units = ['', 'nghìn', 'triệu', 'tỷ'];
+    let groups = [];
+    let temp = num;
+    while (temp > 0) {
+      groups.push(temp % 1000);
+      temp = Math.floor(temp / 1000);
+    }
+    let parts = [];
+    for (let i = groups.length - 1; i >= 0; i--) {
+      let g = groups[i];
+      if (g > 0) {
+        let gText = readGroup(g, i === groups.length - 1);
+        let unit = units[i];
+        parts.push(gText + (unit ? ' ' + unit : ''));
+      }
+    }
+    let str = parts.join(' ').trim();
+    if (!str) return '';
+    return str.charAt(0).toUpperCase() + str.slice(1) + ' đồng';
+  }
+
+  function formatAdvanceAmountInput(input) {
+    if (!input) input = document.getElementById('advance-form-amount');
+    if (!input) return;
+    const rawDigits = (input.value || '').replace(/\D/g, '');
+    const textEl = document.getElementById('advance-amount-text');
+    const iconEl = document.getElementById('advance-amount-icon');
+    if (!rawDigits) {
+      input.value = '';
+      if (textEl) {
+        textEl.textContent = 'Nhập số tiền để xem số tiền bằng chữ';
+        textEl.className = 'text-slate-400';
+      }
+      if (iconEl) iconEl.classList.add('hidden');
+      return;
+    }
+    const val = parseInt(rawDigits, 10);
+    input.value = val.toLocaleString('vi-VN');
+    const words = docSoTienTiengViet(val);
+    if (textEl) {
+      textEl.textContent = 'Bằng chữ: ' + words;
+      textEl.className = 'text-amber-800 font-bold';
+    }
+    if (iconEl) iconEl.classList.remove('hidden');
+  }
+
+  function setQuickAdvanceAmount(amount) {
+    const input = document.getElementById('advance-form-amount');
+    if (!input) return;
+    input.value = amount.toLocaleString('vi-VN');
+    formatAdvanceAmountInput(input);
+  }
 
   function updateAdvanceBadge() {
     const badge = document.getElementById('advance-badge');
@@ -3876,6 +4086,7 @@ if (alertBox) {
 
   function openAdvanceModal() {
     if (!currentUser) return;
+    cancelEditAdvance();
     const reqName = document.getElementById('advance-requester-name');
     if (reqName) reqName.textContent = currentUser.name + ' (' + currentUser.id + ')';
 
@@ -3891,6 +4102,14 @@ if (alertBox) {
 
     const reasonInput = document.getElementById('advance-form-reason');
     if (reasonInput) reasonInput.value = '';
+
+    const textEl = document.getElementById('advance-amount-text');
+    if (textEl) {
+      textEl.textContent = 'Nhập số tiền để xem số tiền bằng chữ';
+      textEl.className = 'text-slate-400';
+    }
+    const iconEl = document.getElementById('advance-amount-icon');
+    if (iconEl) iconEl.classList.add('hidden');
 
     renderAdvancesList();
     document.getElementById('modal-advance').classList.remove('hidden');
@@ -3928,49 +4147,169 @@ if (alertBox) {
       let actionsHtml = '--';
       if (isBoss && a.status === 'Chờ duyệt') {
         actionsHtml = `
-          <div class="flex items-center justify-center gap-1.5">
+          <div class="flex items-center justify-center gap-1.5 whitespace-nowrap">
             <button onclick="handleApproveAdvance('${escapeHtml(a.id)}')"
-              class="px-2 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg font-bold text-[10px] shadow-xs flex items-center gap-1 transition">
+              class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg font-bold text-[10px] shadow-xs flex items-center gap-1 transition">
               <i class="fa-solid fa-check"></i>
               <span>Duyệt</span>
             </button>
             <button onclick="handleRejectAdvance('${escapeHtml(a.id)}')"
-              class="px-2 py-1 bg-rose-600 hover:bg-rose-500 text-white rounded-lg font-bold text-[10px] shadow-xs flex items-center gap-1 transition">
+              class="px-2.5 py-1 bg-rose-600 hover:bg-rose-500 text-white rounded-lg font-bold text-[10px] shadow-xs flex items-center gap-1 transition">
               <i class="fa-solid fa-xmark"></i>
               <span>Từ chối</span>
             </button>
           </div>
         `;
+      } else if (!isBoss && a.status === 'Chờ duyệt' && a.empId === currentUser.id) {
+        actionsHtml = `
+          <div class="flex items-center justify-center gap-1.5 whitespace-nowrap">
+            <button onclick="openEditAdvance('${escapeHtml(a.id)}')"
+              class="px-2.5 py-1 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded-lg font-bold text-[10px] shadow-xs flex items-center gap-1 transition" title="Chỉnh sửa đơn">
+              <i class="fa-solid fa-pen-to-square"></i>
+              <span>Sửa</span>
+            </button>
+            <button onclick="handleCancelAdvance('${escapeHtml(a.id)}')"
+              class="px-2.5 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-lg font-bold text-[10px] shadow-xs flex items-center gap-1 transition" title="Hủy & xóa đơn">
+              <i class="fa-solid fa-trash-can"></i>
+              <span>Hủy</span>
+            </button>
+          </div>
+        `;
       } else if (a.status === 'Đã duyệt' && a.approver) {
-        actionsHtml = `<span class="text-[10px] text-emerald-700 font-medium">Bởi: ${escapeHtml(a.approver)}</span>`;
+        actionsHtml = `<span class="text-[10px] text-emerald-700 font-medium whitespace-nowrap">Bởi: ${escapeHtml(a.approver)}</span>`;
+      } else if (a.status === 'Từ chối') {
+        actionsHtml = `<span class="text-[10px] text-rose-600 font-medium whitespace-nowrap" title="${escapeHtml(a.rejectReason || '')}">Đã từ chối</span>`;
+      }
+
+      let dispPeriod = escapeHtml(a.period || '');
+      if (/^\d{4}-\d{2}/.test(dispPeriod)) {
+        const pParts = dispPeriod.split('-');
+        dispPeriod = pParts[1] + '/' + pParts[0];
       }
 
       return `
         <tr class="hover:bg-slate-50 transition">
-          <td class="py-2.5 px-3 font-mono font-bold text-slate-900">${escapeHtml(a.id)}</td>
-          <td class="py-2.5 px-3 font-semibold text-blue-700">${escapeHtml(a.period)}</td>
-          <td class="py-2.5 px-3">
+          <td class="py-2.5 px-3 font-mono font-bold text-slate-900 whitespace-nowrap">${escapeHtml(a.id)}</td>
+          <td class="py-2.5 px-3 font-semibold text-blue-700 whitespace-nowrap text-center">${dispPeriod}</td>
+          <td class="py-2.5 px-3 whitespace-nowrap">
             <span class="font-bold text-slate-800 block">${escapeHtml(a.empName)}</span>
-            <span class="text-[10px] text-slate-400 font-mono">${escapeHtml(a.empId)} - ${escapeHtml(a.dept || '')}</span>
+            <span class="text-[10px] text-slate-400 font-mono">${escapeHtml(a.empId)} • ${escapeHtml(a.dept || '')}</span>
           </td>
-          <td class="py-2.5 px-3 text-right font-black text-amber-800 text-xs">${money(a.amount)}</td>
-          <td class="py-2.5 px-3 text-slate-600 max-w-[180px] truncate" title="${escapeHtml(a.reason)}">${escapeHtml(a.reason)}</td>
-          <td class="py-2.5 px-3 text-center">${stBadge}</td>
-          <td class="py-2.5 px-3 text-center">${actionsHtml}</td>
+          <td class="py-2.5 px-3 text-right font-black text-amber-800 text-xs whitespace-nowrap">${money(a.amount)}</td>
+          <td class="py-2.5 px-3 text-slate-600 max-w-[280px] truncate" title="${escapeHtml(a.reason)}">${escapeHtml(a.reason)}</td>
+          <td class="py-2.5 px-3 text-center whitespace-nowrap">${stBadge}</td>
+          <td class="py-2.5 px-3 text-center whitespace-nowrap">${actionsHtml}</td>
         </tr>
       `;
     }).join('');
     updateAdvanceBadge();
   }
 
+  let editingAdvanceId = null;
+
+  function openEditAdvance(id) {
+    const item = (appData.advances || []).find(a => a.id === id);
+    if (!item) return;
+    if (item.status !== 'Chờ duyệt') {
+      showToast('Chỉ có thể chỉnh sửa khi đơn còn ở trạng thái Chờ duyệt.', 'warning');
+      return;
+    }
+    if (item.empId !== currentUser.id && currentUser.role !== 'manager') {
+      showToast('Bạn chỉ có thể chỉnh sửa đơn của chính mình.', 'error');
+      return;
+    }
+    editingAdvanceId = id;
+    const titleEl = document.getElementById('advance-form-title');
+    if (titleEl) titleEl.textContent = 'Chỉnh Sửa Đơn Tạm Ứng (' + id + ')';
+    const periodSelect = document.getElementById('advance-form-period');
+    if (periodSelect && item.period) {
+      let pVal = item.period;
+      if (/^\d{4}-\d{2}/.test(pVal)) {
+        const parts = pVal.split('-');
+        pVal = parts[1] + '/' + parts[0];
+      }
+      periodSelect.value = pVal;
+    }
+    const amountInput = document.getElementById('advance-form-amount');
+    if (amountInput) {
+      amountInput.value = Number(item.amount).toLocaleString('vi-VN').replace(/,/g, '.');
+      formatAdvanceAmountInput(amountInput);
+    }
+    const reasonInput = document.getElementById('advance-form-reason');
+    if (reasonInput) reasonInput.value = item.reason || '';
+
+    const btnSubmit = document.getElementById('btn-advance-submit');
+    if (btnSubmit) {
+      btnSubmit.innerHTML = '<i class="fa-solid fa-floppy-disk mr-1.5"></i><span>Lưu Thay Đổi</span>';
+    }
+    const btnCancel = document.getElementById('btn-advance-cancel-edit');
+    if (btnCancel) btnCancel.classList.remove('hidden');
+
+    const formEl = document.getElementById('advance-form-period');
+    if (formEl) formEl.focus();
+  }
+
+  function cancelEditAdvance() {
+    editingAdvanceId = null;
+    const titleEl = document.getElementById('advance-form-title');
+    if (titleEl) titleEl.textContent = 'Gửi Yêu Cầu Tạm Ứng Mới';
+    const amountInput = document.getElementById('advance-form-amount');
+    if (amountInput) amountInput.value = '';
+    const reasonInput = document.getElementById('advance-form-reason');
+    if (reasonInput) reasonInput.value = '';
+    const textEl = document.getElementById('advance-amount-text');
+    if (textEl) {
+      textEl.textContent = 'Nhập số tiền để xem số tiền bằng chữ';
+      textEl.className = 'text-slate-400';
+    }
+    const iconEl = document.getElementById('advance-amount-icon');
+    if (iconEl) iconEl.classList.add('hidden');
+
+    const btnSubmit = document.getElementById('btn-advance-submit');
+    if (btnSubmit) {
+      btnSubmit.innerHTML = '<i class="fa-solid fa-paper-plane text-xs mr-1.5"></i><span data-i18n="btn_advance_submit">' + t('btn_advance_submit', 'Gửi Đề Xuất') + '</span>';
+    }
+    const btnCancel = document.getElementById('btn-advance-cancel-edit');
+    if (btnCancel) btnCancel.classList.add('hidden');
+  }
+
+  function handleCancelAdvance(id) {
+    const item = (appData.advances || []).find(a => a.id === id);
+    if (!item) return;
+    if (item.status !== 'Chờ duyệt') {
+      showToast('Chỉ có thể hủy khi đơn còn ở trạng thái Chờ duyệt.', 'warning');
+      return;
+    }
+    if (item.empId !== currentUser.id && !['manager', 'hr'].includes(currentUser.role)) {
+      showToast('Bạn chỉ có thể hủy đơn của chính mình.', 'error');
+      return;
+    }
+    if (!confirm('Bạn có chắc chắn muốn hủy và xóa đơn tạm ứng ' + id + ' không? Thao tác này không thể hoàn tác.')) return;
+
+    callBackend('apiCancelAdvance', [id], function (res) {
+      if (res && res.success) {
+        showToast(res.message || 'Đã hủy và xóa đơn tạm ứng thành công!', 'success');
+        appData.advances = (appData.advances || []).filter(a => a.id !== id);
+        if (editingAdvanceId === id) cancelEditAdvance();
+        renderAdvancesList();
+        renderDashboard();
+      } else {
+        showToast(res ? res.message : 'Lỗi hủy đơn tạm ứng.', 'error');
+      }
+    }, function (err) {
+      showToast(err.message || String(err), 'error');
+    });
+  }
+
   function handleAdvanceSubmit(event) {
     if (event) event.preventDefault();
     const period = document.getElementById('advance-form-period').value;
-    const amount = Number(document.getElementById('advance-form-amount').value);
+    const rawVal = (document.getElementById('advance-form-amount').value || '').replace(/\D/g, '');
+    const amount = Number(rawVal);
     const reason = document.getElementById('advance-form-reason').value.trim();
 
-    if (!amount || amount <= 0) {
-      showToast('Số tiền tạm ứng không hợp lệ.', 'warning');
+    if (!amount || amount < 100000) {
+      showToast('Số tiền tạm ứng tối thiểu là 100.000 VNĐ.', 'warning');
       return;
     }
     if (!reason) {
@@ -3979,10 +4318,47 @@ if (alertBox) {
     }
 
     const btn = document.getElementById('btn-advance-submit');
-    if (btn) btn.disabled = true;
+    if (btn) {
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1.5"></i><span>' + t('btn_advance_sending', 'Đang gửi...') + '</span>';
+    }
 
-    rpc('apiSubmitAdvance', { period: period, amount: amount, reason: reason }, function(res) {
-      if (btn) btn.disabled = false;
+    if (editingAdvanceId) {
+      const advId = editingAdvanceId;
+      callBackend('apiUpdateAdvance', [{ id: advId, period: period, amount: amount, reason: reason }], function (res) {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = '<i class="fa-solid fa-paper-plane text-xs mr-1.5"></i><span>' + t('btn_advance_submit', 'Gửi Đề Xuất') + '</span>';
+        }
+        if (res && res.success) {
+          showToast(res.message || 'Đã cập nhật đơn tạm ứng thành công!', 'success');
+          const item = (appData.advances || []).find(a => a.id === advId);
+          if (item) {
+            item.period = period;
+            item.amount = amount;
+            item.reason = reason;
+          }
+          cancelEditAdvance();
+          renderAdvancesList();
+          renderDashboard();
+        } else {
+          showToast(res ? res.message : 'Lỗi cập nhật đơn tạm ứng.', 'error');
+        }
+      }, function (err) {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = '<i class="fa-solid fa-floppy-disk mr-1.5"></i><span>Lưu Thay Đổi</span>';
+        }
+        showToast(err.message || String(err), 'error');
+      });
+      return;
+    }
+
+    callBackend('apiSubmitAdvance', [{ period: period, amount: amount, reason: reason }], function (res) {
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-paper-plane text-xs mr-1.5"></i><span>' + t('btn_advance_submit', 'Gửi Đề Xuất') + '</span>';
+      }
       if (res && res.success) {
         showToast(res.message || 'Đã gửi yêu cầu tạm ứng thành công!', 'success');
         if (!appData.advances) appData.advances = [];
@@ -3999,18 +4375,24 @@ if (alertBox) {
           approver: '',
           approvedAt: ''
         });
-        document.getElementById('advance-form-amount').value = '';
-        document.getElementById('advance-form-reason').value = '';
+        cancelEditAdvance();
         renderAdvancesList();
+        renderDashboard();
       } else {
-        showToast(res ? res.message : 'Lỗi gửi yêu cầu tạm ứng.', 'danger');
+        showToast(res ? res.message : 'Lỗi gửi yêu cầu tạm ứng.', 'error');
       }
+    }, function (err) {
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-paper-plane text-xs mr-1.5"></i><span>' + t('btn_advance_submit', 'Gửi Đề Xuất') + '</span>';
+      }
+      showToast(err.message || String(err), 'error');
     });
   }
 
   function handleApproveAdvance(id) {
     if (!confirm('Bạn có chắc chắn muốn phê duyệt đơn tạm ứng này? Số tiền sẽ tự động được cấn trừ vào bảng lương kỳ.')) return;
-    rpc('apiApproveAdvance', id, function(res) {
+    callBackend('apiApproveAdvance', [id], function (res) {
       if (res && res.success) {
         showToast(res.message || 'Đã duyệt đơn tạm ứng!', 'success');
         const item = (appData.advances || []).find(a => a.id === id);
@@ -4019,22 +4401,25 @@ if (alertBox) {
           item.approver = currentUser.name;
         }
         renderAdvancesList();
-        rpc('apiGetPayrollData', [], function(pRes) {
+        renderDashboard();
+        callBackend('apiGetPayrollData', [], function (pRes) {
           if (pRes && pRes.success && pRes.data) {
             appData.payroll = pRes.data;
             renderPayrollTable();
           }
         });
       } else {
-        showToast(res ? res.message : 'Lỗi phê duyệt đơn tạm ứng.', 'danger');
+        showToast(res ? res.message : 'Lỗi phê duyệt đơn tạm ứng.', 'error');
       }
+    }, function (err) {
+      showToast(err.message || String(err), 'error');
     });
   }
 
   function handleRejectAdvance(id) {
     const reason = prompt('Nhập lý do từ chối đơn tạm ứng này:', 'Chưa phù hợp với quy chế nội bộ');
     if (reason === null) return;
-    rpc('apiRejectAdvance', id, reason, function(res) {
+    callBackend('apiRejectAdvance', [id, reason], function (res) {
       if (res && res.success) {
         showToast(res.message || 'Đã từ chối đơn tạm ứng!', 'warning');
         const item = (appData.advances || []).find(a => a.id === id);
@@ -4043,9 +4428,12 @@ if (alertBox) {
           item.approver = currentUser.name;
         }
         renderAdvancesList();
+        renderDashboard();
       } else {
-        showToast(res ? res.message : 'Lỗi từ chối đơn tạm ứng.', 'danger');
+        showToast(res ? res.message : 'Lỗi từ chối đơn tạm ứng.', 'error');
       }
+    }, function (err) {
+      showToast(err.message || String(err), 'error');
     });
   }
 
@@ -4644,8 +5032,19 @@ if (alertBox) {
         }
       };
       document.getElementById('sync-status').classList.remove('hidden');
+      const pulse = document.getElementById('sync-pulse');
+      const spinner = document.getElementById('sync-spinner');
+      if (spinner) spinner.classList.add('hidden');
+      if (pulse) pulse.classList.remove('hidden');
       initApp(); populateAssigneeSelect(); applyRoleControls();
-    }, err => { loadingData = false; showToast(err.message, 'error'); });
+    }, err => {
+      loadingData = false;
+      const pulse = document.getElementById('sync-pulse');
+      const spinner = document.getElementById('sync-spinner');
+      if (spinner) spinner.classList.add('hidden');
+      if (pulse) pulse.classList.remove('hidden');
+      showToast(err.message, 'error');
+    });
   }
   function applyRoleControls() {
     if (!currentUser) return;
@@ -4703,10 +5102,36 @@ if (alertBox) {
       form.addEventListener('submit', handleLoginSubmit);
     }
   }
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', bindLoginForm);
-  } else {
+
+  function restoreSession() {
+    const session = getStoredAuthSession();
+    if (session && session.token && session.user) {
+      authToken = session.token;
+      let savedTab = 'dashboard';
+      try {
+        if (typeof sessionStorage !== 'undefined' && sessionStorage.getItem) {
+          savedTab = sessionStorage.getItem(TAB_STORAGE_KEY) || 'dashboard';
+        }
+      } catch (e) {}
+      loginAsUser(session.user, savedTab);
+      return true;
+    }
+    return false;
+  }
+
+  function initAppSession() {
     bindLoginForm();
+    restoreSession();
+  }
+
+  if (typeof window !== 'undefined') {
+    window.restoreSession = restoreSession;
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initAppSession);
+  } else {
+    initAppSession();
   }
   initI18n();
   console.log('Wanzhong Clean Technology - Client scripts loaded.');

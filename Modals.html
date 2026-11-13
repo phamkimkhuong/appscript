@@ -940,7 +940,7 @@
 <div id="modal-advance"
   class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-3 sm:p-4">
   <div
-    class="bg-white rounded-2xl sm:rounded-3xl max-w-3xl w-full p-4 sm:p-6 shadow-2xl border border-slate-200 max-h-[92vh] flex flex-col overflow-hidden animate-fadeIn">
+    class="bg-white rounded-2xl sm:rounded-3xl max-w-5xl xl:max-w-6xl w-full p-4 sm:p-6 shadow-2xl border border-slate-200 max-h-[92vh] flex flex-col overflow-hidden animate-fadeIn">
     <!-- Header -->
     <div class="flex items-center justify-between pb-3.5 border-b border-slate-200 shrink-0">
       <div class="flex items-center space-x-3">
@@ -972,8 +972,8 @@
       <div class="bg-slate-50 border border-slate-200/90 rounded-2xl p-4 space-y-3.5">
         <div class="flex items-center justify-between">
           <h4 class="font-bold text-slate-900 text-xs flex items-center gap-2">
-            <i class="fa-solid fa-paper-plane text-amber-600"></i>
-            <span>Gửi Yêu Cầu Tạm Ứng Mới</span>
+            <i class="fa-solid fa-paper-plane text-amber-600" id="advance-form-icon"></i>
+            <span id="advance-form-title">Gửi Yêu Cầu Tạm Ứng Mới</span>
           </h4>
           <span class="text-[11px] text-slate-500">Người nộp: <strong id="advance-requester-name"
               class="text-slate-800">--</strong></span>
@@ -987,11 +987,33 @@
                 class="w-full border border-slate-300 rounded-xl px-3 py-2 text-xs bg-white text-slate-800 font-semibold focus:ring-2 focus:ring-amber-500 focus:outline-none"></select>
             </div>
             <div>
-              <label class="block font-semibold text-slate-700 mb-1">Số tiền tạm ứng (VNĐ)</label>
-              <input type="number" id="advance-form-amount" min="100000" step="50000" placeholder="Ví dụ: 2000000"
-                required
-                class="w-full border border-slate-300 rounded-xl px-3 py-2 text-xs bg-white text-slate-900 font-bold focus:ring-2 focus:ring-amber-500 focus:outline-none">
+              <div class="flex items-center justify-between mb-1">
+                <label class="block font-semibold text-slate-700">Số tiền tạm ứng (VNĐ)</label>
+                <span class="text-[10px] text-amber-700 font-medium">Tối thiểu: 100.000 đ</span>
+              </div>
+              <div class="relative">
+                <input type="text" id="advance-form-amount" inputmode="numeric" placeholder="Ví dụ: 1.500.000"
+                  required oninput="formatAdvanceAmountInput(this)"
+                  class="w-full border border-slate-300 rounded-xl px-3 py-2 pr-12 text-xs bg-white text-slate-900 font-bold focus:ring-2 focus:ring-amber-500 focus:outline-none tracking-wide">
+                <span class="absolute right-3 top-2 text-xs font-bold text-slate-400 pointer-events-none">VNĐ</span>
+              </div>
+              <!-- Dòng tiền bằng chữ hiển thị real-time -->
+              <div id="advance-amount-words" class="text-[11px] font-medium text-amber-700 mt-1.5 italic min-h-[16px] flex items-center gap-1">
+                <i class="fa-solid fa-circle-check text-[10px] text-amber-600 hidden" id="advance-amount-icon"></i>
+                <span id="advance-amount-text" class="text-slate-400">Nhập số tiền để xem số tiền bằng chữ</span>
+              </div>
             </div>
+          </div>
+
+          <!-- Các nút chọn nhanh số tiền phổ biến -->
+          <div class="flex items-center gap-1.5 flex-wrap pt-0.5">
+            <span class="text-[10px] text-slate-400 font-semibold mr-1">Gợi ý nhanh:</span>
+            <button type="button" onclick="setQuickAdvanceAmount(500000)" class="px-2 py-0.5 bg-slate-100 hover:bg-amber-100 hover:text-amber-800 text-slate-600 rounded-md text-[10px] font-semibold border border-slate-200 transition">500.000 đ</button>
+            <button type="button" onclick="setQuickAdvanceAmount(1000000)" class="px-2 py-0.5 bg-slate-100 hover:bg-amber-100 hover:text-amber-800 text-slate-600 rounded-md text-[10px] font-semibold border border-slate-200 transition">1.000.000 đ</button>
+            <button type="button" onclick="setQuickAdvanceAmount(1500000)" class="px-2 py-0.5 bg-slate-100 hover:bg-amber-100 hover:text-amber-800 text-slate-600 rounded-md text-[10px] font-semibold border border-slate-200 transition">1.500.000 đ</button>
+            <button type="button" onclick="setQuickAdvanceAmount(2000000)" class="px-2 py-0.5 bg-slate-100 hover:bg-amber-100 hover:text-amber-800 text-slate-600 rounded-md text-[10px] font-semibold border border-slate-200 transition">2.000.000 đ</button>
+            <button type="button" onclick="setQuickAdvanceAmount(3000000)" class="px-2 py-0.5 bg-slate-100 hover:bg-amber-100 hover:text-amber-800 text-slate-600 rounded-md text-[10px] font-semibold border border-slate-200 transition">3.000.000 đ</button>
+            <button type="button" onclick="setQuickAdvanceAmount(5000000)" class="px-2 py-0.5 bg-slate-100 hover:bg-amber-100 hover:text-amber-800 text-slate-600 rounded-md text-[10px] font-semibold border border-slate-200 transition">5.000.000 đ</button>
           </div>
 
           <div>
@@ -1004,11 +1026,17 @@
           <div class="flex items-center justify-between pt-1">
             <span class="text-[11px] text-slate-400 italic">* Tiền tạm ứng sau khi duyệt sẽ tự động cấn trừ vào Thực lĩnh
               cuối kỳ.</span>
-            <button type="submit" id="btn-advance-submit"
-              class="px-4 py-2 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white rounded-xl font-bold text-xs shadow-md shadow-amber-500/20 active:scale-[0.98] flex items-center space-x-1.5 transition">
-              <i class="fa-solid fa-paper-plane text-xs"></i>
-              <span>Gửi Đề Xuất</span>
-            </button>
+            <div class="flex items-center gap-2">
+              <button type="button" id="btn-advance-cancel-edit" onclick="cancelEditAdvance()"
+                class="hidden px-3 py-2 border border-slate-300 text-slate-600 hover:bg-slate-100 rounded-xl font-bold text-xs transition">
+                Hủy sửa
+              </button>
+              <button type="submit" id="btn-advance-submit"
+                class="px-4 py-2 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white rounded-xl font-bold text-xs shadow-md shadow-amber-500/20 active:scale-[0.98] flex items-center space-x-1.5 transition">
+                <i class="fa-solid fa-paper-plane text-xs"></i>
+                <span data-i18n="btn_advance_submit">Gửi Đề Xuất</span>
+              </button>
+            </div>
           </div>
         </form>
       </div>
@@ -1024,18 +1052,18 @@
         </div>
 
         <div class="border border-slate-200 rounded-2xl overflow-hidden bg-white shadow-xs">
-          <div class="overflow-x-auto max-h-60">
+          <div class="overflow-x-auto max-h-72">
             <table class="w-full text-xs text-left">
               <thead
                 class="bg-slate-100 text-slate-700 uppercase font-semibold text-[10px] sticky top-0 z-10 border-b border-slate-200">
                 <tr>
-                  <th class="py-2.5 px-3">Mã Đơn</th>
-                  <th class="py-2.5 px-3">Kỳ Lương</th>
-                  <th class="py-2.5 px-3">Nhân Viên</th>
-                  <th class="py-2.5 px-3 text-right">Số Tiền</th>
-                  <th class="py-2.5 px-3">Lý Do</th>
-                  <th class="py-2.5 px-3 text-center">Trạng Thái</th>
-                  <th class="py-2.5 px-3 text-center" id="th-advance-actions">Thao Tác</th>
+                  <th class="py-2.5 px-3 whitespace-nowrap">Mã Đơn</th>
+                  <th class="py-2.5 px-3 text-center whitespace-nowrap">Kỳ Lương</th>
+                  <th class="py-2.5 px-3 whitespace-nowrap">Nhân Viên</th>
+                  <th class="py-2.5 px-3 text-right whitespace-nowrap">Số Tiền</th>
+                  <th class="py-2.5 px-3 min-w-[160px]">Lý Do</th>
+                  <th class="py-2.5 px-3 text-center whitespace-nowrap">Trạng Thái</th>
+                  <th class="py-2.5 px-3 text-center whitespace-nowrap" id="th-advance-actions">Thao Tác</th>
                 </tr>
               </thead>
               <tbody id="advance-tbody" class="divide-y divide-slate-100"></tbody>

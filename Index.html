@@ -169,12 +169,13 @@
 
         <!-- Sync Indicator & Profile Menu -->
         <div class="flex items-center space-x-1 sm:space-x-2 shrink-0">
-          <div id="sync-status"
-            class="hidden lg:flex items-center space-x-1.5 text-xs text-emerald-700 bg-emerald-50 border border-emerald-200/90 px-2 sm:px-3 py-1 rounded-full shadow-xs shrink-0"
-            title="Google Sheets Live">
-            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0"></span>
+          <button id="sync-status" type="button" onclick="manualRefreshData()"
+            class="hidden lg:flex items-center space-x-1.5 text-xs text-emerald-700 bg-emerald-50 hover:bg-emerald-100/80 active:scale-95 border border-emerald-200/90 px-2.5 sm:px-3 py-1 rounded-full shadow-xs shrink-0 transition cursor-pointer"
+            title="Nhấp để đồng bộ dữ liệu mới nhất từ Google Sheets">
+            <span id="sync-pulse" class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0"></span>
+            <i id="sync-spinner" class="fa-solid fa-arrows-rotate fa-spin text-emerald-600 hidden text-[11px] shrink-0"></i>
             <span class="font-semibold" data-i18n="sync_live">Google Sheets Live</span>
-          </div>
+          </button>
 
           <!-- Language Switcher in App Topbar -->
           <div
@@ -307,87 +308,83 @@
           </div>
         </div>
 
-        <!-- Metric Cards -->
-        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-3.5">
+        <!-- Metric Cards (4 Trụ Cột Quản Trị Tinh Gọn) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+          <!-- Card 1: Quân Số & Đi Làm -->
           <div
-            class="bg-white p-3 sm:p-5 rounded-xl sm:rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md hover:border-slate-300 transition duration-150">
+            class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md hover:border-slate-300 transition duration-150">
             <div class="flex items-center justify-between">
-              <span class="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-500 truncate"
-                data-i18n="kpi_total_emp">Quân
-                Số Nhân Sự</span>
+              <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500 truncate"
+                data-i18n="kpi_workforce_title">Quân Số & Đi Làm</span>
               <div
-                class="w-6 h-6 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-[11px] sm:text-xs shadow-xs shrink-0">
+                class="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-xs shadow-xs shrink-0">
                 <i class="fa-solid fa-users"></i>
               </div>
             </div>
-            <div id="kpi-total-emp" class="mt-1 sm:mt-2 text-lg sm:text-2xl font-extrabold text-slate-900">4</div>
-            <p class="text-[10px] sm:text-[11px] text-slate-500 font-medium mt-0.5 truncate"
-              data-i18n="kpi_total_emp_sub">6 phòng ban chức năng
+            <div class="mt-2 text-xl sm:text-2xl font-extrabold text-slate-900 flex items-baseline gap-1.5">
+              <span id="kpi-total-emp">--</span>
+              <span class="text-xs font-semibold text-slate-400" data-i18n="kpi_emp_unit">nhân sự</span>
+            </div>
+            <p class="text-[11px] text-slate-500 font-medium mt-1 truncate">
+              <span data-i18n="kpi_today_prefix">Hôm nay: </span><span id="kpi-working-today" class="font-bold text-teal-600">--</span> / <span id="kpi-total-emp-sub">--</span> (<span id="kpi-attendance-rate">—</span>)
             </p>
           </div>
 
+          <!-- Card 2: Tài Chính Lương -->
           <div
-            class="bg-white p-3 sm:p-5 rounded-xl sm:rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md hover:border-slate-300 transition duration-150">
+            class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md hover:border-slate-300 transition duration-150">
             <div class="flex items-center justify-between">
-              <span class="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-500 truncate"><span
+              <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500 truncate"><span
                   id="kpi-payroll-label" data-i18n="kpi_payroll_fund">Quỹ lương</span></span>
               <div
-                class="w-6 h-6 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-[11px] sm:text-xs shadow-xs shrink-0">
+                class="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xs shadow-xs shrink-0">
                 <i class="fa-solid fa-money-bill-wave"></i>
               </div>
             </div>
             <div id="kpi-payroll-total"
-              class="mt-1 sm:mt-2 text-base sm:text-xl font-extrabold text-emerald-700 truncate">-- đ</div>
-            <p class="text-[10px] sm:text-[11px] text-emerald-600 font-medium mt-0.5 truncate" id="kpi-payroll-status"
-              data-i18n="kpi_payroll_settled">Đã chốt lương kỳ này
+              class="mt-2 text-lg sm:text-2xl font-extrabold text-emerald-700 truncate">-- đ</div>
+            <p class="text-[11px] text-emerald-600 font-medium mt-1 truncate" id="kpi-payroll-status"
+              data-i18n="kpi_payroll_settled">Đang tải kỳ lương...
             </p>
           </div>
 
+          <!-- Card 3: Hiệu Suất Nhiệm Vụ -->
           <div
-            class="bg-white p-3 sm:p-5 rounded-xl sm:rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md hover:border-slate-300 transition duration-150">
+            class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md hover:border-slate-300 transition duration-150">
             <div class="flex items-center justify-between">
-              <span class="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-500 truncate"
-                data-i18n="kpi_working_today">Đi Làm Hôm Nay</span>
+              <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500 truncate"
+                data-i18n="kpi_tasks_efficiency">Hiệu Suất Nhiệm Vụ</span>
               <div
-                class="w-6 h-6 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center text-[11px] sm:text-xs shadow-xs shrink-0">
-                <i class="fa-solid fa-user-check"></i>
-              </div>
-            </div>
-            <div class="mt-1 sm:mt-2 text-lg sm:text-2xl font-extrabold text-teal-600"><span
-                id="kpi-working-today">4</span> / <span id="kpi-total-emp-sub">4</span></div>
-            <p class="text-[10px] sm:text-[11px] text-slate-500 font-medium mt-0.5 truncate"><span
-                id="kpi-attendance-rate">—</span></p>
-          </div>
-
-          <div
-            class="bg-white p-3 sm:p-5 rounded-xl sm:rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md hover:border-slate-300 transition duration-150">
-            <div class="flex items-center justify-between">
-              <span class="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-500 truncate"
-                data-i18n="kpi_pending_total">Đơn & Hồ Sơ Chờ</span>
-              <div
-                class="w-6 h-6 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-[11px] sm:text-xs shadow-xs shrink-0">
-                <i class="fa-solid fa-clock-rotate-left"></i>
-              </div>
-            </div>
-            <div id="kpi-pending-total" class="mt-1 sm:mt-2 text-lg sm:text-2xl font-extrabold text-amber-600">0</div>
-            <p class="text-[10px] sm:text-[11px] text-slate-500 font-medium mt-0.5 truncate"
-              data-i18n="kpi_pending_sub">Phép & Chế độ BHXH</p>
-          </div>
-
-          <div
-            class="bg-white p-3 sm:p-5 rounded-xl sm:rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md hover:border-slate-300 transition duration-150 col-span-2 sm:col-span-1">
-            <div class="flex items-center justify-between">
-              <span class="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-500 truncate"
-                data-i18n="kpi_active_tasks">Nhiệm Vụ Đang Chạy</span>
-              <div
-                class="w-6 h-6 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-[11px] sm:text-xs shadow-xs shrink-0">
+                class="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-xs shadow-xs shrink-0">
                 <i class="fa-solid fa-list-check"></i>
               </div>
             </div>
-            <div id="kpi-active-tasks" class="mt-1 sm:mt-2 text-lg sm:text-2xl font-extrabold text-indigo-600">3</div>
-            <p class="text-[10px] sm:text-[11px] text-slate-500 font-medium mt-0.5 truncate"><span
-                data-i18n="kpi_pending_docs_prefix">Văn bản
-                chờ xử lý: </span><span id="kpi-pending-docs">0</span></p>
+            <div class="mt-2 text-xl sm:text-2xl font-extrabold text-indigo-600 flex items-baseline gap-1.5">
+              <span id="kpi-task-rate">0%</span>
+              <span class="text-xs font-semibold text-slate-400" data-i18n="kpi_task_done_sub">hoàn thành</span>
+            </div>
+            <p class="text-[11px] text-slate-500 font-medium mt-1 truncate">
+              <span id="kpi-active-tasks" class="font-bold text-amber-600">0</span> <span data-i18n="kpi_task_active_sub">đang xử lý</span> • <span id="kpi-overdue-tasks" class="font-bold text-rose-600">0</span> <span data-i18n="kpi_task_overdue_sub">quá hạn</span>
+            </p>
+          </div>
+
+          <!-- Card 4: Hồ Sơ Cần Phê Duyệt -->
+          <div
+            class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md hover:border-slate-300 transition duration-150">
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500 truncate"
+                data-i18n="kpi_pending_total">Hồ Sơ Chờ Xử Lý</span>
+              <div
+                class="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-xs shadow-xs shrink-0">
+                <i class="fa-solid fa-clock-rotate-left"></i>
+              </div>
+            </div>
+            <div class="mt-2 text-xl sm:text-2xl font-extrabold text-amber-600 flex items-baseline gap-1.5">
+              <span id="kpi-pending-total">0</span>
+              <span class="text-xs font-semibold text-slate-400" data-i18n="kpi_pending_unit">yêu cầu</span>
+            </div>
+            <p class="text-[11px] text-slate-500 font-medium mt-1 truncate" id="kpi-pending-sub"
+              data-i18n="kpi_pending_sub">Nghỉ phép, Ốm đau & Tạm ứng</p>
           </div>
         </div>
 
@@ -406,155 +403,131 @@
             <!-- Rendered by JS -->
           </div>
         </div>
-        <!-- DASHBOARD ADVANCED -->
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <!-- DASHBOARD DEEP-DIVE: 3 CỘT ĐỘC LẬP KHÔNG TRÙNG LẶP -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
 
-  <!-- Attendance Overview -->
-  <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
-    <div class="flex items-center justify-between mb-4">
-      <div>
-        <h3 class="text-sm font-bold text-slate-900">
-          Tổng Quan Chuyên Cần
-        </h3>
-        <p class="text-[11px] text-slate-500 mt-1">
-          Theo kỳ chấm công đang chọn
-        </p>
-      </div>
-
-      <div class="w-9 h-9 rounded-xl bg-blue-50 text-blue-600
-                  flex items-center justify-center">
-        <i class="fa-solid fa-calendar-check"></i>
-      </div>
-    </div>
-
-    <div class="grid grid-cols-2 gap-3">
-
-      <div class="p-3 rounded-xl bg-emerald-50">
-        <div class="text-[11px] text-emerald-700 font-semibold">
-          Công thực
-        </div>
-        <div id="dash-total-work"
-             class="text-xl font-extrabold text-emerald-700 mt-1">
-          0
-        </div>
-      </div>
-
-      <div class="p-3 rounded-xl bg-purple-50">
-        <div class="text-[11px] text-purple-700 font-semibold">
-          OT
-        </div>
-        <div id="dash-total-ot"
-             class="text-xl font-extrabold text-purple-700 mt-1">
-          0
-        </div>
-      </div>
-
-      <div class="p-3 rounded-xl bg-blue-50">
-        <div class="text-[11px] text-blue-700 font-semibold">
-          Nghỉ phép
-        </div>
-        <div id="dash-total-leave"
-             class="text-xl font-extrabold text-blue-700 mt-1">
-          0
-        </div>
-      </div>
-
-      <div class="p-3 rounded-xl bg-rose-50">
-        <div class="text-[11px] text-rose-700 font-semibold">
-          Nghỉ ốm
-        </div>
-        <div id="dash-total-sick"
-             class="text-xl font-extrabold text-rose-700 mt-1">
-          0
-        </div>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- Task Overview -->
-  <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
-    <div class="flex items-center justify-between mb-4">
-      <div>
-        <h3 class="text-sm font-bold text-slate-900">
-          Tiến Độ Công Việc
-        </h3>
-        <p class="text-[11px] text-slate-500 mt-1">
-          Theo dõi nhiệm vụ toàn hệ thống
-        </p>
-      </div>
-
-      <div class="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-600
-                  flex items-center justify-center">
-        <i class="fa-solid fa-list-check"></i>
-      </div>
-    </div>
-
-    <div class="space-y-3">
-
-      <div class="flex justify-between items-center">
-        <span class="text-xs text-slate-600">Đang xử lý</span>
-        <span id="dash-task-active"
-              class="text-sm font-bold text-amber-600">0</span>
-      </div>
-
-      <div class="flex justify-between items-center">
-        <span class="text-xs text-slate-600">Hoàn thành</span>
-        <span id="dash-task-done"
-              class="text-sm font-bold text-emerald-600">0</span>
-      </div>
-
-      <div class="flex justify-between items-center">
-        <span class="text-xs text-slate-600">Quá hạn</span>
-        <span id="dash-task-overdue"
-              class="text-sm font-bold text-rose-600">0</span>
-      </div>
-
-      <div class="pt-2 border-t border-slate-100">
-        <div class="flex justify-between text-[11px] mb-1.5">
-          <span class="text-slate-500">Tỷ lệ hoàn thành</span>
-          <span id="dash-task-rate"
-                class="font-bold text-indigo-600">0%</span>
-        </div>
-
-        <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
-          <div id="dash-task-progress"
-               class="h-full bg-indigo-500 rounded-full"
-               style="width:0%">
+          <!-- Cột 1: Cơ Cấu Nhân Sự Theo Phòng Ban -->
+          <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between mb-4">
+                <div>
+                  <h3 class="text-sm font-bold text-slate-900">
+                    Cơ Cấu Phòng Ban
+                  </h3>
+                  <p class="text-[11px] text-slate-500 mt-0.5">
+                    Phân bổ nhân sự theo bộ phận
+                  </p>
+                </div>
+                <div class="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
+                  <i class="fa-solid fa-sitemap"></i>
+                </div>
+              </div>
+              <div id="dash-dept-list" class="space-y-3">
+                <!-- Rendered by JS -->
+              </div>
+            </div>
+            <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500">
+              <span>Quy mô tổ chức:</span>
+              <span id="dash-dept-count" class="font-bold text-slate-800">0 phòng ban</span>
+            </div>
           </div>
+
+          <!-- Cột 2: Tổng Quan Chuyên Cần Trong Kỳ -->
+          <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between mb-4">
+                <div>
+                  <h3 class="text-sm font-bold text-slate-900">
+                    Tổng Quan Chuyên Cần
+                  </h3>
+                  <p class="text-[11px] text-slate-500 mt-0.5">
+                    Theo kỳ chấm công đang chọn
+                  </p>
+                </div>
+                <div class="w-9 h-9 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center">
+                  <i class="fa-solid fa-calendar-check"></i>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-2 gap-3">
+                <div class="p-3 rounded-xl bg-emerald-50">
+                  <div class="text-[11px] text-emerald-700 font-semibold">Công thực</div>
+                  <div id="dash-total-work" class="text-xl font-extrabold text-emerald-700 mt-1">0</div>
+                </div>
+
+                <div class="p-3 rounded-xl bg-purple-50">
+                  <div class="text-[11px] text-purple-700 font-semibold">OT</div>
+                  <div id="dash-total-ot" class="text-xl font-extrabold text-purple-700 mt-1">0</div>
+                </div>
+
+                <div class="p-3 rounded-xl bg-blue-50">
+                  <div class="text-[11px] text-blue-700 font-semibold">Nghỉ phép</div>
+                  <div id="dash-total-leave" class="text-xl font-extrabold text-blue-700 mt-1">0</div>
+                </div>
+
+                <div class="p-3 rounded-xl bg-rose-50">
+                  <div class="text-[11px] text-rose-700 font-semibold">Nghỉ ốm</div>
+                  <div id="dash-total-sick" class="text-xl font-extrabold text-rose-700 mt-1">0</div>
+                </div>
+              </div>
+            </div>
+            <div class="mt-4 pt-3 border-t border-slate-100 text-[11px] text-slate-400 text-center">
+              Dữ liệu đồng bộ trực tiếp từ bảng chấm công
+            </div>
+          </div>
+
+          <!-- Cột 3: Tiến Độ & Sức Khỏe Nhiệm Vụ -->
+          <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between mb-4">
+                <div>
+                  <h3 class="text-sm font-bold text-slate-900">
+                    Tiến Độ Công Việc
+                  </h3>
+                  <p class="text-[11px] text-slate-500 mt-0.5">
+                    Theo dõi nhiệm vụ toàn hệ thống
+                  </p>
+                </div>
+                <div class="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+                  <i class="fa-solid fa-chart-pie"></i>
+                </div>
+              </div>
+
+              <div class="space-y-3">
+                <div class="flex justify-between items-center">
+                  <span class="text-xs text-slate-600">Đang xử lý</span>
+                  <span id="dash-task-active" class="text-sm font-bold text-amber-600">0</span>
+                </div>
+
+                <div class="flex justify-between items-center">
+                  <span class="text-xs text-slate-600">Hoàn thành</span>
+                  <span id="dash-task-done" class="text-sm font-bold text-emerald-600">0</span>
+                </div>
+
+                <div class="flex justify-between items-center">
+                  <span class="text-xs text-slate-600">Quá hạn</span>
+                  <span id="dash-task-overdue" class="text-sm font-bold text-rose-600">0</span>
+                </div>
+
+                <div class="pt-2 border-t border-slate-100">
+                  <div class="flex justify-between text-[11px] mb-1.5">
+                    <span class="text-slate-500">Tỷ lệ hoàn thành</span>
+                    <span id="dash-task-rate" class="font-bold text-indigo-600">0%</span>
+                  </div>
+
+                  <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+                    <div id="dash-task-progress" class="h-full bg-indigo-500 rounded-full" style="width:0%">
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="mt-4 pt-3 border-t border-slate-100 text-[11px] text-slate-400 text-center">
+              Cập nhật theo trạng thái giao việc
+            </div>
+          </div>
+
         </div>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- Alerts -->
-  <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
-    <div class="flex items-center justify-between mb-4">
-      <div>
-        <h3 class="text-sm font-bold text-slate-900">
-          Cảnh Báo Quản Trị
-        </h3>
-        <p class="text-[11px] text-slate-500 mt-1">
-          Các vấn đề cần chú ý
-        </p>
-      </div>
-
-      <div class="w-9 h-9 rounded-xl bg-amber-50 text-amber-600
-                  flex items-center justify-center">
-        <i class="fa-solid fa-triangle-exclamation"></i>
-      </div>
-    </div>
-
-    <div id="dash-alert-list" class="space-y-2">
-      <div class="text-xs text-slate-400 text-center py-4">
-        Không có cảnh báo
-      </div>
-    </div>
-
-  </div>
-
-</div>
       </section>
 
       <!-- ========================================== -->

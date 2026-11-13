@@ -616,6 +616,60 @@ function rejectAdvance_(id, reason) {
   };
 }
 
+function updateAdvance_(form) {
+  const auth = authorized_();
+  require_(form && form.id, 'Thiếu mã đơn tạm ứng.');
+  const amount = Math.round(Number(form.amount));
+  require_(amount >= 100000, 'Số tiền tạm ứng tối thiểu là 100.000 VNĐ.');
+  const period = period_(form.period || currentBusinessPeriod_());
+  const reason = safeText_(form.reason || '', 500);
+  require_(reason, 'Vui lòng nhập lý do tạm ứng.');
+
+  const advances = rows_(CONFIG.SHEET_NAMES.ADVANCE);
+  const row = advances.find(r => r['Mã Đơn'] === form.id);
+  require_(row, 'Không tìm thấy đơn tạm ứng.');
+  require_(row['Mã NV'] === auth.empId, 'Chỉ được sửa đơn của chính mình.');
+  require_(row['Trạng Thái'] === 'Chờ duyệt', 'Chỉ được chỉnh sửa đơn khi còn chờ duyệt.');
+
+  saveRow_(CONFIG.SHEET_NAMES.ADVANCE, {
+    'Mã Kỳ Lương': period,
+    'Số Tiền': amount,
+    'Lý Do': reason
+  }, row._rowIndex);
+
+  if (typeof auditLog_ === 'function') {
+    auditLog_('Chỉnh sửa tạm ứng lương', 'Tiền Lương', form.id, 'Cập nhật số tiền ' + amount + ' đ kỳ ' + period);
+  }
+
+  return {
+    success: true,
+    code: 'MSG_ADVANCE_UPDATED',
+    message: 'Đã cập nhật đơn tạm ứng lương thành công!'
+  };
+}
+
+function cancelAdvance_(id) {
+  const auth = authorized_();
+  require_(id, 'Thiếu mã đơn tạm ứng.');
+  const advances = rows_(CONFIG.SHEET_NAMES.ADVANCE);
+  const row = advances.find(r => r['Mã Đơn'] === id);
+  require_(row, 'Không tìm thấy đơn tạm ứng.');
+  require_(row['Mã NV'] === auth.empId || ['manager', 'hr'].includes(auth.role), 'Chỉ được hủy đơn của chính mình.');
+  require_(row['Trạng Thái'] === 'Chờ duyệt', 'Chỉ được hủy đơn khi còn chờ duyệt.');
+
+  deleteRow_(CONFIG.SHEET_NAMES.ADVANCE, row._rowIndex);
+
+  if (typeof auditLog_ === 'function') {
+    auditLog_('Hủy đơn tạm ứng', 'Tiền Lương', id, 'Hủy đơn tạm ứng số tiền ' + row['Số Tiền'] + ' đ');
+  }
+
+  return {
+    success: true,
+    code: 'MSG_ADVANCE_CANCELLED',
+    message: 'Đã hủy và xóa đơn tạm ứng thành công!'
+  };
+}
+
 function getAdvances_(period) {
   const auth = authorized_();
   let list = rows_(CONFIG.SHEET_NAMES.ADVANCE) || [];

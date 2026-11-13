@@ -633,6 +633,8 @@ function apiRequest(token, action, args) {
     apiSubmitAdvance: submitAdvance_,
     apiApproveAdvance: approveAdvance_,
     apiRejectAdvance: rejectAdvance_,
+    apiUpdateAdvance: updateAdvance_,
+    apiCancelAdvance: cancelAdvance_,
     apiGetAdvances: getAdvances_
   };
   require_(Object.prototype.hasOwnProperty.call(routes, action), 'Thao tác không được hỗ trợ.');
@@ -644,7 +646,7 @@ function apiRequest(token, action, args) {
     'apiSaveDocument', 'apiUpdateDocument', 'apiSaveTask', 'apiUpdateTaskStatus',
     'apiSaveEmployee', 'apiDeleteEmployee', 'apiResetDatabase', 
     'apiMarkNotificationRead',
-    'apiSubmitAdvance', 'apiApproveAdvance', 'apiRejectAdvance'
+    'apiSubmitAdvance', 'apiApproveAdvance', 'apiRejectAdvance', 'apiUpdateAdvance', 'apiCancelAdvance'
   ];
   const isWrite = writeActions.includes(action);
   const lock = isWrite ? LockService.getScriptLock() : null;
